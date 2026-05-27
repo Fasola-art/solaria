@@ -204,3 +204,19 @@ Latest development-machine validation before packaging, including local Claude/C
 - Codex strict config doctor: `13 ok | 1 idle | 0 warn | 0 fail`
 
 See [scenario review](reports/2026-05-27-skill-system-scenario-review.md) and [Codex live hook observation](reports/2026-05-27-codex-live-hook-observation.md).
+
+
+## Windows (PowerShell)
+
+macOS/Linux 는 `install.sh`, Windows 는 `install.ps1` 을 사용한다(동작 동일).
+
+```powershell
+powershell -File install.ps1 -DryRun   # 미리보기(변경 없음)
+powershell -File install.ps1           # ~/.agents 에 설치
+```
+
+옵션: `-NoBackup`, `-NoClaude`, `-NoCodex`.
+
+- 심볼릭 링크는 개발자 모드 또는 관리자 권한이 필요하며, 실패 시 디렉토리 정션(Junction)으로 자동 대체된다.
+- 훅 `bin/skill-path-guard`, `bin/skill-change-log` 의 Windows 버전은 `.ps1` 로 제공된다(jq 불필요).
+- `.ps1` 파일은 Windows PowerShell 5.1 호환을 위해 UTF-8 BOM 으로 저장되어 있다.
