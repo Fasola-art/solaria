@@ -1,0 +1,152 @@
+# team-secretary Role 라우팅 테이블
+# 한국어 키워드 → Role 매핑
+# 우선순위: 배열 순서대로 평가. 다중 매칭 시 상위 Role 우선.
+
+version: 1
+last_updated: 2026-04-21
+
+priority_order:
+  - chief-of-staff
+  - briefing-composer
+  - email-triage-specialist
+  - calendar-coordinator
+  - reminder-ops
+
+routes:
+  chief-of-staff:
+    korean_keywords:
+      - 외부 팀 전달
+      - 팀 간 연동
+      - 오케스트레이션
+      - 비서 총괄
+      - 오늘 요약 전체
+      - 전체 현황
+      - 업무 현황
+      - 전반적으로 정리해줘
+    persona:
+      - realist
+    responsibilities:
+      - 5-Role 간 오케스트레이션
+      - 외부 팀 연동 메시지 라우팅 (team-marketing, team-dev, team-accounting, team-investment)
+      - 복합 요청 분기 판단
+
+  briefing-composer:
+    korean_keywords:
+      - 브리핑
+      - 아침 브리핑
+      - 저녁 브리핑
+      - 오늘 요약
+      - 내일 미리보기
+      - 모닝
+      - 이브닝
+      - morning
+      - evening
+      - 오늘 어때
+      - 오늘 뭐 있어
+      - 내일 뭐 있어
+      - 지금 현황
+    persona:
+      - realist
+      - qa
+    artifacts:
+      - "~/workspace/briefings/YYYY-MM-DD-{morning,evening,adhoc}.md"
+    delegates:
+      - /briefing
+      - gws gmail
+      - gws calendar
+    notes: >
+      /briefing 스킬이 SSOT. 이 Role은 gws 컨텍스트 주입 + 4-bucket 통합 + GBrain 주입만 수행.
+      아침/저녁 구분은 요청 키워드 또는 실행 시간대 기준.
+
+  email-triage-specialist:
+    korean_keywords:
+      - 이메일 정리
+      - 메일 정리
+      - 이메일 트리아지
+      - 트리아지
+      - 이메일 분류
+      - 중요 이메일
+      - 미읽음
+      - 받은 편지함
+      - 이메일 확인
+      - 메일 확인
+      - 급한 이메일
+      - 답장해야 할 것
+      - 메일 답장
+    persona:
+      - realist
+      - qa
+    bucket_rules:
+      CRITICAL:
+        - 즉각 대응 필요 (오늘 마감·긴급·결정 요청)
+        - 발신자 허용리스트 + is:important 동시 매칭
+        - 키워드: 긴급·urgent·ASAP·확인바람·검토·오늘까지·마감
+      REPLY:
+        - 명확한 응답 필요하나 당일 마감 아닌 것
+        - 질문·요청·승인 요구 포함
+      FYI:
+        - 정보 공유 목적, 응답 불필요
+        - 뉴스레터·자동 알림·공지
+      NOISE:
+        - 광고·스팸·자동발송·구독 해지 가능
+    notes: >
+      CRITICAL 이메일 존재 시 Telegram [CRIT] prefix 즉시 알림.
+      REPLY 이메일 상위 3건은 회신 초안 자동 첨부.
+
+  calendar-coordinator:
+    korean_keywords:
+      - 일정
+      - 캘린더
+      - 미팅
+      - 회의
+      - 약속
+      - 스케줄
+      - 일정 잡아줘
+      - 일정 확인
+      - 일정 충돌
+      - 미팅 준비
+      - 참석자
+      - 1-pager
+      - 원페이저
+      - 리뷰 슬롯
+      - 발표 일정
+      - 게시 캘린더
+      - 런칭 일정
+      - 30분 전
+      - 미팅 브리핑
+    persona:
+      - realist
+      - researcher
+    artifacts:
+      - "~/workspace/reports/meeting-prep/<event-id>.md"
+    notes: >
+      미팅 1-pager 생성 시 researcher 페르소나 활성 (GBrain + 온톨로지 참석자 조회).
+      frontend-stack case-{content,document,media} Stage 1 감지 시 리뷰 슬롯 자동 예약.
+
+  reminder-ops:
+    korean_keywords:
+      - 리마인드
+      - 리마인더
+      - 알림 설정
+      - D-day
+      - 디데이
+      - 캠페인 일정
+      - 배포 일정
+      - 월말 정산
+      - 정산 알림
+      - 투자 리마인드
+      - 크론
+      - 자동 알림
+      - 매일 알림
+      - 주간 알림
+    persona:
+      - realist
+    notes: >
+      크론 등록은 hermes-route 경유.
+      team-accounting 월말 정산 D-3, team-investment GATE 24h 전 리마인드는 자동 발송 (SILENT).
+
+# 다중 매칭 규칙
+# - 같은 프롬프트에서 여러 Role 매칭 시 priority_order 기준 1개 주 Role 선택
+# - Chief of Staff는 복합 요청(3개 이상 Role 필요) 또는 외부 팀 연동 포함 시만 주 Role
+# - 나머지는 주 Role에서 순차 위임 (병렬 금지: 동일 gws CLI 동시 호출 경합 방지)
+# - "브리핑 + 이메일 정리" 동시 요청 → Briefing Composer 주 Role, Email Triage Specialist 내포

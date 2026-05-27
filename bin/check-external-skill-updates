@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import subprocess
+from datetime import datetime, timezone
+from pathlib import Path
+
+HOME = Path.home()
+IMPORT_PLAN = HOME / ".agents" / "external-skills" / "import-plan.json"
+REPORT_DIR = HOME / ".agents" / "external-skills" / "reports"
+
+
+def now():
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def run(cmd):
+    return subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+
+
+def gh_repo_head(repo):
+    proc = run(["gh", "api", f"repos/{repo}", "--jq", ".default_branch"])
+    if proc.returncode != 0:
+        return None, None, proc.stderr.strip() or proc.stdout.strip()
+    branch = proc.stdout.strip()
+    proc = run(["gh", "api", f"repos/{repo}/commits/{branch}", "--jq", ".sha"])
+    if proc.returncode != 0:
+        return branch, None, proc.stderr.strip() or proc.stdout.strip()
+    return branch, proc.stdout.strip(), None
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Check tracked external skill repositories for new commits.")
+    parser.add_argument("--write", action="store_true", help="Update import-plan.json with latest checked commits.")
+    parser.add_argument("--report", action="store_true", help="Write a markdown report under external-skills/reports.")
+    parser.add_argument("--json", action="store_true", help="Print JSON report.")
+    args = parser.parse_args()
+
+    plan = json.loads(IMPORT_PLAN.read_text(encoding="utf-8"))
+    results = []
+    for repo, info in plan.get("sources", {}).items():
+        branch, sha, error = gh_repo_head(repo)
+        previous = info.get("last_checked_commit")
+        status = "error" if error else ("unchanged" if previous == sha else "changed" if previous else "new")
+        results.append({
+            "repo": repo,
+            "branch": branch,
+            "previous": previous,
+            "current": sha,
+            "status": status,
+            "error": error,
+        })
+        if args.write and sha:
+            info["last_checked_at"] = now()
+            info["last_checked_branch"] = branch
+            info["last_checked_commit"] = sha
+
+    if args.write:
+        plan["last_checked_at"] = now()
+        IMPORT_PLAN.write_text(json.dumps(plan, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    report = {"checked_at": now(), "results": results}
+
+    if args.report:
+        REPORT_DIR.mkdir(parents=True, exist_ok=True)
+        path = REPORT_DIR / f"{now()[:10]}-external-update-check.md"
+        lines = ["# External Skill Update Check", "", f"Checked at: {report['checked_at']}", ""]
+        for item in results:
+            lines.append(f"## {item['repo']}")
+            lines.append(f"- status: `{item['status']}`")
+            lines.append(f"- branch: `{item['branch']}`")
+            lines.append(f"- previous: `{item['previous']}`")
+            lines.append(f"- current: `{item['current']}`")
+            if item["error"]:
+                lines.append(f"- error: `{item['error']}`")
+            lines.append("")
+        path.write_text("\n".join(lines), encoding="utf-8")
+        report["report_path"] = str(path)
+
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    else:
+        for item in results:
+            print(f"{item['status']}: {item['repo']} {item['previous']} -> {item['current']}")
+        if "report_path" in report:
+            print(report["report_path"])
+
+    if any(item["status"] == "error" for item in results):
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

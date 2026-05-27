@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "research-current-market",
+      "query": "요즘 AI 코딩 에이전트 시장 트렌드와 주요 경쟁사를 조사해줘",
+      "should_trigger": ["research"],
+      "should_not_trigger": ["prd-create", "gws-drive"],
+      "personas": ["market-researcher", "competitive-intelligence-analyst"],
+      "route": "analyze-competitors"
+    },
+    {
+      "id": "research-fact-check",
+      "query": "이 통계가 사실인지 출처까지 확인해서 검증해줘",
+      "should_trigger": ["research", "content-quality-ops"],
+      "should_not_trigger": ["gws-calendar-insert"],
+      "personas": ["fact-checker"]
+    },
+    {
+      "id": "idea-to-prd",
+      "query": "이 SaaS 아이디어를 검증하고 바로 개발 가능한 PRD로 정리해줘",
+      "should_trigger": ["research", "prd-create", "simulate"],
+      "should_not_trigger": ["gws-gmail-read"],
+      "personas": ["market-researcher", "product-strategist", "qa-reviewer"],
+      "route": "validate-product-idea"
+    },
+    {
+      "id": "debug-failing-tests",
+      "query": "테스트가 깨지는데 원인 재현해서 고치고 회귀 테스트까지 확인해줘",
+      "should_trigger": ["autofix", "test-driven-development", "quality-gate"],
+      "should_not_trigger": ["content-creator"],
+      "personas": ["dev-debugger", "qa-reviewer"],
+      "route": "debug-failing-code"
+    },
+    {
+      "id": "frontend-build",
+      "query": "Next.js 대시보드 화면을 실제 쓸 수 있게 만들고 반응형까지 확인해줘",
+      "should_trigger": ["frontend-stack", "playwright-skill", "quality-gate"],
+      "should_not_trigger": ["gws-tasks"],
+      "personas": ["frontend-designer", "qa-reviewer"],
+      "route": "build-frontend-experience"
+    },
+    {
+      "id": "content-research",
+      "query": "근거 기반으로 블로그 글 초안을 만들고 브랜드 톤과 출처도 검수해줘",
+      "should_trigger": ["research", "content-creator", "content-quality-ops"],
+      "should_not_trigger": ["db-manager"],
+      "personas": ["content-strategist", "fact-checker"],
+      "route": "create-evidence-backed-content"
+    },
+    {
+      "id": "calendar-create",
+      "query": "내일 오후 3시에 김민수님과 미팅 일정 잡아줘",
+      "should_trigger": ["gws-calendar-insert"],
+      "should_not_trigger": ["research", "prd-create"],
+      "personas": []
+    },
+    {
+      "id": "gmail-triage",
+      "query": "안 읽은 메일 중요한 것만 요약해줘",
+      "should_trigger": ["gws-gmail-triage"],
+      "should_not_trigger": ["gws-calendar-insert", "prd-create"],
+      "personas": []
+    },
+    {
+      "id": "sheet-append",
+      "query": "이 고객 응답 내용을 구글 시트에 한 행으로 추가해줘",
+      "should_trigger": ["gws-sheets-append"],
+      "should_not_trigger": ["gws-sheets-read", "research"],
+      "personas": []
+    },
+    {
+      "id": "plan-simulate",
+      "query": "이 실행 계획의 약점과 실패 가능성을 시뮬레이션해줘",
+      "should_trigger": ["simulate"],
+      "should_not_trigger": ["gws-drive"],
+      "personas": ["qa-reviewer", "technical-architect"]
+    },
+    {
+      "id": "frontend-gsap-react",
+      "query": "Next.js 페이지에 GSAP으로 부드러운 섹션 진입 애니메이션을 넣고 cleanup까지 맞춰줘",
+      "should_trigger": ["frontend-stack", "gsap-core", "gsap-react", "gsap-performance"],
+      "should_not_trigger": ["gws-calendar-insert", "content-creator"],
+      "personas": ["frontend-designer", "qa-reviewer"],
+      "route": "build-frontend-motion"
+    },
+    {
+      "id": "frontend-scrolltrigger",
+      "query": "스크롤에 맞춰 pinning 되는 parallax 섹션을 만들고 ScrollTrigger 성능도 확인해줘",
+      "should_trigger": ["frontend-stack", "gsap-scrolltrigger", "gsap-performance", "playwright-skill"],
+      "should_not_trigger": ["research", "gws-tasks"],
+      "personas": ["frontend-designer", "qa-reviewer"],
+      "route": "build-frontend-motion"
+    },
+    {
+      "id": "session-handoff",
+      "query": "지금까지 작업을 다음 세션에서 이어받을 수 있게 handoff 문서로 정리해줘",
+      "should_trigger": ["recover"],
+      "should_not_trigger": ["gws-calendar-insert", "frontend-stack"],
+      "personas": ["technical-architect", "qa-reviewer"],
+      "route": "handoff-current-session"
+    },
+    {
+      "id": "grill-plan",
+      "query": "이 제품 계획을 가정부터 끝까지 집요하게 질문하면서 검증해줘",
+      "should_trigger": ["simulate", "quality-gate"],
+      "should_not_trigger": ["gws-drive"],
+      "personas": ["product-strategist", "technical-architect", "qa-reviewer"],
+      "route": "grill-plan"
+    },
+    {
+      "id": "skill-system-design",
+      "query": "스킬 관리 체계를 새로 설계하고 MCP 도구 인터페이스까지 검토해줘",
+      "should_trigger": ["skill-management", "mcp-builder", "quality-gate"],
+      "should_not_trigger": ["gws-gmail-read"],
+      "personas": ["technical-architect", "qa-reviewer"],
+      "route": "design-skill-system"
+    },
+    {
+      "id": "multi-agent-team-design",
+      "query": "여러 에이전트가 협업하는 팀 구조와 handoff 프로토콜을 설계해줘",
+      "should_trigger": ["team-common", "simulate", "quality-gate"],
+      "should_not_trigger": ["gws-sheets-append"],
+      "personas": ["technical-architect", "product-strategist", "qa-reviewer"],
+      "route": "design-multi-agent-team"
+    }
+  ]
+}

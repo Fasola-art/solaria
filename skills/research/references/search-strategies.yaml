@@ -1,0 +1,336 @@
+# 분야별 검색 전략
+# v3.0 - 분야 특화 검색 전략 및 소스 우선순위
+
+version: "3.0"
+description: "분야별 최적화된 검색 전략 정의"
+
+# 공통 검색 설정
+common_settings:
+  max_parallel_searches: 5
+  delay_between_batches_ms: 500
+  retry_count: 3
+  timeout_ms: 30000
+
+# 분야별 검색 전략
+strategies:
+  real_estate:
+    priority_order:
+      - "최신 실거래가"
+      - "시세/호가"
+      - "입지 분석"
+      - "개발 계획/규제"
+      - "청약/분양"
+      - "경매/공매"
+      - "투자 수익률"
+    time_filter: "최근 1개월"
+    cross_reference:
+      required: true
+      sources:
+        - "정부 실거래가 (rt.molit.go.kr)"
+        - "민간 시세 (kbland.kr, r114.com)"
+      rule: "정부 데이터와 민간 데이터 괴리 시 정부 우선, 괴리 폭 명시"
+    source_tiers:
+      tier_1: ["rt.molit.go.kr", "kbland.kr", "r114.com", "molit.go.kr", "reb.or.kr"]
+      tier_2: ["land.naver.com", "hogangnono.com", "applyhome.co.kr", "onbid.co.kr"]
+      tier_3: ["zigbang.com", "courtauction.go.kr", "peterpan.co.kr"]
+
+    # 서브타입별 독립 실행 흐름
+    sub_types:
+      price_lookup:
+        description: "특정 지역/단지 시세 조회"
+        flow: ["실거래가 검색", "시세 검색", "교차검증", "추이 분석"]
+        query_templates:
+          - "{단지명} 실거래가 {연도}"
+          - "{지역} {물건유형} 시세 {연월}"
+          - "{지역} {물건유형} 매매 추이"
+          - "site:rt.molit.go.kr {지역} {물건유형}"
+          - "site:kbland.kr {지역} 시세"
+          - "site:hogangnono.com {단지명}"
+        must_include: ["실거래가 기준일", "면적(전용)", "층/동 정보"]
+
+      location_analysis:
+        description: "입지 분석 (교통/학군/생활/개발)"
+        flow: ["교통 접근성", "학군 정보", "생활 인프라", "개발 호재/악재"]
+        query_templates:
+          - "{지역} 교통 지하철 접근성"
+          - "{지역} 학군 학업성취도"
+          - "{지역} 생활 인프라 편의시설"
+          - "{지역} 개발 계획 GTX 재개발"
+          - "{지역} 혐오시설 기피시설"
+        analysis_axes:
+          - axis: "교통"
+            metrics: ["지하철역 도보거리", "버스노선수", "자차접근성(고속도로IC)"]
+          - axis: "학군"
+            metrics: ["학업성취도 평가", "학원가 접근성", "학교 배정"]
+          - axis: "생활"
+            metrics: ["대형마트/백화점", "병원/의료시설", "공원/녹지"]
+          - axis: "개발"
+            metrics: ["재개발/재건축 계획", "GTX/신설역", "신도시/택지"]
+          - axis: "환경"
+            metrics: ["소음/악취", "혐오시설", "범죄율"]
+
+      investment_analysis:
+        description: "투자 수익률 및 리스크 분석"
+        flow: ["시세 파악", "수익률 계산", "대출 분석", "리스크 평가"]
+        query_templates:
+          - "{지역} {물건유형} 전세가율"
+          - "{지역} {물건유형} 월세 수익률"
+          - "{지역} 갭투자 분석"
+          - "{지역} 입주물량 미분양"
+          - "부동산 대출 금리 DSR LTV {연도}"
+        must_include: ["전세가율", "수익률 계산", "리스크 요인 최소 3개"]
+
+      subscription_analysis:
+        description: "청약 정보 및 전략 분석"
+        flow: ["분양공고 조회", "경쟁률/가점 분석", "분양가 대비 시세", "입지 평가"]
+        query_templates:
+          - "site:applyhome.co.kr {단지명} 청약"
+          - "{단지명} 분양가 경쟁률"
+          - "{지역} 청약 가점 커트라인"
+          - "{단지명} 분양가 주변시세 비교"
+          - "{지역} 청약 일정 {연월}"
+        must_include: ["분양가", "경쟁률", "주변시세 대비"]
+
+      auction_analysis:
+        description: "경매/공매 물건 분석"
+        flow: ["물건 검색", "권리분석", "시세대비 평가", "낙찰가율 분석"]
+        query_templates:
+          - "site:onbid.co.kr {지역} {물건유형}"
+          - "site:courtauction.go.kr {지역} 경매"
+          - "{지역} 경매 낙찰가율 추이"
+          - "{사건번호} 권리분석"
+        must_include: ["감정가", "최저입찰가", "권리분석 요약"]
+        risk_warning: "경매/공매는 권리분석이 핵심. 전문가 상담 강력 권장"
+
+  stocks_finance:
+    priority_order:
+      - "공시"
+      - "실적"
+      - "애널리스트 리포트"
+      - "뉴스"
+    time_filter: "최근 1년"
+    cross_reference:
+      required: true
+      sources:
+        - "DART"
+        - "증권사 리서치"
+    source_tiers:
+      tier_1: ["dart.fss.or.kr", "kind.krx.co.kr"]
+      tier_2: ["bloomberg.com", "reuters.com"]
+    query_templates:
+      - "{종목명} 실적"
+      - "{종목명} 공시"
+      - "{종목명} 투자 분석"
+
+  ai_technology:
+    priority_order:
+      - "논문"
+      - "공식 발표"
+      - "기술 블로그"
+      - "뉴스"
+    time_filter: "최근 2년"
+    cross_reference:
+      required: false
+      sources:
+        - "arXiv"
+        - "공식 사이트"
+    source_tiers:
+      tier_1: ["arxiv.org", "openai.com", "anthropic.com"]
+      tier_2: ["techcrunch.com", "huggingface.co", "github.com"]
+    query_templates:
+      - "{기술명} paper"
+      - "{기술명} benchmark"
+      - "{기술명} vs {대안기술}"
+
+  health_medical:
+    priority_order:
+      - "학술 연구"
+      - "공식 가이드라인"
+      - "전문가 의견"
+    time_filter: "최근 5년"
+    cross_reference:
+      required: true
+      min_sources: 2
+      sources:
+        - "PubMed"
+        - "WHO"
+        - "정부 기관"
+    source_tiers:
+      tier_1: ["ncbi.nlm.nih.gov", "who.int", "mayoclinic.org"]
+      tier_2: ["webmd.com", "healthline.com"]
+    query_templates:
+      - "{증상/질병} clinical guidelines"
+      - "{증상/질병} treatment"
+      - "{증상/질병} NIH"
+
+  legal:
+    priority_order:
+      - "법령"
+      - "판례"
+      - "법무법인 해설"
+    time_filter: "최신 법령 기준"
+    cross_reference:
+      required: true
+      sources:
+        - "국가법령정보센터"
+        - "대법원 판례"
+    source_tiers:
+      tier_1: ["law.go.kr", "scourt.go.kr"]
+      tier_2: ["lawnb.com", "법무법인 사이트"]
+    query_templates:
+      - "{법률주제} 법령"
+      - "{법률주제} 판례"
+      - "{법률주제} 법적 절차"
+
+  startup_business:
+    priority_order:
+      - "펀딩 정보"
+      - "회사 프로필"
+      - "투자자 정보"
+      - "뉴스"
+    time_filter: "최근 2년"
+    cross_reference:
+      required: false
+    source_tiers:
+      tier_1: ["crunchbase.com", "cbinsights.com"]
+      tier_2: ["techcrunch.com", "thevc.kr", "platum.kr"]
+    query_templates:
+      - "{회사명} funding"
+      - "{회사명} valuation"
+      - "{분야} startup funding {year}"
+
+  education_learning:
+    priority_order:
+      - "공식 플랫폼"
+      - "리뷰"
+      - "로드맵"
+    time_filter: "최근 1년"
+    cross_reference:
+      required: false
+    source_tiers:
+      tier_1: ["coursera.org", "edx.org", "udemy.com"]
+      tier_2: ["inflearn.com", "fastcampus.co.kr"]
+    query_templates:
+      - "{주제} best course {year}"
+      - "{주제} learning roadmap"
+      - "{주제} certification"
+
+  travel_food:
+    priority_order:
+      - "리뷰 플랫폼"
+      - "예약 사이트"
+      - "블로그"
+    time_filter: "최근 6개월"
+    cross_reference:
+      required: false
+    source_tiers:
+      tier_1: ["tripadvisor.com", "booking.com"]
+      tier_2: ["airbnb.com", "mangoplate.com"]
+    query_templates:
+      - "{장소} 맛집 추천"
+      - "{장소} 여행 코스"
+      - "{장소} 호텔 추천"
+
+  academic_papers:
+    priority_order:
+      - "Google Scholar"
+      - "arXiv"
+      - "분야별 DB"
+    time_filter: "분야별 상이"
+    cross_reference:
+      required: true
+      check_citations: true
+    source_tiers:
+      tier_1: ["arxiv.org", "scholar.google.com", "ncbi.nlm.nih.gov"]
+      tier_2: ["semanticscholar.org", "ieee.org"]
+    query_templates:
+      - "{주제} survey paper"
+      - "{주제} systematic review"
+      - "arxiv {주제}"
+
+  career_jobs:
+    priority_order:
+      - "채용 플랫폼"
+      - "회사 리뷰"
+      - "커뮤니티"
+    time_filter: "최근 1년"
+    cross_reference:
+      required: false
+    source_tiers:
+      tier_1: ["wanted.co.kr", "saramin.co.kr", "linkedin.com"]
+      tier_2: ["glassdoor.com", "blind.kr"]
+    query_templates:
+      - "{직무} 채용"
+      - "{직무} 연봉"
+      - "{회사명} 후기"
+
+  shopping_reviews:
+    priority_order:
+      - "전문 리뷰 사이트"
+      - "가격 비교"
+      - "커뮤니티 후기"
+    time_filter: "최근 1년"
+    cross_reference:
+      required: true
+      sources:
+        - "전문 리뷰"
+        - "사용자 리뷰"
+    source_tiers:
+      tier_1: ["rtings.com", "wirecutter.com"]
+      tier_2: ["danawa.com", "cnet.com"]
+    query_templates:
+      - "{제품} review"
+      - "{제품} vs {대안제품}"
+      - "{제품} buying guide"
+
+  crypto_blockchain:
+    priority_order:
+      - "데이터 플랫폼"
+      - "전문 미디어"
+      - "공식 문서"
+    time_filter: "최근 3개월"
+    cross_reference:
+      required: true
+      sources:
+        - "CoinMarketCap"
+        - "공식 프로젝트 사이트"
+    source_tiers:
+      tier_1: ["coinmarketcap.com", "coingecko.com", "messari.io"]
+      tier_2: ["decrypt.co", "theblock.co"]
+    query_templates:
+      - "{코인명} analysis"
+      - "{프로젝트명} tokenomics"
+      - "{분야} crypto news"
+
+  environment_esg:
+    priority_order:
+      - "국제기구"
+      - "정부 정책"
+      - "ESG 평가기관"
+    time_filter: "최근 2년"
+    cross_reference:
+      required: true
+      sources:
+        - "IPCC"
+        - "정부 정책"
+    source_tiers:
+      tier_1: ["ipcc.ch", "sustainalytics.com", "env.go.kr"]
+      tier_2: ["esgtoday.com", "wri.org"]
+    query_templates:
+      - "{주제} ESG"
+      - "{기업명} sustainability report"
+      - "{분야} carbon footprint"
+
+# 기본 검색 전략 (분야 감지 실패 시)
+default_strategy:
+  priority_order:
+    - "공식 소스"
+    - "전문 미디어"
+    - "커뮤니티"
+  time_filter: "최근 1년"
+  cross_reference:
+    required: false
+  query_templates:
+    - "{주제}"
+    - "{주제} guide"
+    - "{주제} overview"

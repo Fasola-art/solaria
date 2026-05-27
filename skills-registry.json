@@ -1,0 +1,1382 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T01:00:36Z",
+  "skills": {
+    "Excel": {
+      "name": "Excel",
+      "source_path": "~/.codex/skills/codex-primary-runtime/spreadsheets",
+      "claude_path": null,
+      "codex_path": "~/.codex/skills/codex-primary-runtime/spreadsheets",
+      "status": "codex-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.codex/skills/codex-primary-runtime/spreadsheets"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "PowerPoint": {
+      "name": "PowerPoint",
+      "source_path": "~/.codex/skills/codex-primary-runtime/slides",
+      "claude_path": null,
+      "codex_path": "~/.codex/skills/codex-primary-runtime/slides",
+      "status": "codex-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.codex/skills/codex-primary-runtime/slides"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "audio-processor": {
+      "name": "audio-processor",
+      "source_path": "~/.agents/skills/audio-processor",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/audio-processor"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "autofix": {
+      "name": "autofix",
+      "source_path": "~/.agents/skills/autofix",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/autofix"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "briefing": {
+      "name": "briefing",
+      "source_path": "~/.agents/skills/briefing",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/briefing"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "channel-guide": {
+      "name": "channel-guide",
+      "source_path": "~/.agents/skills/channel-guide",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/channel-guide"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "codex-route": {
+      "name": "codex-route",
+      "source_path": "~/.agents/skills/codex-route",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/codex-route"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "content-creator": {
+      "name": "content-creator",
+      "source_path": "~/.agents/skills/content-creator",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/content-creator"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "content-quality-ops": {
+      "name": "content-quality-ops",
+      "source_path": "~/.agents/skills/content-quality-ops",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/content-quality-ops"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "db-manager": {
+      "name": "db-manager",
+      "source_path": "~/.agents/skills/db-manager",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/db-manager"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "do": {
+      "name": "do",
+      "source_path": "~/.agents/skills/do",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/do"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "docx": {
+      "name": "docx",
+      "source_path": "~/.agents/skills/docx",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/docx"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "find-skills": {
+      "name": "find-skills",
+      "source_path": "~/.agents/skills/find-skills",
+      "claude_path": null,
+      "codex_path": "~/.codex/skills/find-skills",
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/find-skills",
+        "~/.codex/skills/find-skills"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "frontend-stack": {
+      "name": "frontend-stack",
+      "source_path": "~/.agents/skills/frontend-stack",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/frontend-stack"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gpt-image-2": {
+      "name": "gpt-image-2",
+      "source_path": "~/.codex/skills/gpt-image-2",
+      "claude_path": null,
+      "codex_path": "~/.codex/skills/gpt-image-2",
+      "status": "codex-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.codex/skills/gpt-image-2"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gsap-core": {
+      "name": "gsap-core",
+      "source_path": "~/.agents/skills/gsap-core",
+      "claude_path": "~/.claude/skills/gsap-core",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gsap-core",
+        "~/.claude/skills/gsap-core"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gsap-performance": {
+      "name": "gsap-performance",
+      "source_path": "~/.agents/skills/gsap-performance",
+      "claude_path": "~/.claude/skills/gsap-performance",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gsap-performance",
+        "~/.claude/skills/gsap-performance"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gsap-plugins": {
+      "name": "gsap-plugins",
+      "source_path": "~/.agents/skills/gsap-plugins",
+      "claude_path": "~/.claude/skills/gsap-plugins",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gsap-plugins",
+        "~/.claude/skills/gsap-plugins"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gsap-react": {
+      "name": "gsap-react",
+      "source_path": "~/.agents/skills/gsap-react",
+      "claude_path": "~/.claude/skills/gsap-react",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gsap-react",
+        "~/.claude/skills/gsap-react"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gsap-scrolltrigger": {
+      "name": "gsap-scrolltrigger",
+      "source_path": "~/.agents/skills/gsap-scrolltrigger",
+      "claude_path": "~/.claude/skills/gsap-scrolltrigger",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gsap-scrolltrigger",
+        "~/.claude/skills/gsap-scrolltrigger"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gsap-timeline": {
+      "name": "gsap-timeline",
+      "source_path": "~/.agents/skills/gsap-timeline",
+      "claude_path": "~/.claude/skills/gsap-timeline",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gsap-timeline",
+        "~/.claude/skills/gsap-timeline"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gsap-utils": {
+      "name": "gsap-utils",
+      "source_path": "~/.agents/skills/gsap-utils",
+      "claude_path": "~/.claude/skills/gsap-utils",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gsap-utils",
+        "~/.claude/skills/gsap-utils"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-calendar-agenda": {
+      "name": "gws-calendar-agenda",
+      "source_path": "~/.agents/skills/gws-calendar-agenda",
+      "claude_path": "~/.claude/skills/gws-calendar-agenda",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-calendar-agenda",
+        "~/.claude/skills/gws-calendar-agenda"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-calendar-insert": {
+      "name": "gws-calendar-insert",
+      "source_path": "~/.agents/skills/gws-calendar-insert",
+      "claude_path": "~/.claude/skills/gws-calendar-insert",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-calendar-insert",
+        "~/.claude/skills/gws-calendar-insert"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-docs-write": {
+      "name": "gws-docs-write",
+      "source_path": "~/.agents/skills/gws-docs-write",
+      "claude_path": "~/.claude/skills/gws-docs-write",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-docs-write",
+        "~/.claude/skills/gws-docs-write"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-drive": {
+      "name": "gws-drive",
+      "source_path": "~/.agents/skills/gws-drive",
+      "claude_path": "~/.claude/skills/gws-drive",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-drive",
+        "~/.claude/skills/gws-drive"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-forms": {
+      "name": "gws-forms",
+      "source_path": "~/.claude/skills/gws-forms",
+      "claude_path": "~/.claude/skills/gws-forms",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/gws-forms"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-gmail-read": {
+      "name": "gws-gmail-read",
+      "source_path": "~/.agents/skills/gws-gmail-read",
+      "claude_path": "~/.claude/skills/gws-gmail-read",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-gmail-read",
+        "~/.claude/skills/gws-gmail-read"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-gmail-send": {
+      "name": "gws-gmail-send",
+      "source_path": "~/.claude/skills/gws-gmail-send",
+      "claude_path": "~/.claude/skills/gws-gmail-send",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/gws-gmail-send"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-gmail-triage": {
+      "name": "gws-gmail-triage",
+      "source_path": "~/.agents/skills/gws-gmail-triage",
+      "claude_path": "~/.claude/skills/gws-gmail-triage",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-gmail-triage",
+        "~/.claude/skills/gws-gmail-triage"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-people": {
+      "name": "gws-people",
+      "source_path": "~/.claude/skills/gws-people",
+      "claude_path": "~/.claude/skills/gws-people",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/gws-people"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-shared": {
+      "name": "gws-shared",
+      "source_path": "~/.claude/skills/gws-shared",
+      "claude_path": "~/.claude/skills/gws-shared",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/gws-shared"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-sheets-append": {
+      "name": "gws-sheets-append",
+      "source_path": "~/.agents/skills/gws-sheets-append",
+      "claude_path": "~/.claude/skills/gws-sheets-append",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-sheets-append",
+        "~/.claude/skills/gws-sheets-append"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-sheets-read": {
+      "name": "gws-sheets-read",
+      "source_path": "~/.claude/skills/gws-sheets-read",
+      "claude_path": "~/.claude/skills/gws-sheets-read",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/gws-sheets-read"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-slides": {
+      "name": "gws-slides",
+      "source_path": "~/.claude/skills/gws-slides",
+      "claude_path": "~/.claude/skills/gws-slides",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/gws-slides"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-tasks": {
+      "name": "gws-tasks",
+      "source_path": "~/.agents/skills/gws-tasks",
+      "claude_path": "~/.claude/skills/gws-tasks",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-tasks",
+        "~/.claude/skills/gws-tasks"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-workflow-email-to-task": {
+      "name": "gws-workflow-email-to-task",
+      "source_path": "~/.agents/skills/gws-workflow-email-to-task",
+      "claude_path": "~/.claude/skills/gws-workflow-email-to-task",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-workflow-email-to-task",
+        "~/.claude/skills/gws-workflow-email-to-task"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-workflow-meeting-prep": {
+      "name": "gws-workflow-meeting-prep",
+      "source_path": "~/.agents/skills/gws-workflow-meeting-prep",
+      "claude_path": "~/.claude/skills/gws-workflow-meeting-prep",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-workflow-meeting-prep",
+        "~/.claude/skills/gws-workflow-meeting-prep"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-workflow-standup-report": {
+      "name": "gws-workflow-standup-report",
+      "source_path": "~/.agents/skills/gws-workflow-standup-report",
+      "claude_path": "~/.claude/skills/gws-workflow-standup-report",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-workflow-standup-report",
+        "~/.claude/skills/gws-workflow-standup-report"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "gws-workflow-weekly-digest": {
+      "name": "gws-workflow-weekly-digest",
+      "source_path": "~/.agents/skills/gws-workflow-weekly-digest",
+      "claude_path": "~/.claude/skills/gws-workflow-weekly-digest",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/gws-workflow-weekly-digest",
+        "~/.claude/skills/gws-workflow-weekly-digest"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "hermes-route": {
+      "name": "hermes-route",
+      "source_path": "~/.agents/skills/hermes-route",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/hermes-route"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "hwpxskill": {
+      "name": "hwpxskill",
+      "source_path": "~/.claude/skills/hwpxskill",
+      "claude_path": "~/.claude/skills/hwpxskill",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/hwpxskill"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "image-processor": {
+      "name": "image-processor",
+      "source_path": "~/.agents/skills/image-processor",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/image-processor"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "imagegen": {
+      "name": "imagegen",
+      "source_path": "~/.codex/skills/.system/imagegen",
+      "claude_path": null,
+      "codex_path": "~/.codex/skills/.system/imagegen",
+      "status": "codex-only",
+      "source_type": "system",
+      "duplicates": [
+        "~/.codex/skills/.system/imagegen"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis": {
+      "name": "jarvis",
+      "source_path": "~/.agents/skills/jarvis",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/jarvis"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-aip-logic": {
+      "name": "jarvis-aip-logic",
+      "source_path": "~/.claude/skills/jarvis-aip-logic",
+      "claude_path": "~/.claude/skills/jarvis-aip-logic",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-aip-logic"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-blog": {
+      "name": "jarvis-blog",
+      "source_path": "~/.claude/skills/jarvis-blog",
+      "claude_path": "~/.claude/skills/jarvis-blog",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-blog"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-booking": {
+      "name": "jarvis-booking",
+      "source_path": "~/.claude/skills/jarvis-booking",
+      "claude_path": "~/.claude/skills/jarvis-booking",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-booking"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-claude-workflows": {
+      "name": "jarvis-claude-workflows",
+      "source_path": "~/.codex/skills/jarvis-claude-workflows",
+      "claude_path": null,
+      "codex_path": "~/.codex/skills/jarvis-claude-workflows",
+      "status": "codex-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.codex/skills/jarvis-claude-workflows"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-codex-advisor": {
+      "name": "jarvis-codex-advisor",
+      "source_path": "~/.claude/skills/jarvis-codex-advisor",
+      "claude_path": "~/.claude/skills/jarvis-codex-advisor",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-codex-advisor"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-contest": {
+      "name": "jarvis-contest",
+      "source_path": "~/.claude/skills/jarvis-contest",
+      "claude_path": "~/.claude/skills/jarvis-contest",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-contest"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-copy": {
+      "name": "jarvis-copy",
+      "source_path": "~/.claude/skills/jarvis-copy",
+      "claude_path": "~/.claude/skills/jarvis-copy",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-copy"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-discord": {
+      "name": "jarvis-discord",
+      "source_path": "~/.claude/skills/jarvis-discord",
+      "claude_path": "~/.claude/skills/jarvis-discord",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-discord"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-engagement-bot": {
+      "name": "jarvis-engagement-bot",
+      "source_path": "~/.claude/skills/jarvis-engagement-bot",
+      "claude_path": "~/.claude/skills/jarvis-engagement-bot",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-engagement-bot"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-experiments": {
+      "name": "jarvis-experiments",
+      "source_path": "~/.claude/skills/jarvis-experiments",
+      "claude_path": "~/.claude/skills/jarvis-experiments",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-experiments"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-frontend": {
+      "name": "jarvis-frontend",
+      "source_path": "~/.claude/skills/jarvis-frontend",
+      "claude_path": "~/.claude/skills/jarvis-frontend",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-frontend"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-github": {
+      "name": "jarvis-github",
+      "source_path": "~/.claude/skills/jarvis-github",
+      "claude_path": "~/.claude/skills/jarvis-github",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-github"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-image": {
+      "name": "jarvis-image",
+      "source_path": "~/.claude/skills/jarvis-image",
+      "claude_path": "~/.claude/skills/jarvis-image",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-image"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-kr-life": {
+      "name": "jarvis-kr-life",
+      "source_path": "~/.claude/skills/jarvis-kr-life",
+      "claude_path": "~/.claude/skills/jarvis-kr-life",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-kr-life"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-mac": {
+      "name": "jarvis-mac",
+      "source_path": "~/.claude/skills/jarvis-mac",
+      "claude_path": "~/.claude/skills/jarvis-mac",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-mac"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-marketing": {
+      "name": "jarvis-marketing",
+      "source_path": "~/.claude/skills/jarvis-marketing",
+      "claude_path": "~/.claude/skills/jarvis-marketing",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-marketing"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-notion": {
+      "name": "jarvis-notion",
+      "source_path": "~/.claude/skills/jarvis-notion",
+      "claude_path": "~/.claude/skills/jarvis-notion",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-notion"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-pm": {
+      "name": "jarvis-pm",
+      "source_path": "~/.claude/skills/jarvis-pm",
+      "claude_path": "~/.claude/skills/jarvis-pm",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-pm"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-presentations": {
+      "name": "jarvis-presentations",
+      "source_path": "~/.claude/skills/jarvis-presentations",
+      "claude_path": "~/.claude/skills/jarvis-presentations",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-presentations"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-reels": {
+      "name": "jarvis-reels",
+      "source_path": "~/.claude/skills/jarvis-reels",
+      "claude_path": "~/.claude/skills/jarvis-reels",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-reels"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-scrape": {
+      "name": "jarvis-scrape",
+      "source_path": "~/.claude/skills/jarvis-scrape",
+      "claude_path": "~/.claude/skills/jarvis-scrape",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-scrape"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-seo": {
+      "name": "jarvis-seo",
+      "source_path": "~/.claude/skills/jarvis-seo",
+      "claude_path": "~/.claude/skills/jarvis-seo",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-seo"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-sns": {
+      "name": "jarvis-sns",
+      "source_path": "~/.claude/skills/jarvis-sns",
+      "claude_path": "~/.claude/skills/jarvis-sns",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-sns"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-trends-monitor": {
+      "name": "jarvis-trends-monitor",
+      "source_path": "~/.claude/skills/jarvis-trends-monitor",
+      "claude_path": "~/.claude/skills/jarvis-trends-monitor",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-trends-monitor"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-vault": {
+      "name": "jarvis-vault",
+      "source_path": "~/.claude/skills/jarvis-vault",
+      "claude_path": "~/.claude/skills/jarvis-vault",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-vault"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "jarvis-video": {
+      "name": "jarvis-video",
+      "source_path": "~/.claude/skills/jarvis-video",
+      "claude_path": "~/.claude/skills/jarvis-video",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/jarvis-video"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "learn": {
+      "name": "learn",
+      "source_path": "~/.agents/skills/learn",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/learn"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "marketing-context-sync": {
+      "name": "marketing-context-sync",
+      "source_path": "~/.agents/skills/marketing-context-sync",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/marketing-context-sync"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "mcp-builder": {
+      "name": "mcp-builder",
+      "source_path": "~/.agents/skills/mcp-builder",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/mcp-builder"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "nextjs15-init": {
+      "name": "nextjs15-init",
+      "source_path": "~/.agents/skills/nextjs15-init",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/nextjs15-init"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "ontology": {
+      "name": "ontology",
+      "source_path": "~/.agents/skills/ontology",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/ontology"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "openai-docs": {
+      "name": "openai-docs",
+      "source_path": "~/.codex/skills/.system/openai-docs",
+      "claude_path": null,
+      "codex_path": "~/.codex/skills/.system/openai-docs",
+      "status": "codex-only",
+      "source_type": "system",
+      "duplicates": [
+        "~/.codex/skills/.system/openai-docs"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "pdf": {
+      "name": "pdf",
+      "source_path": "~/.agents/skills/pdf",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/pdf"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "playwright-skill": {
+      "name": "playwright-skill",
+      "source_path": "~/.agents/skills/playwright-skill",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/playwright-skill"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "plugin-creator": {
+      "name": "plugin-creator",
+      "source_path": "~/.codex/skills/.system/plugin-creator",
+      "claude_path": null,
+      "codex_path": "~/.codex/skills/.system/plugin-creator",
+      "status": "codex-only",
+      "source_type": "system",
+      "duplicates": [
+        "~/.codex/skills/.system/plugin-creator"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "pptx": {
+      "name": "pptx",
+      "source_path": "~/.agents/skills/pptx",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/pptx"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "prd-create": {
+      "name": "prd-create",
+      "source_path": "~/.agents/skills/prd-create",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/prd-create"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "prompt-engineering": {
+      "name": "prompt-engineering",
+      "source_path": "~/.agents/skills/prompt-engineering",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/prompt-engineering"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "quality-gate": {
+      "name": "quality-gate",
+      "source_path": "~/.agents/skills/quality-gate",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/quality-gate"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "recover": {
+      "name": "recover",
+      "source_path": "~/.agents/skills/recover",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/recover"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "research": {
+      "name": "research",
+      "source_path": "~/.agents/skills/research",
+      "claude_path": "~/.claude/skills/research",
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/research",
+        "~/.claude/skills/research"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "showme": {
+      "name": "showme",
+      "source_path": "~/.agents/skills/showme",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/showme"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "simulate": {
+      "name": "simulate",
+      "source_path": "~/.agents/skills/simulate",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/simulate"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "skill-creator": {
+      "name": "skill-creator",
+      "source_path": "~/.agents/skills/skill-creator",
+      "claude_path": null,
+      "codex_path": "~/.codex/skills/.system/skill-creator",
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/skill-creator",
+        "~/.codex/skills/.system/skill-creator"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "skill-installer": {
+      "name": "skill-installer",
+      "source_path": "~/.codex/skills/.system/skill-installer",
+      "claude_path": null,
+      "codex_path": "~/.codex/skills/.system/skill-installer",
+      "status": "codex-only",
+      "source_type": "system",
+      "duplicates": [
+        "~/.codex/skills/.system/skill-installer"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "skill-management": {
+      "name": "skill-management",
+      "source_path": "~/.agents/skills/skill-management",
+      "claude_path": "~/.claude/skills/skill-management",
+      "codex_path": "~/.codex/skills/skill-management",
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/skill-management",
+        "~/.claude/skills/skill-management",
+        "~/.codex/skills/skill-management"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "team-accounting": {
+      "name": "team-accounting",
+      "source_path": "~/.agents/skills/team-accounting",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/team-accounting"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "team-business": {
+      "name": "team-business",
+      "source_path": "~/.agents/skills/team-business",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/team-business"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "team-common": {
+      "name": "team-common",
+      "source_path": "~/.agents/skills/team-common",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/team-common"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "team-dev": {
+      "name": "team-dev",
+      "source_path": "~/.agents/skills/team-dev",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/team-dev"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "team-investment": {
+      "name": "team-investment",
+      "source_path": "~/.agents/skills/team-investment",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/team-investment"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "team-marketing": {
+      "name": "team-marketing",
+      "source_path": "~/.agents/skills/team-marketing",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/team-marketing"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "team-pm": {
+      "name": "team-pm",
+      "source_path": "~/.agents/skills/team-pm",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/team-pm"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "team-secretary": {
+      "name": "team-secretary",
+      "source_path": "~/.agents/skills/team-secretary",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/team-secretary"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "test-driven-development": {
+      "name": "test-driven-development",
+      "source_path": "~/.agents/skills/test-driven-development",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/test-driven-development"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "video-editor": {
+      "name": "video-editor",
+      "source_path": "~/.agents/skills/video-editor",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/video-editor"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "wiki": {
+      "name": "wiki",
+      "source_path": "~/.claude/skills/wiki",
+      "claude_path": "~/.claude/skills/wiki",
+      "codex_path": null,
+      "status": "claude-only",
+      "source_type": "local",
+      "duplicates": [
+        "~/.claude/skills/wiki"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "workflow": {
+      "name": "workflow",
+      "source_path": "~/.agents/skills/workflow",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/workflow"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    },
+    "xlsx": {
+      "name": "xlsx",
+      "source_path": "~/.agents/skills/xlsx",
+      "claude_path": null,
+      "codex_path": null,
+      "status": "shared",
+      "source_type": "local",
+      "duplicates": [
+        "~/.agents/skills/xlsx"
+      ],
+      "last_validated": "2026-05-27T01:00:36Z",
+      "notes": ""
+    }
+  }
+}

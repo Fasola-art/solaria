@@ -1,0 +1,329 @@
+# Phase 1 Core (1/2): HackerNews + Wikipedia
+
+# Phase 1 Core: HN, Wikipedia, ArXiv, GitHub
+# 상세 엔드포인트, 응답 구조, 스코어링, 에러 핸들링
+
+phase_1:
+
+  # --------------------------------------------------------------------------
+  # 1. HackerNews (Algolia API)
+  # --------------------------------------------------------------------------
+  hackernews:
+    name: "HackerNews (Algolia Search API)"
+    description: "테크 커뮤니티 최대 규모. 개발자/스타트업/AI 동향 실시간 파악."
+    source_type: "community"
+    credibility_base: 3  # community 기준, engagement로 보정
+    language: "en"
+
+    endpoints:
+      # -- 관련성 기준 검색 --
+      search_by_relevance:
+        url: "https://hn.algolia.com/api/v1/search"
+        method: GET
+        description: "관련성 기준 정렬. 일반 주제 탐색에 적합."
+        parameters:
+          query:
+            type: string
+            required: true
+            description: "검색어. URL 인코딩 필요 (공백=+)"
+            example: "AI+agents"
+          tags:
+            type: string
+            required: false
+            description: "필터 태그. 콤마로 OR, 괄호로 AND"
+            values:
+              - "story"           # 게시글만
+              - "comment"         # 댓글만
+              - "ask_hn"          # Ask HN 게시글
+              - "show_hn"         # Show HN 게시글
+              - "front_page"      # 프론트페이지 노출 이력
+              - "author_{username}"  # 특정 작성자
+            example: "story"
+            combination_example: "(story,ask_hn),author_pg"  # story OR ask_hn AND author=pg
+          hitsPerPage:
+            type: integer
+            required: false
+            default: 20
+            max: 1000
+            description: "페이지당 결과 수"
+            recommended: 10
+          page:
+            type: integer
+            required: false
+            default: 0
+            description: "페이지 번호 (0-indexed)"
+          numericFilters:
+            type: string
+            required: false
+            description: "수치 필터. 날짜 범위 필터링에 핵심"
+            patterns:
+              - "created_at_i>{unix_timestamp}"   # 특정 시점 이후
+              - "created_at_i<{unix_timestamp}"   # 특정 시점 이전
+              - "points>{n}"                      # 최소 포인트
+              - "num_comments>{n}"                # 최소 댓글 수
+            example: "created_at_i>1709251200,points>100"
+            note: "콤마로 AND 조합 가능. OR는 불가."
+        example_url: "https://hn.algolia.com/api/v1/search?query=AI+agents&tags=story&hitsPerPage=10&numericFilters=created_at_i>1709251200,points>50"
+
+      # -- 최신순 검색 --
+      search_by_date:
+        url: "https://hn.algolia.com/api/v1/search_by_date"
+        method: GET
+        description: "최신순 정렬. 최근 동향/뉴스 파악에 적합."
+        parameters: "search_by_relevance와 동일"
+        note: "결과가 최신 순으로 정렬됨 (newest first)"
+        example_url: "https://hn.algolia.com/api/v1/search_by_date?query=LLM&tags=story&hitsPerPage=5"
+
+    response_structure:
+      top_level:
+        hits: "array - 검색 결과 배열"
+        nbHits: "integer - 총 결과 수 (예: 12019)"
+        page: "integer - 현재 페이지 (0-indexed)"
+        nbPages: "integer - 총 페이지 수 (최대 200)"
+        hitsPerPage: "integer - 페이지당 결과 수"
+        query: "string - 검색어"
+        processingTimeMS: "integer - 처리 시간(ms)"
+        exhaustive:
+          nbHits: "boolean - 결과 수 정확성"
+          typo: "boolean - 오타 보정 완전성"
+
+      hit_fields:
+        objectID: "string - HN 게시글 고유 ID (예: '46990729')"
+        title: "string - 게시글 제목"
+        url: "string|null - 외부 링크 (self post면 null)"
+        author: "string - 작성자 ID"
+        points: "integer - 업보트 수 (예: 2346)"
+        num_comments: "integer - 댓글 수 (예: 951)"
+        created_at: "string - ISO 8601 (예: '2026-02-12T16:23:24Z')"
+        created_at_i: "integer - Unix timestamp"
+        story_text: "string|null - self post 본문 (HTML)"
+        _tags: "array - 태그 배열 (예: ['story', 'author_xxx', 'story_123'])"
+        _highlightResult:
+          title:
+            value: "string - <em> 태그로 매칭 부분 강조"
+            matchLevel: "string - none/partial/full"
+
+    raw_sources_mapping:
+      url: "hit.url || 'https://news.ycombinator.com/item?id=' + hit.objectID"
+      title: "hit.title"
+      snippet: "hit.story_text ? strip_html(hit.story_text).slice(0,300) : hit.title"
+      source_type: "'community'"
+      timestamp: "hit.created_at"
+      credibility: "engagement_score(hit.points, hit.num_comments)를 기반으로 3-5"
+      engagement:
+        points: "hit.points"
+        comments: "hit.num_comments"
+
+    engagement_scoring:
+      description: "HN 포인트와 댓글 수 기반 신뢰도 보정"
+      formula: |
+        base = 3 (community 기본)
+        if points >= 500 AND num_comments >= 100: credibility = 5
+        elif points >= 100 AND num_comments >= 30: credibility = 4
+        elif points >= 20 AND num_comments >= 5: credibility = 3
+        else: credibility = 2
+      field_paths:
+        points: "hit.points"
+        comments: "hit.num_comments"
+      thresholds:
+        viral:
+          points: 500
+          comments: 100
+          credibility: 5
+          label: "커뮤니티 검증 완료 (바이럴)"
+        popular:
+          points: 100
+          comments: 30
+          credibility: 4
+          label: "상당한 커뮤니티 관심"
+        normal:
+          points: 20
+          comments: 5
+          credibility: 3
+          label: "일반 토론"
+        low:
+          points_below: 20
+          credibility: 2
+          label: "관심 미미"
+
+    error_handling:
+      rate_limit:
+        limit: "10000 requests/hour (공식)"
+        headers: "없음 (Algolia는 rate limit 헤더 미제공)"
+        detection: "HTTP 429 응답"
+        action: "60초 대기 후 재시도"
+      errors:
+        400: "잘못된 파라미터 (numericFilters 문법 오류 등)"
+        404: "엔드포인트 오류"
+        429: "Rate Limit 초과"
+      no_results_detection: "nbHits == 0 AND hits == []"
+      error_vs_empty: "HTTP 200 + nbHits=0 = 결과 없음, HTTP 4xx/5xx = 에러"
+
+    query_optimization:
+      korean_queries:
+        strategy: "반드시 영어로 번역하여 검색"
+        reason: "HN은 영어 전용 커뮤니티. 한국어 검색 시 결과 0건."
+        example:
+          input: "AI 에이전트 프레임워크"
+          translated: "AI+agent+framework"
+      advanced_operators:
+        date_range: "numericFilters=created_at_i>{start_unix},created_at_i<{end_unix}"
+        min_engagement: "numericFilters=points>100"
+        combined: "numericFilters=created_at_i>1704067200,points>50"
+        category_filter: "tags=show_hn (Show HN만) 또는 tags=ask_hn (Ask HN만)"
+      best_practices:
+        - "story 태그 필수 사용 (댓글 제외)"
+        - "hitsPerPage=10이 최적 (많으면 노이즈 증가)"
+        - "최신 동향: search_by_date 사용"
+        - "품질 보장: numericFilters=points>50 병행"
+        - "self post URL이 null이면 HN 토론 페이지 URL 생성"
+
+  # --------------------------------------------------------------------------
+  # 2. Wikipedia
+  # --------------------------------------------------------------------------
+  wikipedia:
+    name: "Wikipedia REST API + OpenSearch"
+    description: "백과사전적 배경지식, 개념 정의, 용어 해설. 학술/기술 용어 기초 자료."
+    source_type: "reference"
+    credibility_base: 4  # 편집 검증된 백과사전
+    language: "multilingual"
+
+    endpoints:
+      # -- OpenSearch (자동완성 + 간단 검색) --
+      opensearch:
+        url: "https://en.wikipedia.org/w/api.php"
+        method: GET
+        description: "검색어 기반 문서 제목 매칭. 빠른 존재 확인 및 URL 획득."
+        parameters:
+          action:
+            type: string
+            required: true
+            fixed: "opensearch"
+          search:
+            type: string
+            required: true
+            description: "검색어"
+            example: "artificial+intelligence"
+          limit:
+            type: integer
+            required: false
+            default: 10
+            max: 500
+            recommended: 5
+          format:
+            type: string
+            required: true
+            fixed: "json"
+          namespace:
+            type: integer
+            required: false
+            default: 0
+            description: "0=기사, 14=카테고리"
+        example_url: "https://en.wikipedia.org/w/api.php?action=opensearch&search=artificial+intelligence&limit=5&format=json"
+        korean_url: "https://ko.wikipedia.org/w/api.php?action=opensearch&search={한국어_검색어}&limit=5&format=json"
+
+      # -- Page Summary (REST v1) --
+      page_summary:
+        url: "https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
+        method: GET
+        description: "특정 문서의 요약. 정의/개요 추출에 최적."
+        parameters:
+          title:
+            type: string
+            required: true
+            description: "문서 제목 (공백은 _ 로 치환)"
+            example: "Artificial_intelligence"
+        example_url: "https://en.wikipedia.org/api/rest_v1/page/summary/Artificial_intelligence"
+        korean_url: "https://ko.wikipedia.org/api/rest_v1/page/summary/{한국어_제목}"
+
+    response_structure:
+      opensearch:
+        format: "JSON Array (4개 요소)"
+        structure: |
+          [
+            "검색어",                              // [0] 검색 쿼리
+            ["제목1", "제목2", "제목3"],             // [1] 매칭 제목 배열
+            ["", "", ""],                           // [2] 설명 배열 (보통 빈 문자열)
+            ["https://en.wikipedia.org/wiki/제목1",  // [3] URL 배열
+             "https://en.wikipedia.org/wiki/제목2",
+             "https://en.wikipedia.org/wiki/제목3"]
+          ]
+        note: "[2]번 배열(설명)은 대부분 빈 문자열. 실제 설명은 page_summary로 조회."
+
+      page_summary:
+        top_level:
+          type: "string - 문서 유형 (standard/disambiguation/no-extract)"
+          title: "string - 문서 제목 (예: 'Artificial intelligence')"
+          displaytitle: "string - HTML 포함 표시 제목"
+          pageid: "integer - 페이지 고유 ID (예: 1164)"
+          lang: "string - 언어 코드 (예: 'en')"
+          dir: "string - 텍스트 방향 (ltr/rtl)"
+          revision: "string - 리비전 ID"
+          timestamp: "string - ISO 8601 최종 수정 시간"
+          description: "string - 짧은 설명 (예: 'Intelligence of machines')"
+          extract: "string - 요약 텍스트 (순수 텍스트)"
+          extract_html: "string - 요약 텍스트 (HTML)"
+          wikibase_item: "string - Wikidata ID (예: 'Q11660')"
+        nested:
+          titles:
+            canonical: "string - URL용 제목 (Artificial_intelligence)"
+            normalized: "string - 정규화 제목 (Artificial intelligence)"
+            display: "string - HTML 표시 제목"
+          content_urls:
+            desktop:
+              page: "string - 데스크탑 문서 URL"
+              revisions: "string - 수정 이력 URL"
+              edit: "string - 편집 URL"
+              talk: "string - 토론 페이지 URL"
+            mobile:
+              page: "string - 모바일 문서 URL"
+          thumbnail:
+            source: "string - 썸네일 이미지 URL"
+            width: "integer"
+            height: "integer"
+          originalimage:
+            source: "string - 원본 이미지 URL"
+            width: "integer"
+            height: "integer"
+        note: "thumbnail과 originalimage는 이미지가 있는 문서에서만 존재"
+
+    raw_sources_mapping:
+      # OpenSearch에서 제목/URL 획득 -> page_summary에서 상세 추출
+      url: "content_urls.desktop.page"
+      title: "title"
+      snippet: "extract (순수 텍스트 요약, 보통 1-3문단)"
+      source_type: "'reference'"
+      timestamp: "timestamp (최종 수정 시간)"
+      credibility: 4  # Wikipedia 고정
+
+    error_handling:
+      rate_limit:
+        limit: "명시적 제한 없음 (합리적 사용 권장)"
+        headers: "없음"
+        recommendation: "초당 200 요청 이하 (공식 가이드라인)"
+        user_agent: "요청에 User-Agent 헤더 포함 권장"
+      errors:
+        404: "문서 미존재 (page_summary)"
+        400: "잘못된 파라미터"
+      no_results_detection:
+        opensearch: "결과 배열 [1]이 빈 배열 []"
+        page_summary: "type == 'no-extract' 또는 HTTP 404"
+      disambiguation: "type == 'disambiguation' -> 동음이의어 문서. 첫 번째 링크 추출 또는 재검색 필요"
+
+    query_optimization:
+      korean_queries:
+        strategy: "한국어 Wikipedia(ko.wikipedia.org) 병행 검색"
+        urls:
+          opensearch: "https://ko.wikipedia.org/w/api.php?action=opensearch&search={query}&limit=5&format=json"
+          summary: "https://ko.wikipedia.org/api/rest_v1/page/summary/{title}"
+        fallback: "한국어 문서 없으면 영어 Wikipedia로 폴백"
+      title_normalization:
+        - "공백 -> _ (URL용)"
+        - "첫 글자 대문자 자동 처리됨"
+        - "특수문자 URL 인코딩 필요"
+      best_practices:
+        - "opensearch로 제목 확인 -> page_summary로 요약 추출 (2단계)"
+        - "disambiguation 페이지 감지 시 구체적 제목으로 재검색"
+        - "extract 필드가 핵심 (extract_html은 정리용)"
+        - "기술 용어는 영어 Wikipedia가 더 상세"
+

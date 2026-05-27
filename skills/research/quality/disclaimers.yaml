@@ -1,0 +1,288 @@
+# 면책 조항 템플릿
+# v3.0 - 품질 보증 시스템
+
+version: "3.0"
+description: "민감 분야별 자동 면책 조항 표시 규칙"
+
+# 핵심 원칙
+principles:
+  - name: "Mandatory Disclaimer"
+    description: "민감 분야는 면책 조항 필수"
+    enforcement: automatic
+
+  - name: "Clear Warning"
+    description: "명확하고 눈에 띄는 경고"
+    enforcement: required
+
+  - name: "Action Guidance"
+    description: "전문가 상담 등 다음 행동 안내"
+    enforcement: recommended
+
+# 면책 조항 레벨
+disclaimer_levels:
+  critical:
+    label: "🚨"
+    display: "prominent"  # 상단 고정
+    domains:
+      - health_medical
+      - legal
+      - stocks_finance
+      - crypto_blockchain
+    description: "높은 위험성, 전문가 상담 필수"
+
+  warning:
+    label: "⚠️"
+    display: "visible"  # 결론 전 표시
+    domains:
+      - real_estate
+      - career_jobs
+    description: "개인 상황에 따라 다름"
+
+  info:
+    label: "ℹ️"
+    display: "footnote"  # 하단 표시
+    domains:
+      - all_others
+    description: "일반 정보 고지"
+
+# 분야별 면책 조항
+domain_disclaimers:
+  health_medical:
+    level: critical
+    title: "의료 정보 면책"
+    content: |
+      🚨 **의료 정보 주의사항**
+
+      이 정보는 일반적인 건강 정보이며, **의학적 조언을 대체하지 않습니다**.
+
+      - 진단, 치료, 투약은 반드시 **의료 전문가와 상담**하세요
+      - 증상이 있으면 **가까운 병원을 방문**하세요
+      - 제공된 정보로 자가 진단/치료를 하지 마세요
+
+      *이 정보의 정확성이나 완전성을 보장하지 않습니다.*
+    placement: "top"
+    always_show: true
+
+  legal:
+    level: critical
+    title: "법률 정보 면책"
+    content: |
+      🚨 **법률 정보 주의사항**
+
+      이 정보는 일반적인 법률 정보이며, **법적 조언을 대체하지 않습니다**.
+
+      - 구체적인 법률 문제는 **변호사와 상담**하세요
+      - 법률은 자주 개정되므로 **최신 법령을 확인**하세요
+      - 판례 해석은 사안에 따라 달라질 수 있습니다
+
+      *개별 사안에 대한 법적 판단은 전문가에게 문의하세요.*
+    placement: "top"
+    always_show: true
+
+  stocks_finance:
+    level: critical
+    title: "투자 면책"
+    content: |
+      🚨 **투자 정보 주의사항**
+
+      이 정보는 **투자 권유가 아닙니다**.
+
+      - 모든 투자에는 **원금 손실 위험**이 있습니다
+      - 투자 결정은 **본인 책임** 하에 이루어집니다
+      - 과거 수익률이 미래 수익을 보장하지 않습니다
+      - 중요한 투자는 **금융 전문가와 상담**하세요
+
+      *제공된 정보의 정확성을 보장하지 않습니다.*
+    placement: "top"
+    always_show: true
+
+  crypto_blockchain:
+    level: critical
+    title: "암호화폐 면책"
+    content: |
+      🚨 **암호화폐 정보 주의사항**
+
+      암호화폐는 **매우 높은 변동성과 위험**이 있습니다.
+
+      - **원금 전액 손실** 가능성이 있습니다
+      - 규제 환경이 빠르게 변화합니다
+      - 사기/해킹 위험에 주의하세요
+      - 투자는 **감당 가능한 금액**으로만 하세요
+
+      *이 정보는 투자 조언이 아닙니다.*
+    placement: "top"
+    always_show: true
+
+  real_estate:
+    level: warning
+    title: "부동산 정보 안내"
+    content: |
+      ⚠️ **부동산 정보 안내**
+
+      - 시세는 시점과 조건에 따라 달라질 수 있습니다
+      - 중요한 거래는 **공인중개사/전문가와 상담**하세요
+      - 등기부등본 등 **공식 문서를 직접 확인**하세요
+
+      *제공된 시세 정보는 참고용입니다.*
+    placement: "before_conclusion"
+    always_show: true
+
+  career_jobs:
+    level: warning
+    title: "취업 정보 안내"
+    content: |
+      ⚠️ **취업/채용 정보 안내**
+
+      - 연봉/복지 정보는 **개인에 따라 다를 수** 있습니다
+      - 채용 조건은 **변경될 수 있으므로** 직접 확인하세요
+      - 기업 리뷰는 **주관적 의견**입니다
+    placement: "before_conclusion"
+    always_show: false  # 연봉/기업 정보 언급 시만
+
+  general:
+    level: info
+    title: "일반 정보 안내"
+    content: |
+      ℹ️ **정보 안내**
+
+      - 이 정보는 참고용이며, 정확성을 보장하지 않습니다
+      - 중요한 결정은 추가 확인을 권장합니다
+    placement: "footer"
+    always_show: false
+
+# 자동 트리거 조건
+auto_triggers:
+  health_medical:
+    keywords:
+      - "치료"
+      - "진단"
+      - "증상"
+      - "약"
+      - "부작용"
+      - "병원"
+      - "의사"
+      - "처방"
+      - "복용"
+    always: true
+
+  legal:
+    keywords:
+      - "소송"
+      - "계약"
+      - "법적"
+      - "판결"
+      - "위반"
+      - "변호사"
+      - "법원"
+      - "처벌"
+      - "배상"
+    always: true
+
+  stocks_finance:
+    keywords:
+      - "투자"
+      - "주식"
+      - "펀드"
+      - "수익률"
+      - "매수"
+      - "매도"
+      - "배당"
+      - "시세"
+    always: true
+
+  crypto_blockchain:
+    keywords:
+      - "비트코인"
+      - "이더리움"
+      - "코인"
+      - "토큰"
+      - "거래소"
+      - "지갑"
+      - "스테이킹"
+      - "채굴"
+    always: true
+
+  real_estate:
+    keywords:
+      - "시세"
+      - "매매"
+      - "전세"
+      - "월세"
+      - "분양"
+      - "청약"
+      - "계약"
+    when_mentioned: true  # 키워드 언급 시만
+
+  career_jobs:
+    keywords:
+      - "연봉"
+      - "이직"
+      - "채용"
+      - "면접"
+      - "기업문화"
+      - "복지"
+      - "야근"
+    when_mentioned: true
+
+# 표시 위치
+placement_rules:
+  top:
+    position: "보고서 최상단"
+    style: "박스 강조"
+    skip_allowed: false
+
+  before_conclusion:
+    position: "결론 섹션 직전"
+    style: "구분선 + 텍스트"
+    skip_allowed: false
+
+  footer:
+    position: "보고서 최하단"
+    style: "작은 텍스트"
+    skip_allowed: true
+
+# 다중 분야 처리
+multi_domain_handling:
+  rule: "모든 해당 분야 면책 조항 표시"
+  order: "critical → warning → info"
+  example:
+    query: "비트코인 투자 법적 문제"
+    disclaimers:
+      - crypto_blockchain  # critical
+      - stocks_finance     # critical
+      - legal              # critical
+
+# 에이전트 적용
+agent_application:
+  synthesizer:
+    role: "면책 조항 자동 삽입"
+    actions:
+      - "분야 감지 및 해당 면책 조항 선택"
+      - "적절한 위치에 삽입"
+      - "다중 분야 시 모든 면책 조항 포함"
+
+# 출력 템플릿
+output_templates:
+  critical_disclaimer: |
+    ┌─────────────────────────────────────────────────┐
+    │ {title}                                          │
+    ├─────────────────────────────────────────────────┤
+    │ {content}                                        │
+    └─────────────────────────────────────────────────┘
+
+  warning_disclaimer: |
+    ---
+    {content}
+    ---
+
+  info_disclaimer: |
+    *{content}*
+
+  multi_disclaimer: |
+    ## ⚠️ 중요 안내
+
+    이 리서치는 다음 민감 분야를 포함합니다:
+
+    {disclaimer_list}
+
+    각 분야별 주의사항을 확인해주세요.

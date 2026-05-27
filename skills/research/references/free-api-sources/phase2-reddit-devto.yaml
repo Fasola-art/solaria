@@ -1,0 +1,406 @@
+# Phase 2 (1/2): Reddit, Google News RSS, Dev.to
+
+# Phase 2 Candidates: Reddit, Google News, Dev.to, CrossRef, Mastodon, SO
+# 검증 완료, Phase 1 가치 확인 후 추가
+
+phase_2:
+
+  # --------------------------------------------------------------------------
+  # 5. Reddit
+  # --------------------------------------------------------------------------
+  reddit:
+    name: "Reddit Search API (JSON)"
+    description: "서브레딧별 커뮤니티 의견, 실사용 경험, 비공식 리뷰."
+    source_type: "community"
+    credibility_base: 2  # 검증 안 된 커뮤니티
+    language: "en"
+    status: "검증 완료 - WebFetch 차단, curl 호출 필요"
+    webfetch_compatible: false
+    note: "WebFetch에서 www.reddit.com 차단됨. curl 또는 Bash 도구로 호출해야 함."
+
+    endpoints:
+      search:
+        url: "https://www.reddit.com/search.json"
+        method: GET
+        headers_required:
+          User-Agent: "ResearchSkill/1.0 (문자열 필수, 없으면 429)"
+        parameters:
+          q:
+            type: string
+            required: true
+            description: "검색 쿼리"
+            example: "AI+agents"
+          limit:
+            type: integer
+            required: false
+            default: 25
+            max: 100
+            recommended: 10
+          sort:
+            type: string
+            required: false
+            default: "relevance"
+            values: ["relevance", "hot", "top", "new", "comments"]
+          t:
+            type: string
+            required: false
+            default: "all"
+            description: "시간 범위 (sort=top 또는 sort=relevance 시)"
+            values: ["hour", "day", "week", "month", "year", "all"]
+          restrict_sr:
+            type: boolean
+            required: false
+            description: "특정 서브레딧 내 검색 시 true"
+          after:
+            type: string
+            required: false
+            description: "페이지네이션 커서 (응답의 data.after 값)"
+        example_url: "https://www.reddit.com/search.json?q=AI+agents&limit=10&sort=relevance&t=year"
+        subreddit_search: "https://www.reddit.com/r/{subreddit}/search.json?q={query}&restrict_sr=true&limit=10"
+
+    response_structure:
+      top_level:
+        kind: "string - 'Listing'"
+        data:
+          modhash: "string"
+          dist: "integer - 결과 수"
+          after: "string|null - 다음 페이지 커서"
+          before: "string|null - 이전 페이지 커서"
+          children: "array - 게시글 배열"
+
+      child_data_fields:
+        # 기본 정보
+        id: "string - 게시글 ID (예: '1r24m4d')"
+        title: "string - 제목"
+        selftext: "string - 본문 (self post)"
+        url: "string - 링크 URL 또는 self post URL"
+        permalink: "string - Reddit 고유 경로 (예: '/r/n8n/comments/1r24m4d/...')"
+        domain: "string - 도메인 (예: 'self.n8n')"
+        author: "string - 작성자"
+        subreddit: "string - 서브레딧명"
+        subreddit_name_prefixed: "string - (예: 'r/n8n')"
+
+        # 참여 지표
+        score: "integer - 점수 (upvotes - downvotes, 예: 942)"
+        ups: "integer - 업보트 수"
+        downs: "integer - 다운보트 수 (항상 0, Reddit이 숨김)"
+        upvote_ratio: "float - 업보트 비율 (예: 0.9)"
+        num_comments: "integer - 댓글 수 (예: 356)"
+
+        # 시간
+        created_utc: "float - Unix timestamp (예: 1770832976.0)"
+        edited: "float|false - 수정 시간 또는 false"
+
+        # 메타
+        is_self: "boolean - self post 여부"
+        over_18: "boolean - NSFW"
+        spoiler: "boolean"
+        link_flair_text: "string|null - 플레어 텍스트"
+        subreddit_subscribers: "integer - 구독자 수"
+
+    raw_sources_mapping:
+      url: "'https://www.reddit.com' + child.data.permalink"
+      title: "child.data.title"
+      snippet: "child.data.selftext ? child.data.selftext.slice(0,300) : child.data.title"
+      source_type: "'community'"
+      timestamp: "new Date(child.data.created_utc * 1000).toISOString()"
+      credibility: "engagement_score(child.data.score, child.data.num_comments)"
+      engagement:
+        score: "child.data.score"
+        comments: "child.data.num_comments"
+        upvote_ratio: "child.data.upvote_ratio"
+        subreddit: "child.data.subreddit"
+
+    engagement_scoring:
+      formula: |
+        base = 2 (community 기본)
+        if score >= 500 AND num_comments >= 100: credibility = 4
+        elif score >= 100 AND num_comments >= 20: credibility = 3
+        elif score >= 20 AND num_comments >= 5: credibility = 2
+        else: credibility = 1
+        # 서브레딧 품질 보정
+        if subreddit in ['science','askscience','MachineLearning','LocalLLaMA']: credibility += 1 (최대 5)
+
+    error_handling:
+      rate_limit:
+        limit: "인증 없이 10 requests/minute (비공식)"
+        detection: "HTTP 429"
+        action: "60초 대기"
+        headers: "없음 (비공식 API)"
+      errors:
+        403: "User-Agent 헤더 누락"
+        429: "Rate Limit"
+        503: "서버 과부하"
+      critical: "User-Agent 헤더 필수. 없으면 403 또는 429 반환."
+
+    query_optimization:
+      korean_queries:
+        strategy: "영어로 번역 (영어 커뮤니티 위주)"
+        exception: "r/hanguk, r/korea 등 한국어 서브레딧은 원어 가능"
+      best_practices:
+        - "sort=top&t=year로 검증된 콘텐츠 우선"
+        - "특정 서브레딧 검색이 품질 높음 (r/MachineLearning, r/LocalLLaMA)"
+        - "score >= 100 필터링 권장"
+        - "selftext가 길면 Deep Reader에 전달"
+
+  # --------------------------------------------------------------------------
+  # 6. Google News RSS
+  # --------------------------------------------------------------------------
+  google_news_rss:
+    name: "Google News RSS Feed"
+    description: "뉴스 검색. 한국어 지원. 최신 뉴스 모니터링."
+    source_type: "news"
+    credibility_base: 3  # 뉴스 소스별 차이 큼
+    language: "multilingual"
+
+    endpoints:
+      search:
+        url: "https://news.google.com/rss/search"
+        method: GET
+        description: "키워드 기반 뉴스 RSS 피드. XML 반환."
+        parameters:
+          q:
+            type: string
+            required: true
+            description: "검색어 (URL 인코딩)"
+            example: "AI+agents"
+          hl:
+            type: string
+            required: false
+            default: "en"
+            description: "언어 코드"
+            examples: ["en", "ko", "ja"]
+          gl:
+            type: string
+            required: false
+            default: "US"
+            description: "국가 코드"
+            examples: ["US", "KR", "JP"]
+          ceid:
+            type: string
+            required: false
+            description: "국가:언어 조합"
+            examples: ["US:en", "KR:ko", "JP:ja"]
+          when:
+            type: string
+            required: false
+            description: "시간 범위"
+            values: ["1h", "1d", "7d", "30d"]
+            example: "7d"
+        example_urls:
+          english: "https://news.google.com/rss/search?q=AI+agents&hl=en&gl=US&ceid=US:en"
+          korean: "https://news.google.com/rss/search?q=AI+에이전트&hl=ko&gl=KR&ceid=KR:ko"
+          recent: "https://news.google.com/rss/search?q=AI+agents+when:7d&hl=en&gl=US&ceid=US:en"
+
+      topic:
+        url: "https://news.google.com/rss/topics/{topic_id}"
+        description: "주제별 뉴스 피드"
+        topic_ids:
+          technology: "CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtdHZHZ0pMVWlnQVAB"
+          business: "CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtdHZHZ0pMVWlnQVAB"
+          science: "CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y1RjU0FtdHZHZ0pMVWlnQVAB"
+
+    response_structure:
+      format: "RSS 2.0 XML"
+      channel_fields:
+        title: "string - 피드 제목 (예: '\"AI agents\" - Google 뉴스')"
+        link: "string - Google News 검색 URL"
+        language: "string - 언어 코드 (예: 'ko')"
+        lastBuildDate: "string - RFC 2822 날짜"
+        description: "string - 피드 설명"
+
+      item_fields:
+        title: "string - 기사 제목"
+        link: "string - Google News 리디렉트 URL (실제 기사 URL 아님)"
+        guid: "string - 고유 식별자 (Base64 인코딩)"
+        pubDate: "string - RFC 2822 날짜 (예: 'Thu, 26 Mar 2026 06:23:02 GMT')"
+        description: "string - HTML 요약 (소스 링크 포함)"
+        source:
+          _url: "string - 원본 매체 URL"
+          _text: "string - 매체명 (예: 'Amazon Web Services', 'IBM')"
+
+      note: |
+        link 필드는 Google 리디렉트 URL이며 실제 기사 URL이 아님.
+        실제 URL 추출이 필요하면 WebFetch로 리디렉트를 따라가거나,
+        description 내 HTML에서 href를 파싱해야 함.
+
+    raw_sources_mapping:
+      url: "item.link (Google 리디렉트 URL 사용 또는 description에서 실제 URL 파싱)"
+      title: "item.title"
+      snippet: "strip_html(item.description)"
+      source_type: "'news'"
+      timestamp: "item.pubDate (RFC 2822 -> ISO 8601 변환 필요)"
+      credibility: 3  # 매체별 보정 필요
+      metadata:
+        publisher: "item.source._text"
+        publisher_url: "item.source._url"
+
+    error_handling:
+      rate_limit:
+        limit: "명시적 제한 없으나 과도한 요청 시 차단"
+        detection: "HTTP 429 또는 빈 피드"
+        action: "30초 대기"
+      errors:
+        429: "Rate Limit"
+        empty_feed: "item 태그 없음 = 결과 없음"
+      no_results_detection: "item 태그 0개"
+
+    query_optimization:
+      korean_queries:
+        strategy: "한국어 직접 검색 가능 (hl=ko&gl=KR&ceid=KR:ko)"
+        bilingual: "영어 + 한국어 쿼리 병행 시 커버리지 최대"
+      advanced_operators:
+        date_range: "when:7d (URL 파라미터)"
+        exact_phrase: "q=\"AI agents\" (큰따옴표)"
+        exclude: "q=AI+agents+-gaming"
+        site_specific: "q=AI+agents+site:techcrunch.com"
+      best_practices:
+        - "한국어 뉴스: hl=ko&gl=KR&ceid=KR:ko 필수"
+        - "최신 뉴스: when:7d 추가"
+        - "source._text로 매체 신뢰도 판단"
+        - "link는 리디렉트 URL -> 실제 URL 추출 필요시 추가 요청"
+
+  # --------------------------------------------------------------------------
+  # 7. Dev.to
+  # --------------------------------------------------------------------------
+  devto:
+    name: "Dev.to API"
+    description: "개발자 블로그 플랫폼. 튜토리얼, 경험담, 기술 해설."
+    source_type: "blog"
+    credibility_base: 3  # 전문가 블로그
+    language: "en"
+
+    endpoints:
+      articles:
+        url: "https://dev.to/api/articles"
+        method: GET
+        description: "글 목록 검색. 태그/키워드 필터링."
+        parameters:
+          tag:
+            type: string
+            required: false
+            description: "태그 필터 (단일 태그)"
+            example: "ai"
+          tags:
+            type: string
+            required: false
+            description: "복수 태그 (콤마 구분, AND)"
+            example: "ai,machinelearning"
+          tags_exclude:
+            type: string
+            required: false
+            description: "제외 태그"
+          username:
+            type: string
+            required: false
+            description: "특정 사용자의 글만"
+          state:
+            type: string
+            required: false
+            default: "fresh"
+            values: ["fresh", "rising", "all"]
+          top:
+            type: integer
+            required: false
+            description: "최근 N일 내 인기 글"
+            example: 7
+          per_page:
+            type: integer
+            required: false
+            default: 30
+            max: 1000
+            recommended: 10
+          page:
+            type: integer
+            required: false
+            default: 1
+          collection_id:
+            type: integer
+            required: false
+            description: "특정 시리즈/컬렉션 내 글"
+        example_url: "https://dev.to/api/articles?tag=ai&per_page=10&top=30"
+
+      articles_search:
+        url: "https://dev.to/api/articles"
+        method: GET
+        description: "키워드 기반 검색은 별도 엔드포인트 없음. tag 필터 + WebSearch 조합 권장."
+        note: "Dev.to API는 전문 검색(full-text search)을 직접 지원하지 않음. tag 필터링만 가능."
+
+    response_structure:
+      format: "JSON Array"
+      article_fields:
+        id: "integer - 글 고유 ID (예: 3410004)"
+        title: "string - 제목"
+        description: "string - 짧은 설명 (예: 'I'm curious if you specifically...')"
+        url: "string - 글 URL (예: 'https://dev.to/ben/speed-vs-smarts-...')"
+        canonical_url: "string - 정규 URL"
+        slug: "string - URL 슬러그"
+        path: "string - 경로"
+        tag_list: "array - 태그 배열 (예: ['agents','ai','productivity'])"
+        tags: "string - 콤마 구분 태그"
+        created_at: "string - ISO 8601 생성시간"
+        published_at: "string - ISO 8601 게시시간"
+        edited_at: "string|null - 수정시간"
+        readable_publish_date: "string - 사람 읽기용 날짜 (예: 'Mar 26')"
+        comments_count: "integer - 댓글 수 (예: 9)"
+        positive_reactions_count: "integer - 긍정 반응 수 (예: 24)"
+        public_reactions_count: "integer - 전체 반응 수"
+        reading_time_minutes: "integer - 읽기 시간(분)"
+        cover_image: "string|null - 커버 이미지 URL"
+        social_image: "string|null - 소셜 공유 이미지"
+        user:
+          name: "string - 사용자명"
+          username: "string - 사용자 ID"
+          profile_image: "string - 프로필 이미지 URL"
+        organization:
+          name: "string|null - 조직명"
+          username: "string|null - 조직 ID"
+          slug: "string|null"
+
+    raw_sources_mapping:
+      url: "article.url"
+      title: "article.title"
+      snippet: "article.description"
+      source_type: "'blog'"
+      timestamp: "article.published_at"
+      credibility: "engagement_score(article.public_reactions_count, article.comments_count)"
+      engagement:
+        reactions: "article.public_reactions_count"
+        comments: "article.comments_count"
+        reading_time: "article.reading_time_minutes"
+      metadata:
+        tags: "article.tag_list"
+        author: "article.user.name"
+        organization: "article.organization.name"
+
+    engagement_scoring:
+      formula: |
+        base = 3 (blog 기본)
+        if reactions >= 200 AND comments >= 30: credibility = 5
+        elif reactions >= 50 AND comments >= 10: credibility = 4
+        elif reactions >= 10 AND comments >= 3: credibility = 3
+        else: credibility = 2
+
+    error_handling:
+      rate_limit:
+        limit: "인증 없이 30 requests/minute (비공식)"
+        headers:
+          - "없음 (문서화되지 않음)"
+        detection: "HTTP 429"
+        action: "60초 대기"
+      errors:
+        429: "Rate Limit"
+        404: "존재하지 않는 엔드포인트"
+      no_results_detection: "빈 배열 [] 반환"
+
+    query_optimization:
+      korean_queries:
+        strategy: "영어로 번역. Dev.to는 영어 중심 플랫폼."
+      best_practices:
+        - "tag=ai 또는 tag=machinelearning 태그 필터 활용"
+        - "top=30 으로 최근 30일 인기 글 조회"
+        - "전문 검색이 없으므로 tag 조합으로 범위 좁힘"
+        - "organization 필드가 있으면 기업 공식 블로그일 가능성 높음"
+
+  # --------------------------------------------------------------------------
+  # 8. CrossRef

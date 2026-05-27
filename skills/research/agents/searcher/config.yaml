@@ -1,0 +1,144 @@
+# Searcher Agent Configuration v6.0
+# 역할: open-world discovery, evidence search, targeted gap search execution
+
+agent:
+  id: searcher
+  name: "Searcher Agent"
+  role: "후보 발굴 및 후보별 근거 수집"
+  methodology: "Candidate Mining + Evidence Search"
+  weight: 0.15
+
+io:
+  input:
+    - discovery_intent: "공통 intent"
+    - discovery_plan: "Planner의 discovery 계획"
+    - dynamic_taxonomy: "동적 taxonomy (optional)"
+    - refined_queries: "Query Refiner 결과 (optional)"
+
+  output:
+    - candidate_records:
+        candidate_id: "후보 식별자"
+        raw_term: "원문 표현"
+        normalized_label: "정규화 레이블 (있으면)"
+        reward_type: "보상 방식"
+        recruitment_type: "모집 구조"
+        action_type: "행위 유형"
+        locality: "로컬성"
+        novelty: "mainstream / emergent / hidden / unresolved"
+        confidence: "high / medium / low"
+    - raw_sources:
+        source_id: "식별자"
+        url: "URL"
+        title: "제목"
+        snippet: "요약"
+        source_type: "공식/학술/리포트/뉴스/커뮤니티/블로그"
+        candidate_ids: "연결된 후보"
+        pass_tag: "discovery / evidence / gap_validation / deep_read"
+        locality: "지역 태그"
+        timestamp: "수집 시각"
+    - coverage_ledger:
+        axis_hits: "축별 적중"
+        weak_axes: "비어 있거나 약한 축"
+        candidate_gaps: "후보 부족 영역"
+        evidence_weak_candidates: "근거 약한 후보"
+        freshness_window: "적용한 최신성 창"
+
+candidate_mining:
+  enabled: true
+  discovery_axes:
+    - reward_axis
+    - recruitment_axis
+    - action_axis
+    - language_axis
+    - policy_axis
+    - locality_axis
+  rules:
+    - "카테고리보다 raw term을 우선 수집한다"
+    - "로컬 표현은 영어 정식명보다 우선 보존한다"
+    - "근거가 약한 후보라도 반복 등장하면 unresolved로 남긴다"
+
+trend_sensitive_mode:
+  enabled: true
+  trigger: "discovery_intent.freshness_needs == 'current'"
+  freshness_windows:
+    fast_moving_tech_days: 180
+    behavior_and_creator_days: 180
+    structural_market_days: 365
+
+batch_search:
+  max_concurrent: 5
+  delay_ms: 500
+  timeout_ms: 10000
+  depth_scaling:
+    quick: 1
+    standard: 3
+    deep: 5
+    full: 8
+
+source_types:
+  official:
+    priority: 1
+    weight: 1.0
+  academic:
+    priority: 2
+    weight: 0.95
+  authoritative_reports:
+    priority: 3
+    weight: 0.90
+  news:
+    priority: 4
+    weight: 0.70
+  community:
+    priority: 5
+    weight: 0.55
+  blogs:
+    priority: 6
+    weight: 0.35
+
+inclusion_criteria:
+  min_credibility: 3
+  languages: ["ko", "en"]
+  require_date_for_recency_sensitive: true
+
+multi_strategy:
+  bilingual: true
+  local_language_mining: true
+  community_term_mining: true
+  site_search: true
+  phrase_search: true
+  recency_focused_queries: true
+
+limits:
+  max_search_time_ms: 60000
+  max_results_per_query: 10
+  max_total_sources: 80
+
+# 무료 API 연동 — Evidence Search에서 도메인별 무료 API를 WebFetch/curl로 직접 호출.
+# 인덱스: references/free-api-sources.yaml + free-api-sources/*.yaml
+free_api:
+  enabled: true
+  index_ref: "references/free-api-sources.yaml"
+  call_method: "WebFetch (헤더 불필요 API) / Bash curl (naver — 헤더 인증)"
+  no_key_policy: "requires_key API는 키 미설정 시 자동 스킵 — 검색을 중단하지 않는다"
+  # domain-detection.yaml 도메인 중 "무료 API 보유 도메인"만 매핑한 의도적 부분집합.
+  # 나머지 도메인(real_estate·career_jobs·travel_food·education_learning·
+  # shopping_reviews·environment_esg)은 무료 API가 없어 free-api-sources.yaml의
+  # enhanced_site_search(site filter)로 처리된다. all_korean·general은 searcher 전용 보조 키.
+  domain_mapping:
+    ai_technology:    [arxiv, github]
+    academic_papers:  [arxiv, pubmed]
+    health_medical:   [pubmed]
+    legal:            [law_go_kr]
+    stocks_finance:   [dart]
+    crypto_blockchain: [coingecko]
+    startup_business: [hackernews, github]
+    all_korean:       [naver]   # 한국어 신호 감지 시 — phase1-korea.yaml
+    general:          [wikipedia, hackernews]
+
+# 검색 결과 융합 — references/retrieval-fusion.md
+retrieval_fusion:
+  enabled: true
+  ref: "references/retrieval-fusion.md"
+  rrf_k: 60
+  rerank_top_n: 20
+  relevance_score_floor: 5   # 0-10 점수, 5 미만 후보는 suppressed_candidates에 기록 후 제외

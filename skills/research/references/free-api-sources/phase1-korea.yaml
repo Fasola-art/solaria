@@ -1,0 +1,113 @@
+# Phase 1 Korea: 한국어 source 강화
+# 한국 자료 recall 강화 — Naver Search API(선택) + 한국 도메인 site filter 라우팅
+# v4.2 lib/korean-domains.md 이식. NomaDamas/k-skill 50+ 한국 도메인 분류 차용.
+
+phase_1_korea:
+
+  # --------------------------------------------------------------------------
+  # Naver Search API — requires_key. WebFetch는 커스텀 헤더 불가 → Bash curl 호출.
+  # 키 미설정 시 자동 스킵하고 아래 korean_site_routing(site filter)으로 대체.
+  # --------------------------------------------------------------------------
+  naver_search:
+    name: "Naver Search API"
+    description: "네이버 블로그·뉴스·웹문서·지식iN 검색. 헤더 인증 → curl 호출."
+    source_type: "community"
+    credibility_base: 3
+    language: "ko"
+    webfetch_compatible: false   # 헤더 인증 — WebFetch 불가, Bash curl 사용
+    domains: [all]
+    requires_key: true
+    key_env_var: ["NAVER_CLIENT_ID", "NAVER_CLIENT_SECRET"]
+
+    endpoints:
+      blog:
+        url: "https://openapi.naver.com/v1/search/blog.json?query={query}&display={limit}&sort=sim"
+        response_path: "items"
+      news:
+        url: "https://openapi.naver.com/v1/search/news.json?query={query}&display={limit}&sort=sim"
+        response_path: "items"
+      webkr:
+        url: "https://openapi.naver.com/v1/search/webkr.json?query={query}&display={limit}"
+        response_path: "items"
+      kin:
+        url: "https://openapi.naver.com/v1/search/kin.json?query={query}&display={limit}&sort=sim"
+        response_path: "items"
+
+    call_pattern: |
+      curl -s "https://openapi.naver.com/v1/search/blog.json?query=$(python3 -c 'import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))' "{query}")&display={limit}" \
+        -H "X-Naver-Client-Id: ${NAVER_CLIENT_ID}" \
+        -H "X-Naver-Client-Secret: ${NAVER_CLIENT_SECRET}"
+      # .env(skills/research/.env)에서 NAVER_CLIENT_ID / NAVER_CLIENT_SECRET 로드
+
+    raw_sources_mapping:
+      url: "items[].link"
+      title: "items[].title (HTML 태그 <b> 제거)"
+      snippet: "items[].description (HTML 태그 제거)"
+      date: "items[].postdate (블로그) / pubDate (뉴스)"
+      source_type: "community"
+      credibility_preliminary: 3
+
+    rate_limit: "25,000 req/day (무료)"
+    error_handling:
+      "200": "정상 (items 빈 배열이면 결과 없음)"
+      "401": "인증 오류 — 키 확인 후 스킵"
+      no_key: "NAVER_CLIENT_ID/SECRET 미설정 → 자동 스킵, korean_site_routing으로 대체"
+    query_tips:
+      korean: "한국어 자연 표현 직접 검색. 영어 키워드 직역 금지."
+
+  # --------------------------------------------------------------------------
+  # 한국 도메인 site filter 라우팅 — 키 불필요. WebSearch allowed_domains에 주입.
+  # Naver API 미커버 도메인(tistory·velog·brunch·정부·학술) + 키 없을 때 주력.
+  # --------------------------------------------------------------------------
+  korean_site_routing:
+    description: "query intent → 한국 도메인 카테고리 매칭 → WebSearch site filter"
+    template: "{query} site:{domain}"
+    max_additional_queries: 2
+
+    domain_categories:
+      dev_blogs:       [tistory.com, velog.io, brunch.co.kr, blog.naver.com, hashnode.dev]
+      general_blogs:   [blog.naver.com, brunch.co.kr, tistory.com, oopy.io, notion.site]
+      news_media:      [geeknews.io, zdnet.co.kr, it.chosun.com, bloter.net, byline.network, venturesquare.net]
+      academic_gov:    [kiss.kstudy.com, riss.kr, dbpia.co.kr, go.kr, or.kr]
+      real_estate:     [lh.or.kr, rt.molit.go.kr, kbland.kr, land.naver.com]
+      legal:           [law.go.kr, casenote.kr, scourt.go.kr]
+      patent:          [kipris.or.kr, kipo.go.kr]
+      stocks_finance:  [dart.fss.or.kr, krx.co.kr, finance.naver.com]
+      health_medical:  [hira.or.kr, mfds.go.kr, kdca.go.kr]
+      education:       [schoolinfo.go.kr, neis.go.kr]
+
+    intent_routing:
+      # 사용자 발화 키워드 → 우선 적용 도메인 카테고리
+      - keywords: [부동산, 매물, 실거래가, 청약, 시세, 아파트, 전세]
+        categories: [real_estate, general_blogs]
+      - keywords: [법률, 법령, 판례, 소송, 계약, 법적]
+        categories: [legal, academic_gov]
+      - keywords: [특허, 실용신안, 디자인권, 상표]
+        categories: [patent, academic_gov]
+      - keywords: [주식, 투자, 공시, 재무, 배당, 기업]
+        categories: [stocks_finance, news_media]
+      - keywords: [학교, 급식, 교육, 강의]
+        categories: [education, academic_gov]
+      - keywords: [의약품, 약, 건강, 식품, 의료]
+        categories: [health_medical, news_media]
+      - keywords: [개발, 트렌드, 라이브러리, IT, 프로그래밍]
+        categories: [dev_blogs, news_media]
+      - keywords: [논문, 연구, 이론, 학술]
+        categories: [academic_gov]
+
+    matching_rules:
+      - "키워드 1개 매치: 해당 카테고리 도메인 적용"
+      - "2+ 카테고리 매치: 우선순위 높은 카테고리 + 보조 1개"
+      - "매치 0건: general_blogs + dev_blogs + news_media 디폴트"
+      - "사용자 명시 영문 query: site filter 미적용 (한국어 source 신호 없음)"
+
+    fallback: "site filter 결과 0건 → 필터 제거 후 일반 검색 재시도"
+
+  # --------------------------------------------------------------------------
+  # 한국어 쿼리 현지화 규칙 — Naver/Google 검색 엔진 특성 분기
+  # --------------------------------------------------------------------------
+  korean_query_localization:
+    no_literal_translation: "영어 키워드를 한국어로 직역하지 말 것 — 의미·뉘앙스 어긋남"
+    naver_style: "정확 키워드 위주. 커뮤니티 표현(블로그·카페·지식iN 어휘) 우선"
+    google_style: "의미 기반 자연어 쿼리. 정확 키워드 없어도 매칭됨"
+    rule: "한국 로컬·실시간·후기 의도 → Naver 스타일 / 글로벌·기술·학술 의도 → Google 스타일"

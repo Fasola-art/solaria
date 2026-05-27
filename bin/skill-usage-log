@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+import argparse
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+HOME = Path.home()
+OUT = HOME / ".agents" / "runtime" / "skill-usage.jsonl"
+
+
+def now():
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Append a skill/persona/workflow usage event.")
+    parser.add_argument("--skill", action="append", default=[], help="Skill id used. Repeatable.")
+    parser.add_argument("--persona", action="append", default=[], help="Persona id used. Repeatable.")
+    parser.add_argument("--workflow", default=None, help="Workflow id used.")
+    parser.add_argument("--route", default=None, help="Route id used.")
+    parser.add_argument("--intent", default=None, help="Short intent label.")
+    parser.add_argument("--note", default=None, help="Optional note.")
+    args = parser.parse_args()
+
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    event = {
+        "ts": now(),
+        "event": "skill_usage",
+        "skills": args.skill,
+        "personas": args.persona,
+        "workflow": args.workflow,
+        "route": args.route,
+        "intent": args.intent,
+        "note": args.note,
+    }
+    with OUT.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(event, ensure_ascii=False) + "\n")
+    print(OUT)
+
+
+if __name__ == "__main__":
+    main()

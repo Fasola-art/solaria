@@ -1,0 +1,55 @@
+# Query Refiner Agent Configuration v6.0
+# 역할: weak candidate와 unresolved candidate를 targeted queries로 변환
+
+agent:
+  id: query_refiner
+  name: "Query Refiner Agent"
+  role: "약한 후보 보강 및 검증용 정밀 쿼리 생성"
+  methodology: "Candidate-Driven Query Refinement"
+  weight: 0.10
+
+pipeline:
+  stage: "Targeted Gap Search Preparation"
+  activation:
+    quick: false
+    standard: false
+    deep: true
+    full: true
+
+io:
+  input:
+    - coverage_ledger: "Analyzer의 coverage ledger"
+    - candidate_graph: "후보 정규화 결과"
+    - normalized_candidates: "정규화 후보"
+    - original_discovery_plan: "Planner의 discovery 계획"
+  output:
+    - refined_queries:
+        query: "정제된 검색 쿼리"
+        strategy: "검색 전략"
+        target_candidate: "보강하려는 후보"
+        target_gap: "채우려는 갭"
+        priority: "우선순위"
+    - gap_search_plan:
+        total_queries: "총 쿼리 수"
+        estimated_time: "예상 시간"
+        expected_resolutions: "예상 해결 후보 수"
+
+refinement_rules:
+  max_queries: 8
+  min_queries: 2
+  prioritize:
+    - unresolved_candidate
+    - evidence_weak_candidate
+    - policy_gap
+    - locality_gap
+    - freshness_gap
+  strategies:
+    - local_language_validation
+    - site_specific
+    - phrase_search
+    - synonym_expansion
+    - multilingual
+    - recency_focused
+
+limits:
+  max_refine_time_ms: 20000

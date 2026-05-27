@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+import argparse
+import json
+from pathlib import Path
+
+HOME = Path.home()
+AGENTS = HOME / ".agents"
+REGISTRY = AGENTS / "skills-registry.json"
+ONTOLOGY = AGENTS / "ontology"
+PERSONAS = ONTOLOGY / "personas.json"
+ROUTES = ONTOLOGY / "routes.json"
+EVAL_DIR = AGENTS / "evals" / "trigger"
+
+
+def load(path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def iter_case_files(paths):
+    if paths:
+        for item in paths:
+            yield Path(item)
+        return
+    for path in sorted(EVAL_DIR.glob("*.json")):
+        yield path
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Validate trigger eval case files against the skill ontology.")
+    parser.add_argument("files", nargs="*", help="Optional trigger case JSON files.")
+    parser.add_argument("--json", action="store_true", help="Print JSON report.")
+    args = parser.parse_args()
+
+    registry = load(REGISTRY)
+    personas_doc = load(PERSONAS)
+    routes_doc = load(ROUTES)
+    skills = set(registry.get("skills", {}).keys())
+    personas = set(personas_doc.get("personas", {}).keys())
+    routes = set(routes_doc.get("routes", {}).keys())
+
+    issues = []
+    case_count = 0
+    for path in iter_case_files(args.files):
+        doc = load(path)
+        for case in doc.get("cases", []):
+            case_count += 1
+            case_id = case.get("id", f"{path.name}:unknown")
+            for field in ["query", "should_trigger"]:
+                if not case.get(field):
+                    issues.append({"severity": "error", "case": case_id, "code": f"missing-{field}", "message": f"Case is missing {field}"})
+            for skill in case.get("should_trigger", []) + case.get("should_not_trigger", []):
+                if skill not in skills:
+                    issues.append({"severity": "error", "case": case_id, "code": "unknown-skill", "message": f"Unknown skill: {skill}"})
+            for persona in case.get("personas", []):
+                if persona not in personas:
+                    issues.append({"severity": "error", "case": case_id, "code": "unknown-persona", "message": f"Unknown persona: {persona}"})
+            if case.get("route") and case["route"] not in routes:
+                issues.append({"severity": "error", "case": case_id, "code": "unknown-route", "message": f"Unknown route: {case['route']}"})
+
+    report = {
+        "case_count": case_count,
+        "error_count": len([i for i in issues if i["severity"] == "error"]),
+        "issues": issues,
+        "note": "This static runner validates eval coverage and references. Model-based trigger-rate scoring can be layered on top later."
+    }
+
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    else:
+        print(f"cases: {report['case_count']}")
+        print(f"errors: {report['error_count']}")
+        for issue in issues:
+            print(f"[{issue['severity']}] {issue['case']} {issue['code']}: {issue['message']}")
+
+    if report["error_count"]:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

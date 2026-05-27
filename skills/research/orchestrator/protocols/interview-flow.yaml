@@ -1,0 +1,36 @@
+# Interview Flow Protocol v6.0
+# discovery-first intake and clarification flow
+
+version: "6.0"
+description: "Interviewer -> Planner handoff for discovery-first research"
+
+pipeline:
+  stages:
+    - name: request_intake
+      owner: interviewer
+      output: discovery_intent
+    - name: question_reframing
+      owner: interviewer
+      output: reframed_question
+    - name: clarification
+      owner: interviewer
+      optional: true
+      max_questions: 4
+    - name: planner_handoff
+      owner: interviewer
+      output: discovery_intent
+
+clarification_policy:
+  ask_only_when:
+    - locality_bias materially changes discovery order
+    - region/platform/asset differences materially change candidate mining
+    - high-risk scope needs narrowing
+  skip_when:
+    - broad discovery can start safely
+    - user intent already constrains scope enough
+
+handoff:
+  message_type: "DiscoveryIntentReady"
+  payload:
+    discovery_intent: "structured intake object"
+    context_summary: "short human summary"

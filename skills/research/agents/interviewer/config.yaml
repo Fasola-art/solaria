@@ -1,0 +1,104 @@
+# Interviewer Agent Configuration v6.0
+# 역할: request intake, question reframing, minimal clarification
+
+agent:
+  id: interviewer
+  name: "Interviewer Agent"
+  role: "요청 해석, 질문 재정의, 최소 인터뷰"
+  methodology: "Intent Framing + Minimal Clarification"
+  weight: 0.10
+
+io:
+  input:
+    - user_query: "사용자 질문"
+    - session_history: "세션 히스토리 (optional)"
+    - detected_preset: "감지된 프리셋 (optional)"
+    - explicit_depth: "quick / standard / deep / full (optional)"
+
+  output:
+    - discovery_intent:
+        user_query: "원문 질문"
+        reframed_question: "조사 과제로 재정의한 문장"
+        goal: "사용자 목표"
+        scope: "범위"
+        success_criteria: "성공 기준"
+        exclusions: "제외할 것"
+        region: "지역"
+        platform: "플랫폼"
+        target_user: "대상 사용자/독자"
+        assets: "이미 가진 자산"
+        constraints: "제약"
+        freshness_needs: "current / recent / stable"
+        exhaustiveness_needs: "compact / broad / exhaustive"
+        innovation_needs: "신규 아이디어 설계 필요 여부"
+        depth_profile: "quick / standard / deep / full"
+        output_mode: "standard_report / comparison_report / trend_monetization_report / decision_guide / opportunity_map / strategy_brief"
+        high_risk_domain: "고위험 분야 여부"
+    - interview_decision:
+        should_ask: "질문 필요 여부"
+        reason: "질문 필요 사유"
+        question_count: "권장 질문 수"
+    - questions:
+        list: "질문 목록"
+        priority: "질문 우선순위"
+    - context_summary:
+        summary: "이해한 맥락 요약"
+        confirmation_needed: "확인 필요 여부"
+
+intake_rules:
+  always_reframe: true
+  detect_signals:
+    freshness:
+      keywords: ["현재", "최신", "요즘", "트렌드", "뜨는"]
+    exhaustive:
+      keywords: ["최대한 많이", "빠짐없이", "모든 방식", "사례까지", "숨은", "로컬"]
+    innovation:
+      keywords: ["수익화", "기회", "새로운 방식", "아직 없는", "아이디어"]
+    comparison:
+      keywords: ["vs", "비교", "차이", "장단점"]
+  default_depth: "standard"
+
+interview_policy:
+  default_question_range: [0, 2]
+  hard_max: 4
+  ask_only_when:
+    - "지역/플랫폼/자산 차이가 결과를 크게 바꿀 때"
+    - "locality bias를 정하지 않으면 discovery 우선순위가 크게 달라질 때"
+    - "고위험 분야에서 범위를 잘못 잡으면 오답 위험이 커질 때"
+  skip_when:
+    - "질문 없이도 discovery를 바로 시작할 수 있을 때"
+    - "사용자가 범위, 목적, 지역, 플랫폼을 이미 명확히 줬을 때"
+    - "조사로 확인 가능한 사실만 부족할 때"
+
+question_axes:
+  goal:
+    description: "이 정보를 어디에 쓸지"
+  region:
+    description: "한국 / 글로벌 / 특정 국가"
+  platform:
+    description: "웹 / 앱 / 블로그 / 마켓 / 채널"
+  assets:
+    description: "기존 사용자, 트래픽, 전문성, 제품, 네트워크"
+  scope:
+    description: "최대한 많이 / 현실적 상위 / 특정 분야 집중"
+  locality_bias:
+    description: "로컬 사례를 우선할지, 글로벌 선행 사례까지 볼지"
+
+output_mode_routing:
+  default: "standard_report"
+  rules:
+    - if: "comparison signals detected"
+      then: "comparison_report"
+    - if: "freshness_needs == 'current' and innovation_needs == true"
+      then: "trend_monetization_report"
+    - if: "goal implies go/no-go or selection"
+      then: "decision_guide"
+    - if: "goal implies market gap or new ideas"
+      then: "opportunity_map"
+    - if: "goal implies strategy or positioning"
+      then: "strategy_brief"
+
+limits:
+  max_interview_time_ms: 60000
+  max_questions_per_session: 4
+  timeout_action: "proceed_with_defaults"

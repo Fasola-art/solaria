@@ -1,0 +1,132 @@
+# 의료/건강 분야 신뢰 소스
+# v3.0 - 분야별 특화 검색 시스템
+
+domain:
+  id: health_medical
+  name: "의료/건강"
+  description: "건강, 질병, 증상, 치료, 의약품 관련 리서치"
+
+# 트리거 키워드
+triggers:
+  - "건강"
+  - "질병"
+  - "증상"
+  - "치료"
+  - "약"
+  - "부작용"
+  - "병원"
+  - "진료"
+  - "비타민"
+  - "영양제"
+  - "운동"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "ncbi.nlm.nih.gov"
+      name: "PubMed/NIH"
+      reliability: 5
+      type: "학술/연구"
+      search_modifier: "site:ncbi.nlm.nih.gov"
+
+    - domain: "who.int"
+      name: "WHO"
+      reliability: 5
+      type: "국제기구"
+      search_modifier: "site:who.int"
+
+    - domain: "mohw.go.kr"
+      name: "보건복지부"
+      reliability: 5
+      type: "정부"
+      search_modifier: "site:mohw.go.kr"
+
+    - domain: "kdca.go.kr"
+      name: "질병관리청"
+      reliability: 5
+      type: "정부"
+      search_modifier: "site:kdca.go.kr"
+
+    - domain: "mayoclinic.org"
+      name: "Mayo Clinic"
+      reliability: 5
+      type: "의료기관"
+      search_modifier: "site:mayoclinic.org"
+
+  secondary:
+    - domain: "webmd.com"
+      name: "WebMD"
+      reliability: 4
+      type: "의료정보"
+      search_modifier: "site:webmd.com"
+
+    - domain: "healthline.com"
+      name: "Healthline"
+      reliability: 4
+      type: "의료정보"
+      search_modifier: "site:healthline.com"
+
+    - domain: "clevelandclinic.org"
+      name: "Cleveland Clinic"
+      reliability: 5
+      type: "의료기관"
+      search_modifier: "site:clevelandclinic.org"
+
+    - domain: "msdmanuals.com"
+      name: "MSD 매뉴얼"
+      reliability: 5
+      type: "의학참고서"
+      search_modifier: "site:msdmanuals.com"
+
+  tertiary:
+    - domain: "건강 블로그"
+      reliability: 2
+      warning: "⚠️ 검증되지 않은 정보일 수 있음"
+
+# 분야별 키워드
+keywords:
+  symptoms:
+    - 증상
+    - 통증
+    - 발열
+    - 피로
+    - 두통
+
+  treatment:
+    - 치료
+    - 약물
+    - 수술
+    - 요법
+    - 부작용
+
+  prevention:
+    - 예방
+    - 백신
+    - 건강검진
+    - 생활습관
+
+# 검색 전략
+search_strategy:
+  priority: ["학술 연구", "공식 가이드라인", "전문가 의견"]
+  time_filter: "최근 5년"
+  cross_reference:
+    - "PubMed"
+    - "WHO"
+    - "정부 기관"
+
+# 면책 조항
+disclaimer:
+  required: true
+  priority: "critical"
+  text: |
+    ⚠️ **의학적 면책 조항**
+    - 이 정보는 일반적인 참고 목적으로만 제공됩니다.
+    - 의학적 진단이나 치료를 대체할 수 없습니다.
+    - 건강 관련 결정은 반드시 의료 전문가와 상담하세요.
+    - 응급 상황 시 즉시 119에 연락하세요.
+
+# 최신성 정책
+freshness:
+  max_age_days: 365
+  warning_age_days: 180
+  stale_label: "⚠️ 의학 정보는 업데이트되었을 수 있습니다"

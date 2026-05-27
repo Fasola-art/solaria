@@ -1,0 +1,451 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import os
+import re
+from datetime import datetime, timezone
+from pathlib import Path
+
+HOME = Path.home()
+AGENTS = HOME / ".agents"
+CLAUDE_SKILLS = HOME / ".claude" / "skills"
+CODEX_SKILLS = HOME / ".codex" / "skills"
+AGENT_SKILLS = AGENTS / "skills"
+REGISTRY = AGENTS / "skills-registry.json"
+ONTOLOGY = AGENTS / "ontology"
+SKILLS_ONTOLOGY = ONTOLOGY / "skills.json"
+PERSONAS_ONTOLOGY = ONTOLOGY / "personas.json"
+WORKFLOWS_ONTOLOGY = ONTOLOGY / "workflows.json"
+ROUTES_ONTOLOGY = ONTOLOGY / "routes.json"
+
+SKILL_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
+
+
+def read_text(path):
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return path.read_text(errors="replace")
+
+
+def parse_frontmatter(path):
+    text = read_text(path)
+    frontmatter = {}
+    if not text.startswith("---"):
+        return frontmatter, text
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return frontmatter, text
+    current_key = None
+    for raw in parts[1].splitlines():
+        if raw.startswith((" ", "\t")) and current_key:
+            if frontmatter.get(current_key) in {">", "|"}:
+                frontmatter[current_key] = raw.strip()
+            else:
+                frontmatter[current_key] = f"{frontmatter[current_key]} {raw.strip()}".strip()
+            continue
+        current_key = None
+        if ":" not in raw:
+            continue
+        key, value = raw.split(":", 1)
+        current_key = key.strip()
+        frontmatter[current_key] = value.strip().strip('"').strip("'")
+    return frontmatter, text
+
+
+def iter_skill_dirs(root, max_depth):
+    if not root.exists():
+        return
+    for item in sorted(root.iterdir()):
+        if item.name.startswith("_"):
+            continue
+        if item.is_symlink() and (item / "SKILL.md").exists():
+            yield item
+    root_depth = len(root.parts)
+    for skill_md in root.rglob("SKILL.md"):
+        if any(part.startswith("_") for part in skill_md.relative_to(root).parts):
+            continue
+        depth = len(skill_md.parent.parts) - root_depth
+        if depth <= max_depth:
+            yield skill_md.parent
+
+
+def path_status(path):
+    if path.is_symlink():
+        return "symlink"
+    if path.is_dir():
+        return "directory"
+    return "missing"
+
+
+def rel(path):
+    try:
+        return str(path)
+    except TypeError:
+        return None
+
+
+def collect():
+    roots = [
+        ("agents", AGENT_SKILLS, 1),
+        ("claude", CLAUDE_SKILLS, 2),
+        ("codex", CODEX_SKILLS, 3),
+    ]
+    by_name = {}
+    records = []
+    issues = []
+
+    for runtime, root, depth in roots:
+        for folder in sorted(iter_skill_dirs(root, depth) or []):
+            skill_md = folder / "SKILL.md"
+            fm, text = parse_frontmatter(skill_md)
+            name = fm.get("name") or folder.name
+            desc = fm.get("description", "")
+            line_count = len(text.splitlines())
+            record = {
+                "name": name,
+                "runtime": runtime,
+                "path": str(folder),
+                "path_status": path_status(folder),
+                "is_symlink": folder.is_symlink(),
+                "resolved_path": str(folder.resolve()) if folder.exists() else None,
+                "description_length": len(desc),
+                "line_count": line_count,
+            }
+            records.append(record)
+            by_name.setdefault(name, []).append(record)
+
+            is_codex_runtime = "/.codex/skills/codex-primary-runtime/" in str(skill_md)
+            if not folder.is_symlink() and not is_codex_runtime:
+                if not fm.get("name"):
+                    issues.append(issue("error", name, str(skill_md), "missing-name", "SKILL.md frontmatter has no name"))
+                if not desc:
+                    issues.append(issue("error", name, str(skill_md), "missing-description", "SKILL.md frontmatter has no description"))
+                elif len(desc) < 60:
+                    issues.append(issue("warning", name, str(skill_md), "short-description", "Description is under 60 characters"))
+                if name and not SKILL_NAME_RE.match(name):
+                    issues.append(issue("warning", name, str(skill_md), "nonstandard-name", "Name is not lowercase hyphen-case"))
+                if name and folder.name != name and folder.name not in {"slides", "spreadsheets"}:
+                    issues.append(issue("warning", name, str(skill_md), "name-dir-mismatch", "Directory name differs from skill name"))
+                if line_count > 500:
+                    issues.append(issue("warning", name, str(skill_md), "long-skillmd", "SKILL.md is over 500 lines"))
+
+    for name, matches in sorted(by_name.items()):
+        unique_paths = {item["resolved_path"] or item["path"] for item in matches}
+        if name == "skill-creator" and any("/.codex/skills/.system/" in item["path"] for item in matches):
+            continue
+        if len(unique_paths) > 1:
+            severity = "warning"
+            if any(item["runtime"] == "agents" for item in matches) and any(item["runtime"] == "claude" and not item["is_symlink"] for item in matches):
+                severity = "error"
+            issues.append(issue(severity, name, None, "duplicate-name", f"Skill name appears in {len(matches)} locations"))
+
+    for root_name, root in [("claude", CLAUDE_SKILLS), ("codex", CODEX_SKILLS)]:
+        if not root.exists():
+            continue
+        for item in sorted(root.iterdir()):
+            if item.name.startswith(".") or item.name.startswith("_"):
+                continue
+            if item.is_symlink() and not item.exists():
+                issues.append(issue("error", item.name, str(item), "broken-symlink", f"Broken symlink in {root_name} skills"))
+            if root_name == "codex" and item.name == ".system":
+                continue
+            if item.is_dir() and not item.is_symlink() and (item / "SKILL.md").exists():
+                if root_name == "codex" and item.name in {"codex-primary-runtime", "gpt-image-2", "jarvis-claude-workflows"}:
+                    continue
+                if root_name == "codex" and (item.name not in by_name or not any(record["runtime"] == "agents" for record in by_name[item.name])):
+                    issues.append(issue("error", item.name, str(item), f"{root_name}-direct-local-skill", f"Shared skills must be created under ~/.agents/skills and exposed to {root_name} with a symlink"))
+                    continue
+                if item.name in by_name and any(record["runtime"] == "agents" for record in by_name[item.name]):
+                    issues.append(issue("warning", item.name, str(item), f"{root_name}-direct-duplicate", f"This runtime has a direct skill directory while ~/.agents also has the same skill"))
+
+    registry = build_registry(by_name)
+    ontology = build_skills_ontology(registry)
+    result = {
+        "generated_at": now(),
+        "records": records,
+        "issues": issues,
+        "registry": registry,
+        "skills_ontology": ontology,
+    }
+    validate_ontology(result)
+    return result
+
+
+def issue(severity, name, path, code, message):
+    return {
+        "severity": severity,
+        "name": name,
+        "path": path,
+        "code": code,
+        "message": message,
+    }
+
+
+def now():
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def build_registry(by_name):
+    skills = {}
+    for name, matches in sorted(by_name.items()):
+        agents = [m for m in matches if m["runtime"] == "agents"]
+        claude = [m for m in matches if m["runtime"] == "claude"]
+        codex = [m for m in matches if m["runtime"] == "codex"]
+        if agents:
+            status = "shared"
+            source_path = agents[0]["path"]
+        elif claude:
+            status = "claude-only"
+            source_path = claude[0]["path"]
+        else:
+            status = "codex-only"
+            source_path = codex[0]["path"]
+        resolved = {m["resolved_path"] or m["path"] for m in matches}
+        if len(resolved) > 1 and agents and claude and any(not m["is_symlink"] for m in claude):
+            status = "merge-needed"
+        skills[name] = {
+            "name": name,
+            "source_path": source_path,
+            "claude_path": claude[0]["path"] if claude else None,
+            "codex_path": codex[0]["path"] if codex else None,
+            "status": status,
+            "source_type": "system" if "/.codex/skills/.system/" in source_path else "local",
+            "duplicates": [m["path"] for m in matches],
+            "last_validated": now(),
+            "notes": "",
+        }
+    return {
+        "schema_version": 1,
+        "generated_at": now(),
+        "skills": skills,
+    }
+
+
+def infer_domain(name):
+    if name.startswith("gws-"):
+        return "google-workspace"
+    if name.startswith("team-"):
+        return "team-orchestration"
+    if name.startswith("jarvis"):
+        return "jarvis"
+    if name in {"research", "briefing"}:
+        return "research"
+    if name in {"frontend-stack", "nextjs15-init"}:
+        return "frontend"
+    if name in {"pdf", "docx", "xlsx", "pptx", "PowerPoint", "Excel"}:
+        return "documents"
+    return "general"
+
+
+def build_skills_ontology(registry):
+    existing = {}
+    if SKILLS_ONTOLOGY.exists():
+        try:
+            existing = json.loads(SKILLS_ONTOLOGY.read_text(encoding="utf-8")).get("skills", {})
+        except json.JSONDecodeError:
+            existing = {}
+    preserved_keys = {
+        "owner",
+        "depends_on",
+        "overlaps_with",
+        "routes_to",
+        "supersedes",
+        "validated_by",
+        "usable_personas",
+        "default_personas",
+        "capability",
+        "domain",
+    }
+    entities = {}
+    for name, data in registry["skills"].items():
+        runtime = "shared" if data["status"] in {"shared", "merge-needed"} else data["status"].replace("-only", "")
+        generated = {
+            "id": name,
+            "type": "Skill",
+            "domain": infer_domain(name),
+            "capability": name,
+            "runtime": runtime,
+            "owner": None,
+            "depends_on": [],
+            "overlaps_with": [],
+            "routes_to": [],
+            "supersedes": [],
+            "validated_by": ["skill-health-check"],
+            "sourced_from": data["source_type"],
+            "usable_personas": [],
+            "default_personas": [],
+        }
+        old = existing.get(name, {})
+        for key in preserved_keys:
+            if key in old and old[key] not in (None, [], ""):
+                generated[key] = old[key]
+        generated["runtime"] = runtime
+        generated["sourced_from"] = data["source_type"]
+        generated.setdefault("validated_by", [])
+        if "skill-health-check" not in generated["validated_by"]:
+            generated["validated_by"].append("skill-health-check")
+        entities[name] = generated
+    return {
+        "schema_version": 1,
+        "generated_at": now(),
+        "skills": entities,
+    }
+
+
+def load_json(path, default):
+    if not path.exists():
+        return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return default
+
+
+def validate_ontology(result):
+    issues = result["issues"]
+    skills = set(result["registry"]["skills"].keys())
+    personas_doc = load_json(PERSONAS_ONTOLOGY, {"personas": {}})
+    workflows_doc = load_json(WORKFLOWS_ONTOLOGY, {"workflows": {}})
+    routes_doc = load_json(ROUTES_ONTOLOGY, {"routes": {}})
+    personas = set(personas_doc.get("personas", {}).keys())
+    workflows = set(workflows_doc.get("workflows", {}).keys())
+
+    for persona_id, persona in personas_doc.get("personas", {}).items():
+        for skill in persona.get("default_skills", []) + persona.get("can_use_skills", []):
+            if skill not in skills:
+                issues.append(issue("warning", persona_id, str(PERSONAS_ONTOLOGY), "persona-unknown-skill", f"Persona references unknown skill: {skill}"))
+
+    for skill_id, skill in result["skills_ontology"].get("skills", {}).items():
+        for persona in skill.get("usable_personas", []) + skill.get("default_personas", []):
+            if persona not in personas:
+                issues.append(issue("warning", skill_id, str(SKILLS_ONTOLOGY), "skill-unknown-persona", f"Skill references unknown persona: {persona}"))
+
+    for workflow_id, workflow in workflows_doc.get("workflows", {}).items():
+        for index, step in enumerate(workflow.get("steps", []), start=1):
+            if step.get("skill") not in skills:
+                issues.append(issue("warning", workflow_id, str(WORKFLOWS_ONTOLOGY), "workflow-unknown-skill", f"Step {index} references unknown skill: {step.get('skill')}"))
+            if step.get("persona") not in personas:
+                issues.append(issue("warning", workflow_id, str(WORKFLOWS_ONTOLOGY), "workflow-unknown-persona", f"Step {index} references unknown persona: {step.get('persona')}"))
+
+    for route_id, route in routes_doc.get("routes", {}).items():
+        if route.get("workflow") and route.get("workflow") not in workflows:
+            issues.append(issue("warning", route_id, str(ROUTES_ONTOLOGY), "route-unknown-workflow", f"Route references unknown workflow: {route.get('workflow')}"))
+        for skill in route.get("skills", []):
+            if skill not in skills:
+                issues.append(issue("warning", route_id, str(ROUTES_ONTOLOGY), "route-unknown-skill", f"Route references unknown skill: {skill}"))
+        for persona in route.get("personas", []):
+            if persona not in personas:
+                issues.append(issue("warning", route_id, str(ROUTES_ONTOLOGY), "route-unknown-persona", f"Route references unknown persona: {persona}"))
+
+
+def ensure_base_ontology_files():
+    ONTOLOGY.mkdir(parents=True, exist_ok=True)
+    if not PERSONAS_ONTOLOGY.exists():
+        PERSONAS_ONTOLOGY.write_text(json.dumps({
+            "schema_version": 1,
+            "generated_at": now(),
+            "personas": {
+                "fact-checker": {
+                    "id": "fact-checker",
+                    "type": "Persona",
+                    "role": "Factual verification specialist",
+                    "default_skills": ["research", "content-quality-ops"],
+                    "can_use_skills": ["research", "content-quality-ops", "quality-gate"],
+                    "strengths": ["claim decomposition", "source validation", "citation checking"],
+                    "avoid": ["uncited claims", "speculative conclusions"],
+                    "output_style": "evidence-first"
+                },
+                "product-strategist": {
+                    "id": "product-strategist",
+                    "type": "Persona",
+                    "role": "Product strategy and PRD specialist",
+                    "default_skills": ["research", "prd-create", "simulate"],
+                    "can_use_skills": ["research", "prd-create", "team-pm", "simulate", "quality-gate"],
+                    "strengths": ["market framing", "product scoping", "tradeoff analysis"],
+                    "avoid": ["unsupported assumptions", "overbuilding"],
+                    "output_style": "decision-oriented"
+                },
+                "qa-reviewer": {
+                    "id": "qa-reviewer",
+                    "type": "Persona",
+                    "role": "Quality and regression risk reviewer",
+                    "default_skills": ["quality-gate", "test-driven-development"],
+                    "can_use_skills": ["quality-gate", "test-driven-development", "autofix", "playwright-skill"],
+                    "strengths": ["risk detection", "acceptance criteria", "regression testing"],
+                    "avoid": ["untested assumptions", "implementation-only review"],
+                    "output_style": "findings-first"
+                }
+            }
+        }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if not WORKFLOWS_ONTOLOGY.exists():
+        WORKFLOWS_ONTOLOGY.write_text(json.dumps({
+            "schema_version": 1,
+            "generated_at": now(),
+            "workflows": {
+                "idea-to-prd": {
+                    "id": "idea-to-prd",
+                    "type": "Workflow",
+                    "steps": [
+                        {"persona": "fact-checker", "skill": "research"},
+                        {"persona": "product-strategist", "skill": "prd-create"},
+                        {"persona": "qa-reviewer", "skill": "quality-gate"}
+                    ]
+                }
+            }
+        }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if not ROUTES_ONTOLOGY.exists():
+        ROUTES_ONTOLOGY.write_text(json.dumps({
+            "schema_version": 1,
+            "generated_at": now(),
+            "routes": {
+                "validate-product-idea": {
+                    "intent": "validate-product-idea",
+                    "skills": ["research", "prd-create", "quality-gate"],
+                    "personas": ["fact-checker", "product-strategist", "qa-reviewer"],
+                    "workflow": "idea-to-prd"
+                }
+            }
+        }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def write_outputs(result):
+    AGENTS.mkdir(parents=True, exist_ok=True)
+    ONTOLOGY.mkdir(parents=True, exist_ok=True)
+    REGISTRY.write_text(json.dumps(result["registry"], indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    SKILLS_ONTOLOGY.write_text(json.dumps(result["skills_ontology"], indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    ensure_base_ontology_files()
+
+
+def print_text(result):
+    issues = result["issues"]
+    errors = [i for i in issues if i["severity"] == "error"]
+    warnings = [i for i in issues if i["severity"] == "warning"]
+    print(f"skills: {len(result['registry']['skills'])}")
+    print(f"errors: {len(errors)}")
+    print(f"warnings: {len(warnings)}")
+    for item in issues:
+        loc = f" {item['path']}" if item.get("path") else ""
+        print(f"[{item['severity']}] {item['code']}: {item['name']}{loc} - {item['message']}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Validate and inventory shared agent skills.")
+    parser.add_argument("--json", action="store_true", help="Print JSON report.")
+    parser.add_argument("--write", action="store_true", help="Write registry and ontology files.")
+    args = parser.parse_args()
+
+    result = collect()
+    if args.write:
+        write_outputs(result)
+    if args.json:
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+    else:
+        print_text(result)
+
+    if any(i["severity"] == "error" for i in result["issues"]):
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

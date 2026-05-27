@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import os
+import subprocess
+from pathlib import Path
+
+HOME = Path.home()
+ROOTS = [HOME / ".agents" / "skills", HOME / ".claude" / "skills"]
+SKIP_PARTS = {"_archive", "_backup", "_drafts", "__pycache__", "node_modules", ".venv", "venv", ".git"}
+SCRIPT_SUFFIXES = {".py", ".sh", ".js", ".mjs"}
+
+
+def is_candidate(path):
+    parts = set(path.parts)
+    if parts & SKIP_PARTS:
+        return False
+    if "scripts" not in path.parts:
+        return False
+    if path.suffix not in SCRIPT_SUFFIXES:
+        return False
+    return path.is_file()
+
+
+def iter_scripts():
+    seen = set()
+    for root in ROOTS:
+        if not root.exists():
+            continue
+        for path in root.rglob("*"):
+            if not is_candidate(path):
+                continue
+            real = path.resolve()
+            if real in seen:
+                continue
+            seen.add(real)
+            yield path
+
+
+def has_shebang(path):
+    try:
+        first = path.open("rb").readline().decode("utf-8", errors="replace")
+    except OSError:
+        return False
+    return first.startswith("#!")
+
+
+def command_for(path):
+    if path.suffix == ".py":
+        return ["python3", str(path), "--help"]
+    if path.suffix == ".sh":
+        return ["bash", str(path), "--help"]
+    if path.suffix in {".js", ".mjs"}:
+        return ["node", str(path), "--help"]
+    return None
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Validate scripts bundled in active skills.")
+    parser.add_argument("--run-help", action="store_true", help="Run each script with --help. Use only for trusted scripts.")
+    parser.add_argument("--json", action="store_true", help="Print JSON report.")
+    args = parser.parse_args()
+
+    issues = []
+    records = []
+    for path in sorted(iter_scripts()):
+        record = {
+            "path": str(path),
+            "suffix": path.suffix,
+            "executable": os.access(path, os.X_OK),
+            "shebang": has_shebang(path),
+            "help_checked": False,
+            "help_exit_code": None,
+        }
+        if path.suffix in {".py", ".sh"} and not record["shebang"]:
+            issues.append({"severity": "warning", "path": str(path), "code": "missing-shebang", "message": "Script has no shebang"})
+        if args.run_help:
+            cmd = command_for(path)
+            if cmd:
+                proc = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10, check=False)
+                record["help_checked"] = True
+                record["help_exit_code"] = proc.returncode
+                if proc.returncode not in {0, 1, 2}:
+                    issues.append({"severity": "warning", "path": str(path), "code": "help-failed", "message": f"--help exited {proc.returncode}"})
+                if proc.returncode == 0 and not (proc.stdout.strip() or proc.stderr.strip()):
+                    issues.append({"severity": "warning", "path": str(path), "code": "empty-help", "message": "--help produced no output"})
+        records.append(record)
+
+    report = {
+        "script_count": len(records),
+        "warning_count": len([i for i in issues if i["severity"] == "warning"]),
+        "issues": issues,
+        "records": records,
+    }
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    else:
+        print(f"scripts: {report['script_count']}")
+        print(f"warnings: {report['warning_count']}")
+        for issue in issues:
+            print(f"[{issue['severity']}] {issue['code']}: {issue['path']} - {issue['message']}")
+
+
+if __name__ == "__main__":
+    main()

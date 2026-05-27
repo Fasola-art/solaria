@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T00:38:24Z",
+  "workflows": {
+    "idea-to-prd": {
+      "id": "idea-to-prd",
+      "type": "Workflow",
+      "steps": [
+        {
+          "persona": "market-researcher",
+          "skill": "research"
+        },
+        {
+          "persona": "product-strategist",
+          "skill": "prd-create"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "simulate"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "quality-gate"
+        }
+      ]
+    },
+    "debug-fix-verify": {
+      "id": "debug-fix-verify",
+      "type": "Workflow",
+      "steps": [
+        {
+          "persona": "dev-debugger",
+          "skill": "autofix"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "test-driven-development"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "quality-gate"
+        }
+      ]
+    },
+    "frontend-build-review": {
+      "id": "frontend-build-review",
+      "type": "Workflow",
+      "steps": [
+        {
+          "persona": "frontend-designer",
+          "skill": "frontend-stack"
+        },
+        {
+          "persona": "technical-architect",
+          "skill": "team-dev"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "playwright-skill"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "quality-gate"
+        }
+      ]
+    },
+    "content-research-publish": {
+      "id": "content-research-publish",
+      "type": "Workflow",
+      "steps": [
+        {
+          "persona": "market-researcher",
+          "skill": "research"
+        },
+        {
+          "persona": "content-strategist",
+          "skill": "content-creator"
+        },
+        {
+          "persona": "fact-checker",
+          "skill": "content-quality-ops"
+        }
+      ]
+    },
+    "competitive-analysis": {
+      "id": "competitive-analysis",
+      "type": "Workflow",
+      "steps": [
+        {
+          "persona": "competitive-intelligence-analyst",
+          "skill": "research"
+        },
+        {
+          "persona": "competitive-intelligence-analyst",
+          "skill": "team-business"
+        },
+        {
+          "persona": "product-strategist",
+          "skill": "simulate"
+        }
+      ]
+    },
+    "frontend-motion-build": {
+      "id": "frontend-motion-build",
+      "type": "Workflow",
+      "steps": [
+        {
+          "persona": "frontend-designer",
+          "skill": "frontend-stack"
+        },
+        {
+          "persona": "frontend-designer",
+          "skill": "gsap-core"
+        },
+        {
+          "persona": "frontend-designer",
+          "skill": "gsap-react"
+        },
+        {
+          "persona": "frontend-designer",
+          "skill": "gsap-scrolltrigger"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "gsap-performance"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "playwright-skill"
+        }
+      ]
+    },
+    "handoff-continuation": {
+      "id": "handoff-continuation",
+      "type": "Workflow",
+      "steps": [
+        {
+          "persona": "technical-architect",
+          "skill": "recover"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "quality-gate"
+        }
+      ]
+    },
+    "plan-grilling": {
+      "id": "plan-grilling",
+      "type": "Workflow",
+      "steps": [
+        {
+          "persona": "product-strategist",
+          "skill": "simulate"
+        },
+        {
+          "persona": "technical-architect",
+          "skill": "simulate"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "quality-gate"
+        }
+      ]
+    },
+    "skill-system-design": {
+      "id": "skill-system-design",
+      "type": "Workflow",
+      "steps": [
+        {
+          "persona": "technical-architect",
+          "skill": "skill-management"
+        },
+        {
+          "persona": "technical-architect",
+          "skill": "mcp-builder"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "quality-gate"
+        }
+      ],
+      "usage_count": 1,
+      "last_used": "2026-05-27T00:35:56Z"
+    },
+    "multi-agent-team-design": {
+      "id": "multi-agent-team-design",
+      "type": "Workflow",
+      "steps": [
+        {
+          "persona": "technical-architect",
+          "skill": "team-common"
+        },
+        {
+          "persona": "product-strategist",
+          "skill": "simulate"
+        },
+        {
+          "persona": "qa-reviewer",
+          "skill": "quality-gate"
+        }
+      ]
+    }
+  }
+}

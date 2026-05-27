@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T00:38:24Z",
+  "routes": {
+    "validate-product-idea": {
+      "intent": "validate-product-idea",
+      "skills": [
+        "research",
+        "prd-create",
+        "simulate",
+        "quality-gate"
+      ],
+      "personas": [
+        "market-researcher",
+        "product-strategist",
+        "qa-reviewer"
+      ],
+      "workflow": "idea-to-prd"
+    },
+    "debug-failing-code": {
+      "intent": "debug-failing-code",
+      "skills": [
+        "autofix",
+        "test-driven-development",
+        "quality-gate"
+      ],
+      "personas": [
+        "dev-debugger",
+        "qa-reviewer"
+      ],
+      "workflow": "debug-fix-verify"
+    },
+    "build-frontend-experience": {
+      "intent": "build-frontend-experience",
+      "skills": [
+        "frontend-stack",
+        "team-dev",
+        "playwright-skill",
+        "quality-gate"
+      ],
+      "personas": [
+        "frontend-designer",
+        "technical-architect",
+        "qa-reviewer"
+      ],
+      "workflow": "frontend-build-review"
+    },
+    "create-evidence-backed-content": {
+      "intent": "create-evidence-backed-content",
+      "skills": [
+        "research",
+        "content-creator",
+        "content-quality-ops"
+      ],
+      "personas": [
+        "market-researcher",
+        "content-strategist",
+        "fact-checker"
+      ],
+      "workflow": "content-research-publish"
+    },
+    "analyze-competitors": {
+      "intent": "analyze-competitors",
+      "skills": [
+        "research",
+        "team-business",
+        "simulate"
+      ],
+      "personas": [
+        "competitive-intelligence-analyst",
+        "product-strategist"
+      ],
+      "workflow": "competitive-analysis"
+    },
+    "build-frontend-motion": {
+      "intent": "build-frontend-motion",
+      "skills": [
+        "frontend-stack",
+        "gsap-core",
+        "gsap-react",
+        "gsap-scrolltrigger",
+        "gsap-performance",
+        "playwright-skill"
+      ],
+      "personas": [
+        "frontend-designer",
+        "qa-reviewer"
+      ],
+      "workflow": "frontend-motion-build"
+    },
+    "handoff-current-session": {
+      "intent": "handoff-current-session",
+      "skills": [
+        "recover",
+        "quality-gate"
+      ],
+      "personas": [
+        "technical-architect",
+        "qa-reviewer"
+      ],
+      "workflow": "handoff-continuation"
+    },
+    "grill-plan": {
+      "intent": "grill-plan",
+      "skills": [
+        "simulate",
+        "quality-gate"
+      ],
+      "personas": [
+        "product-strategist",
+        "technical-architect",
+        "qa-reviewer"
+      ],
+      "workflow": "plan-grilling"
+    },
+    "design-skill-system": {
+      "intent": "design-skill-system",
+      "skills": [
+        "skill-management",
+        "mcp-builder",
+        "quality-gate"
+      ],
+      "personas": [
+        "technical-architect",
+        "qa-reviewer"
+      ],
+      "workflow": "skill-system-design",
+      "usage_count": 1,
+      "last_used": "2026-05-27T00:35:56Z"
+    },
+    "design-multi-agent-team": {
+      "intent": "design-multi-agent-team",
+      "skills": [
+        "team-common",
+        "simulate",
+        "quality-gate"
+      ],
+      "personas": [
+        "technical-architect",
+        "product-strategist",
+        "qa-reviewer"
+      ],
+      "workflow": "multi-agent-team-design"
+    }
+  }
+}

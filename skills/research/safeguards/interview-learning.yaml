@@ -1,0 +1,14 @@
+# Interview Learning Safeguard v6.0
+# research 스킬 내부에서 재사용하는 최소 인터뷰 학습 규칙
+
+version: "6.0"
+purpose: "같은 세션에서 반복 질문을 줄이고 locality/asset preference를 재사용"
+
+remember:
+  - region_preference
+  - platform_preference
+  - exhaustiveness_preference
+  - locality_bias
+  - output_mode_preference
+
+avoid_reasking_if_present: true

@@ -1,0 +1,39 @@
+# Interview Integration Protocol v6.0
+# Interviewer 결과를 Discovery Planner에 반영하는 규칙
+
+version: "6.0"
+description: "discovery_intent -> discovery_plan 연결 프로토콜"
+
+context_reception:
+  from_interviewer:
+    discovery_intent:
+      scope: "범위"
+      goal: "목표"
+      region: "지역"
+      platform: "플랫폼"
+      assets: "자산"
+      freshness_needs: "현재성 필요"
+      exhaustiveness_needs: "완전성 필요"
+      innovation_needs: "신규 모델 필요"
+
+planner_modifications:
+  discovery_biasing:
+    - name: "region_bias"
+      source: "discovery_intent.region"
+      apply_to: "locale_bias"
+    - name: "platform_bias"
+      source: "discovery_intent.platform"
+      apply_to: "seed_term_sets"
+    - name: "innovation_bias"
+      source: "discovery_intent.innovation_needs"
+      apply_to: "query_families"
+
+quality_integration:
+  citation_rules:
+    reference: "quality/citation-rules.yaml"
+  freshness_policy:
+    reference: "quality/freshness-policy.yaml"
+  fact_check:
+    reference: "quality/fact-check.yaml"
+  disclaimers:
+    reference: "quality/disclaimers.yaml"

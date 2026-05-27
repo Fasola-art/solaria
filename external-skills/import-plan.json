@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "source_of_truth": "~/.agents/skills",
+    "import_rule": "External skills must be staged, audited, and mapped before installation or merge.",
+    "merge_rule": "Do not overwrite an existing skill; preserve source notes and merge only after comparing behavior, triggers, and resources."
+  },
+  "sources": {
+    "muratcankoylan/Agent-Skills-for-Context-Engineering": {
+      "purpose": "Context engineering, evaluation, tool design, filesystem context, multi-agent architecture reference material.",
+      "default_action": "absorb-as-references",
+      "candidates": {
+        "evaluation": {
+          "target": "skill-management",
+          "action": "merge-reference",
+          "priority": "high",
+          "reason": "Use for skill health gates, trigger eval, regression testing, and quality rubrics."
+        },
+        "tool-design": {
+          "target": "mcp-builder",
+          "action": "merge-reference",
+          "priority": "high",
+          "reason": "Use for tool descriptions, MCP schema quality, and tool consolidation guidance."
+        },
+        "context-compression": {
+          "target": "recover",
+          "action": "merge-reference",
+          "priority": "medium",
+          "reason": "Use for durable handoff and long-running session summaries."
+        },
+        "filesystem-context": {
+          "target": "skill-management",
+          "action": "merge-reference",
+          "priority": "medium",
+          "reason": "Use for file-backed scratchpads, large output offloading, and cross-agent handoff context."
+        },
+        "multi-agent-patterns": {
+          "target": "team-common",
+          "action": "merge-reference",
+          "priority": "medium",
+          "reason": "Use for team orchestration and context isolation policy."
+        }
+      },
+      "last_checked_at": "2026-05-27T00:44:34Z",
+      "last_checked_branch": "main",
+      "last_checked_commit": "25e1fa79a33f0985793bcab3c64dde8d020c5132"
+    },
+    "mattpocock/skills": {
+      "purpose": "Practical engineering workflows for grilling plans, diagnosis, TDD, architecture review, and handoff.",
+      "default_action": "selective-merge",
+      "candidates": {
+        "diagnose": {
+          "target": "autofix",
+          "action": "merge-workflow",
+          "priority": "high",
+          "reason": "Strengthen autofix with reproduce-minimize-hypothesize-instrument-fix-regression loop."
+        },
+        "tdd": {
+          "target": "test-driven-development",
+          "action": "merge-workflow",
+          "priority": "high",
+          "reason": "Strengthen test-first workflow with vertical red-green-refactor slices."
+        },
+        "handoff": {
+          "target": "recover",
+          "action": "merge-workflow",
+          "priority": "medium",
+          "reason": "Add compact handoff documents for fresh-agent continuation."
+        },
+        "grill-me": {
+          "target": "simulate",
+          "action": "merge-workflow",
+          "priority": "medium",
+          "reason": "Add interview-based plan stress testing."
+        },
+        "grill-with-docs": {
+          "target": "skill-management",
+          "action": "merge-reference",
+          "priority": "medium",
+          "reason": "Use CONTEXT.md and ADR discipline when improving skill systems."
+        }
+      },
+      "last_checked_at": "2026-05-27T00:44:36Z",
+      "last_checked_branch": "main",
+      "last_checked_commit": "b8be62ffacb0118fa3eaa29a0923c87c8c11985c"
+    },
+    "greensock/gsap-skills": {
+      "purpose": "Frontend animation domain skill pack for GSAP core, React, ScrollTrigger, performance, plugins, and timelines.",
+      "default_action": "stage-for-optional-install",
+      "candidates": {
+        "gsap-core": {
+          "target": "frontend-stack",
+          "action": "optional-install",
+          "priority": "medium",
+          "reason": "Core JS animation guidance for DOM/SVG animation."
+        },
+        "gsap-react": {
+          "target": "frontend-stack",
+          "action": "optional-install",
+          "priority": "medium",
+          "reason": "React/Next.js GSAP cleanup and useGSAP patterns."
+        },
+        "gsap-scrolltrigger": {
+          "target": "frontend-stack",
+          "action": "optional-install",
+          "priority": "medium",
+          "reason": "Scroll-linked animation, pinning, scrub, and parallax behavior."
+        },
+        "gsap-performance": {
+          "target": "frontend-stack",
+          "action": "optional-install",
+          "priority": "medium",
+          "reason": "Animation performance and jank prevention rules."
+        }
+      },
+      "last_checked_at": "2026-05-27T00:44:37Z",
+      "last_checked_branch": "main",
+      "last_checked_commit": "aed9cfd3277740755f6bfc1155c7aa645403b760"
+    }
+  },
+  "last_checked_at": "2026-05-27T00:44:37Z"
+}

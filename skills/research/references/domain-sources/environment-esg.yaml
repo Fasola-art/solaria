@@ -1,0 +1,113 @@
+# 환경/ESG 분야 신뢰 소스
+# v3.0 - 분야별 특화 검색 시스템
+
+domain:
+  id: environment_esg
+  name: "환경/ESG"
+  description: "ESG, 탄소중립, 지속가능성, 친환경 관련 리서치"
+
+# 트리거 키워드
+triggers:
+  - "ESG"
+  - "탄소중립"
+  - "지속가능성"
+  - "친환경"
+  - "재생에너지"
+  - "탄소배출"
+  - "기후변화"
+  - "그린"
+  - "넷제로"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "esgtoday.com"
+      name: "ESG Today"
+      reliability: 4
+      type: "뉴스/분석"
+      search_modifier: "site:esgtoday.com"
+
+    - domain: "sustainalytics.com"
+      name: "Sustainalytics"
+      reliability: 5
+      type: "ESG 평가"
+      search_modifier: "site:sustainalytics.com"
+
+    - domain: "env.go.kr"
+      name: "환경부"
+      reliability: 5
+      type: "정부"
+      search_modifier: "site:env.go.kr"
+
+    - domain: "ipcc.ch"
+      name: "IPCC"
+      reliability: 5
+      type: "국제기구"
+      search_modifier: "site:ipcc.ch"
+
+  secondary:
+    - domain: "greenbiz.com"
+      name: "GreenBiz"
+      reliability: 4
+      type: "뉴스"
+      search_modifier: "site:greenbiz.com"
+
+    - domain: "wri.org"
+      name: "World Resources Institute"
+      reliability: 5
+      type: "연구기관"
+      search_modifier: "site:wri.org"
+
+    - domain: "cdp.net"
+      name: "CDP"
+      reliability: 5
+      type: "ESG 공시"
+      search_modifier: "site:cdp.net"
+
+  tertiary:
+    - domain: "기업 지속가능성 보고서"
+      reliability: 3
+    - domain: "환경 블로그"
+      reliability: 2
+
+# 분야별 키워드
+keywords:
+  esg:
+    - ESG
+    - 지속가능경영
+    - 사회적책임
+    - 거버넌스
+    - 스튜어드십
+
+  environment:
+    - 탄소중립
+    - 넷제로
+    - 재생에너지
+    - 탄소배출권
+    - 그린워싱
+
+  regulations:
+    - EU Taxonomy
+    - TCFD
+    - GRI
+    - SASB
+    - 녹색분류체계
+
+# 검색 전략
+search_strategy:
+  priority: ["국제기구", "정부 정책", "ESG 평가기관"]
+  time_filter: "최근 2년"
+  cross_reference:
+    - "IPCC 보고서"
+    - "정부 정책"
+    - "ESG 평가"
+
+# 면책 조항
+disclaimer:
+  required: false
+
+# 최신성 정책
+freshness:
+  max_age_days: 365
+  warning_age_days: 180
+  stale_label: "⚠️ 정책이 변경되었을 수 있습니다"

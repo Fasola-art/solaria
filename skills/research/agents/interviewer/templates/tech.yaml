@@ -1,0 +1,222 @@
+# Technology Research 인터뷰 템플릿
+# 기술 조사/기술 평가를 위한 맞춤형 질문
+
+template:
+  name: technology_research
+  description: "기술 조사/기술 평가를 위한 인터뷰 템플릿"
+  trigger_keywords:
+    - "기술"
+    - "tech"
+    - "아키텍처"
+    - "프레임워크"
+    - "라이브러리"
+    - "구현"
+    - "개발"
+
+# 핵심 질문
+questions:
+  # Q1: 조사 목적
+  purpose:
+    question: "기술 조사의 목적은?"
+    category: "purpose"
+    priority: high
+    options:
+      - label: "기술 도입 검토"
+        description: "새 기술 도입 여부 결정"
+        output_format: "adoption_analysis"
+        focus_areas:
+          - "작동 원리"
+          - "장단점"
+          - "학습 곡선"
+          - "생태계"
+      - label: "기술 비교/선택"
+        description: "여러 기술 중 선택"
+        output_format: "tech_comparison"
+        focus_areas:
+          - "기능 비교"
+          - "성능 비교"
+          - "커뮤니티"
+      - label: "구현 방법 조사"
+        description: "특정 기능 구현 방법"
+        output_format: "implementation_guide"
+        focus_areas:
+          - "베스트 프랙티스"
+          - "예제 코드"
+          - "주의사항"
+      - label: "기술 트렌드 파악"
+        description: "기술 동향 및 미래 전망"
+        output_format: "trend_analysis"
+        focus_areas:
+          - "Hype Cycle 위치"
+          - "채택률"
+          - "미래 전망"
+
+  # Q2: 기술 수준/경험
+  expertise:
+    question: "이 기술에 대한 현재 경험 수준은?"
+    category: "scope"
+    priority: high
+    options:
+      - label: "초보 (처음 접함)"
+        description: "기초부터 알고 싶음"
+        search_modifier: "beginner introduction basics"
+        depth_adjustment: "increase_explanation"
+      - label: "중급 (기본 이해)"
+        description: "심화 내용 필요"
+        search_modifier: "intermediate advanced"
+        depth_adjustment: "standard"
+      - label: "고급 (실무 경험)"
+        description: "최신 트렌드/고급 기법"
+        search_modifier: "advanced best practices production"
+        depth_adjustment: "focus_advanced"
+
+  # Q3: 사용 환경
+  environment:
+    question: "어떤 환경에서 사용할 예정인가요?"
+    category: "scope"
+    priority: medium
+    options:
+      - label: "개인 프로젝트"
+        description: "사이드 프로젝트, 학습용"
+        search_modifier: "personal project tutorial"
+      - label: "스타트업/소규모"
+        description: "작은 팀, 빠른 개발"
+        search_modifier: "startup small team agile"
+      - label: "엔터프라이즈"
+        description: "대규모 조직, 안정성 중요"
+        search_modifier: "enterprise production scale"
+      - label: "아직 미정"
+        description: "탐색 단계"
+        search_modifier: ""
+
+  # Q4: 특정 기술 스택 (선택적)
+  tech_stack:
+    question: "현재 사용 중인 기술 스택이 있나요?"
+    category: "keywords"
+    priority: low
+    type: "open_ended"
+    placeholder: "예: React, Node.js, PostgreSQL 등"
+
+  # Q5: 특정 문제/요구사항 (선택적)
+  specific_needs:
+    question: "해결하려는 특정 문제나 요구사항이 있나요?"
+    category: "keywords"
+    priority: low
+    conditional: true
+    show_if: "purpose == '구현 방법 조사'"
+    type: "open_ended"
+    placeholder: "예: 실시간 동기화, 대용량 처리 등"
+
+# 기본값
+defaults:
+  purpose: "기술 도입 검토"
+  expertise: "중급 (기본 이해)"
+  environment: "아직 미정"
+
+# 컨텍스트 템플릿
+context_template: |
+  이해한 내용:
+  - 기술 주제: {topic}
+  - 조사 목적: {purpose}
+  - 경험 수준: {expertise}
+  - 사용 환경: {environment}
+  {tech_stack_line}
+  {specific_needs_line}
+
+  맞으시면 진행하겠습니다.
+
+# 검색 전략 매핑
+search_strategy:
+  base_queries:
+    - "{topic} overview"
+    - "{topic} how it works"
+    - "{topic} pros cons"
+    - "{topic} best practices {year}"
+
+  purpose_queries:
+    기술 도입 검토:
+      - "{topic} adoption guide"
+      - "{topic} getting started"
+      - "{topic} learning curve"
+      - "{topic} ecosystem"
+    기술 비교/선택:
+      - "{topic} vs alternatives"
+      - "{topic} comparison"
+      - "{topic} benchmarks"
+    구현 방법 조사:
+      - "{topic} implementation"
+      - "{topic} tutorial"
+      - "{topic} example"
+      - "github {topic}"
+    기술 트렌드 파악:
+      - "{topic} trends {year}"
+      - "{topic} hype cycle"
+      - "{topic} adoption rate"
+      - "Gartner {topic}"
+
+  expertise_modifiers:
+    초보: ["beginner", "introduction", "basics", "tutorial"]
+    중급: ["intermediate", "best practices", "patterns"]
+    고급: ["advanced", "production", "scale", "optimization"]
+
+  environment_queries:
+    엔터프라이즈:
+      - "{topic} enterprise"
+      - "{topic} production ready"
+      - "{topic} security"
+      - "{topic} compliance"
+    스타트업:
+      - "{topic} startup"
+      - "{topic} MVP"
+      - "{topic} rapid development"
+
+# 출력 형식 매핑
+output_formats:
+  adoption_analysis:
+    sections:
+      - "기술 개요"
+      - "작동 원리"
+      - "장단점"
+      - "학습 곡선"
+      - "생태계/커뮤니티"
+      - "도입 권고"
+
+  tech_comparison:
+    sections:
+      - "기술 비교 개요"
+      - "기능 비교"
+      - "성능 벤치마크"
+      - "커뮤니티/지원"
+      - "상황별 추천"
+
+  implementation_guide:
+    sections:
+      - "개요"
+      - "요구사항"
+      - "구현 단계"
+      - "베스트 프랙티스"
+      - "주의사항"
+      - "참고 자료"
+
+  trend_analysis:
+    sections:
+      - "기술 개요"
+      - "Hype Cycle 위치"
+      - "채택 현황"
+      - "주요 플레이어"
+      - "미래 전망"
+
+# 소스 우선순위
+source_priority:
+  high:
+    - "공식 문서"
+    - "GitHub"
+    - "arXiv (논문)"
+    - "Gartner Hype Cycle"
+  medium:
+    - "Stack Overflow"
+    - "기술 블로그 (Medium, Dev.to)"
+    - "YouTube 튜토리얼"
+  low:
+    - "개인 블로그"
+    - "오래된 자료 (2년+)"

@@ -1,0 +1,315 @@
+# 대체 소스 규칙
+# v3.0 - 안전장치 시스템
+
+version: "3.0"
+description: "1차 소스 실패 시 자동 대체 소스 전환 규칙"
+
+# 핵심 목표
+goals:
+  - "검색 중단 없이 지속"
+  - "품질 저하 최소화"
+  - "투명한 대체 알림"
+
+# Fallback 계층 구조
+fallback_hierarchy:
+  levels:
+    - level: 1
+      name: "Primary Sources"
+      description: "최우선 신뢰 소스 (tier_1)"
+      failure_action: "level 2로 이동"
+
+    - level: 2
+      name: "Secondary Sources"
+      description: "대체 신뢰 소스 (tier_2)"
+      failure_action: "level 3로 이동"
+
+    - level: 3
+      name: "Tertiary Sources"
+      description: "일반 전문 소스 (tier_3)"
+      failure_action: "level 4로 이동"
+
+    - level: 4
+      name: "General Search"
+      description: "범용 웹 검색"
+      failure_action: "검색 실패 보고"
+
+# 분야별 Fallback 체인
+domain_fallback_chains:
+  real_estate:
+    level_1:
+      - source: "kbland.kr"
+        type: "시세/통계"
+      - source: "r114.com"
+        type: "시세/매물"
+      - source: "molit.go.kr"
+        type: "정책/공시"
+
+    level_2:
+      - source: "land.naver.com"
+        type: "시세/매물"
+      - source: "zigbang.com"
+        type: "매물/시세"
+      - source: "hogangnono.com"
+        type: "분석/시세"
+
+    level_3:
+      - source: "부동산 전문 뉴스"
+        type: "뉴스/분석"
+
+    level_4:
+      - source: "일반 웹 검색"
+        type: "범용"
+        warning: true
+
+  stocks_finance:
+    level_1:
+      - source: "dart.fss.or.kr"
+        type: "공시"
+      - source: "kind.krx.co.kr"
+        type: "거래소 정보"
+      - source: "bok.or.kr"
+        type: "경제 지표"
+
+    level_2:
+      - source: "investing.com"
+        type: "시세/분석"
+      - source: "finance.naver.com"
+        type: "시세/뉴스"
+      - source: "fnguide.com"
+        type: "기업 분석"
+
+    level_3:
+      - source: "증권사 리포트"
+        type: "분석"
+      - source: "경제 뉴스"
+        type: "뉴스"
+
+    level_4:
+      - source: "일반 웹 검색"
+        type: "범용"
+        warning: true
+
+  ai_technology:
+    level_1:
+      - source: "arxiv.org"
+        type: "논문"
+      - source: "openai.com"
+        type: "공식"
+      - source: "anthropic.com"
+        type: "공식"
+
+    level_2:
+      - source: "huggingface.co"
+        type: "모델/문서"
+      - source: "github.com"
+        type: "코드/프로젝트"
+      - source: "papers.ssrn.com"
+        type: "논문"
+
+    level_3:
+      - source: "techcrunch.com"
+        type: "뉴스"
+      - source: "venturebeat.com"
+        type: "뉴스/분석"
+      - source: "기술 블로그"
+        type: "분석"
+
+    level_4:
+      - source: "일반 웹 검색"
+        type: "범용"
+        warning: true
+
+  health_medical:
+    level_1:
+      - source: "ncbi.nlm.nih.gov"
+        type: "PubMed"
+      - source: "who.int"
+        type: "WHO"
+      - source: "mohw.go.kr"
+        type: "보건복지부"
+
+    level_2:
+      - source: "mayoclinic.org"
+        type: "의료 정보"
+      - source: "webmd.com"
+        type: "건강 정보"
+      - source: "nih.gov"
+        type: "NIH"
+
+    level_3:
+      - source: "healthline.com"
+        type: "건강 정보"
+      - source: "대학병원 사이트"
+        type: "의료 정보"
+
+    level_4:
+      - source: "일반 웹 검색"
+        type: "범용"
+        warning: true
+        extra_disclaimer: true  # 의료는 추가 경고 필수
+
+  legal:
+    level_1:
+      - source: "law.go.kr"
+        type: "국가법령정보센터"
+      - source: "scourt.go.kr"
+        type: "대법원"
+      - source: "moleg.go.kr"
+        type: "법제처"
+
+    level_2:
+      - source: "lawnb.com"
+        type: "법률 DB"
+      - source: "casenote.kr"
+        type: "판례"
+
+    level_3:
+      - source: "법무법인 블로그"
+        type: "해설"
+      - source: "법률 뉴스"
+        type: "뉴스"
+
+    level_4:
+      - source: "일반 웹 검색"
+        type: "범용"
+        warning: true
+        extra_disclaimer: true
+
+# Fallback 트리거 조건
+trigger_conditions:
+  # 즉시 Fallback
+  immediate:
+    - condition: "HTTP 404/410"
+      action: "다음 레벨로 이동"
+
+    - condition: "HTTP 500/502/503"
+      action: "다음 레벨로 이동"
+
+    - condition: "타임아웃 (> 30초)"
+      action: "다음 레벨로 이동"
+
+  # 재시도 후 Fallback
+  retry_first:
+    - condition: "일시적 네트워크 오류"
+      retry_count: 2
+      retry_delay: "3초"
+      action: "재시도 후 실패 시 다음 레벨"
+
+  # 컨텐츠 기반 Fallback
+  content_based:
+    - condition: "페이월 감지"
+      action: "다음 레벨로 이동"
+
+    - condition: "로그인 필요"
+      action: "다음 레벨로 이동"
+
+    - condition: "관련 콘텐츠 없음"
+      action: "다음 레벨로 이동"
+
+# 품질 보정
+quality_adjustment:
+  # 레벨 하락 시 조정
+  level_downgrade:
+    level_2:
+      reliability_penalty: -0.5
+      note: "대체 소스 사용 표시"
+
+    level_3:
+      reliability_penalty: -1.0
+      note: "신뢰도 낮음 경고"
+
+    level_4:
+      reliability_penalty: -1.5
+      note: "범용 검색 - 검증 필요"
+      extra_verification: true
+
+  # 최종 신뢰도 표시
+  trust_display:
+    high: "🟢 높은 신뢰 (tier_1 소스)"
+    medium: "🟡 중간 신뢰 (tier_2 대체)"
+    low: "🟠 낮은 신뢰 (tier_3 대체)"
+    minimal: "🔴 최소 신뢰 (범용 검색)"
+
+# 알림 및 투명성
+transparency:
+  # 사용자 알림
+  user_notification:
+    show_fallback: true
+    show_reason: true
+    template: |
+      ℹ️ **소스 변경 알림**
+      - 원래 소스: {original}
+      - 변경 이유: {reason}
+      - 대체 소스: {fallback}
+      - 신뢰도 영향: {trust_impact}
+
+  # 결과에 표시
+  result_marking:
+    fallback_used: "[대체 소스]"
+    low_trust: "[검증 필요]"
+
+# 복구 로직
+recovery:
+  # 자동 복구 시도
+  auto_recovery:
+    check_interval: "5분"
+    action: "원래 소스 재시도"
+
+  # 세션 내 캐싱
+  session_cache:
+    failed_sources: true
+    ttl: "세션 종료까지"
+    purpose: "동일 소스 반복 시도 방지"
+
+# 에이전트 적용
+agent_application:
+  searcher:
+    role: "Fallback 체인 실행"
+    actions:
+      - "level 1부터 순차 시도"
+      - "실패 시 다음 레벨로 자동 전환"
+      - "사용된 레벨 기록"
+      - "알림 메시지 생성"
+
+  synthesizer:
+    role: "Fallback 정보 통합"
+    actions:
+      - "사용된 소스 레벨 표시"
+      - "신뢰도 조정 반영"
+      - "필요 시 추가 검증 권고"
+
+# 출력 템플릿
+output_templates:
+  fallback_notice: |
+    ---
+    ℹ️ **소스 알림**
+
+    일부 1차 소스에 접근할 수 없어 대체 소스를 사용했습니다:
+
+    | 원래 소스 | 대체 소스 | 이유 |
+    |----------|----------|------|
+    {fallback_rows}
+
+    *대체 소스의 정보는 원래 소스와 다를 수 있습니다.*
+    ---
+
+  all_fallback_failed: |
+    ⚠️ **경고: 전문 소스 접근 불가**
+
+    {domain} 분야의 모든 전문 소스에 접근할 수 없습니다.
+    일반 웹 검색 결과만 제공되며, 신뢰도가 낮을 수 있습니다.
+
+    **권장 조치:**
+    - 나중에 다시 시도
+    - 직접 소스 사이트 방문
+    - 결과에 대한 추가 검증
+
+  trust_summary: |
+    ### 📊 소스 신뢰도 요약
+
+    | 레벨 | 소스 수 | 신뢰도 |
+    |------|--------|--------|
+    | Level 1 (Primary) | {l1_count} | 🟢 높음 |
+    | Level 2 (Secondary) | {l2_count} | 🟡 중간 |
+    | Level 3 (Tertiary) | {l3_count} | 🟠 낮음 |
+    | Level 4 (General) | {l4_count} | 🔴 최소 |

@@ -1,0 +1,27 @@
+# Consensus Review Protocol v6.0
+# deep/full에서 약한 후보와 suppression 판단을 검토하기 위한 경량 합의 규칙
+
+version: "6.0"
+
+overview:
+  activation: "deep/full에서만 선택적 활성화"
+  purpose:
+    - "weak candidate 유지 여부 판단"
+    - "suppressed candidate 이유 점검"
+    - "출력에 unresolved candidate를 남길지 결정"
+
+participants:
+  analyzer:
+    weight: 0.45
+  synthesizer:
+    weight: 0.35
+  planner:
+    weight: 0.20
+
+subjects:
+  unresolved_candidate_retention:
+    threshold: 0.60
+  suppression_approval:
+    threshold: 0.70
+  additional_validation_needed:
+    threshold: 0.50

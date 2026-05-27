@@ -1,0 +1,132 @@
+# 주식/금융 분야 신뢰 소스
+# v3.0 - 분야별 특화 검색 시스템
+
+domain:
+  id: stocks_finance
+  name: "주식/금융"
+  description: "주식, 투자, 펀드, ETF, 금융 상품 관련 리서치"
+
+# 트리거 키워드
+triggers:
+  - "주식"
+  - "투자"
+  - "펀드"
+  - "ETF"
+  - "배당"
+  - "PER"
+  - "PBR"
+  - "ROE"
+  - "시가총액"
+  - "실적"
+  - "공시"
+  - "증권"
+  - "재테크"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "dart.fss.or.kr"
+      name: "금융감독원 전자공시"
+      reliability: 5
+      type: "정부/공시"
+      search_modifier: "site:dart.fss.or.kr"
+
+    - domain: "kind.krx.co.kr"
+      name: "한국거래소 KIND"
+      reliability: 5
+      type: "정부/데이터"
+      search_modifier: "site:kind.krx.co.kr"
+
+    - domain: "bok.or.kr"
+      name: "한국은행"
+      reliability: 5
+      type: "정부/통계"
+      search_modifier: "site:bok.or.kr"
+
+    - domain: "fss.or.kr"
+      name: "금융감독원"
+      reliability: 5
+      type: "정부/규제"
+      search_modifier: "site:fss.or.kr"
+
+  secondary:
+    - domain: "investing.com"
+      name: "Investing.com"
+      reliability: 4
+      type: "데이터/분석"
+      search_modifier: "site:investing.com"
+
+    - domain: "seekingalpha.com"
+      name: "Seeking Alpha"
+      reliability: 4
+      type: "분석"
+      search_modifier: "site:seekingalpha.com"
+
+    - domain: "bloomberg.com"
+      name: "Bloomberg"
+      reliability: 5
+      type: "뉴스/분석"
+      search_modifier: "site:bloomberg.com"
+
+    - domain: "reuters.com"
+      name: "Reuters"
+      reliability: 5
+      type: "뉴스"
+      search_modifier: "site:reuters.com"
+
+  tertiary:
+    - domain: "finance.naver.com"
+      name: "네이버 금융"
+      reliability: 3
+    - domain: "증권사 리포트"
+      reliability: 4
+
+# 분야별 키워드
+keywords:
+  fundamentals:
+    - PER
+    - PBR
+    - ROE
+    - EPS
+    - 시가총액
+    - 배당수익률
+
+  analysis:
+    - 실적
+    - 매출
+    - 영업이익
+    - 순이익
+    - 성장률
+    - 전망
+
+  products:
+    - 주식
+    - ETF
+    - 펀드
+    - 채권
+    - 파생상품
+
+# 검색 전략
+search_strategy:
+  priority: ["공시", "실적", "애널리스트 리포트"]
+  time_filter: "최근 1년"
+  cross_reference:
+    - "DART"
+    - "증권사 리서치"
+    - "뉴스"
+
+# 면책 조항
+disclaimer:
+  required: true
+  text: |
+    ⚠️ **투자 면책 조항**
+    - 이 정보는 투자 조언이 아닙니다.
+    - 모든 투자에는 원금 손실 위험이 수반됩니다.
+    - 과거 수익률이 미래 수익을 보장하지 않습니다.
+    - 투자 결정 전 금융 전문가와 상담하세요.
+
+# 최신성 정책
+freshness:
+  max_age_days: 7
+  warning_age_days: 3
+  stale_label: "⚠️ 시장 상황이 변경되었을 수 있습니다"

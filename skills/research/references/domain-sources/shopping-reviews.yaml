@@ -1,0 +1,111 @@
+# 쇼핑/제품 리뷰 분야 신뢰 소스
+# v3.0 - 분야별 특화 검색 시스템
+
+domain:
+  id: shopping_reviews
+  name: "쇼핑/제품 리뷰"
+  description: "제품 리뷰, 비교, 구매 결정 관련 리서치"
+
+# 트리거 키워드
+triggers:
+  - "리뷰"
+  - "비교"
+  - "추천"
+  - "할인"
+  - "가성비"
+  - "스펙"
+  - "언박싱"
+  - "살까"
+  - "구매"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "rtings.com"
+      name: "RTINGS"
+      reliability: 5
+      type: "전문 리뷰"
+      search_modifier: "site:rtings.com"
+
+    - domain: "wirecutter.com"
+      name: "Wirecutter"
+      reliability: 5
+      type: "전문 리뷰"
+      search_modifier: "site:wirecutter.com"
+
+    - domain: "cnet.com"
+      name: "CNET"
+      reliability: 4
+      type: "테크 리뷰"
+      search_modifier: "site:cnet.com"
+
+    - domain: "tomsguide.com"
+      name: "Tom's Guide"
+      reliability: 4
+      type: "가이드/리뷰"
+      search_modifier: "site:tomsguide.com"
+
+  secondary:
+    - domain: "danawa.com"
+      name: "다나와"
+      reliability: 4
+      type: "한국 가격비교"
+      search_modifier: "site:danawa.com"
+
+    - domain: "ppomppu.co.kr"
+      name: "뽐뿌"
+      reliability: 3
+      type: "한국 커뮤니티"
+      search_modifier: "site:ppomppu.co.kr"
+
+    - domain: "quasarzone.com"
+      name: "퀘이사존"
+      reliability: 4
+      type: "PC 하드웨어"
+      search_modifier: "site:quasarzone.com"
+
+  tertiary:
+    - domain: "YouTube 리뷰"
+      reliability: 3
+    - domain: "개인 블로그"
+      reliability: 2
+
+# 분야별 키워드
+keywords:
+  review:
+    - 리뷰
+    - 후기
+    - 사용기
+    - 장단점
+
+  comparison:
+    - 비교
+    - vs
+    - 추천
+    - 순위
+
+  price:
+    - 가격
+    - 할인
+    - 쿠폰
+    - 최저가
+    - 가성비
+
+# 검색 전략
+search_strategy:
+  priority: ["전문 리뷰 사이트", "가격 비교", "커뮤니티 후기"]
+  time_filter: "최근 1년"
+  cross_reference:
+    - "전문 리뷰"
+    - "사용자 리뷰"
+    - "가격 비교"
+
+# 면책 조항
+disclaimer:
+  required: false
+
+# 최신성 정책
+freshness:
+  max_age_days: 365
+  warning_age_days: 180
+  stale_label: "⚠️ 새 제품이 출시되었을 수 있습니다"

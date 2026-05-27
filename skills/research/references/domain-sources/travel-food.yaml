@@ -1,0 +1,114 @@
+# 여행/맛집 분야 신뢰 소스
+# v3.0 - 분야별 특화 검색 시스템
+
+domain:
+  id: travel_food
+  name: "여행/맛집"
+  description: "여행지, 숙소, 맛집, 관광 정보 관련 리서치"
+
+# 트리거 키워드
+triggers:
+  - "맛집"
+  - "여행지"
+  - "숙소"
+  - "호텔"
+  - "항공권"
+  - "관광"
+  - "리뷰"
+  - "추천"
+  - "휴가"
+  - "여행 코스"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "tripadvisor.com"
+      name: "TripAdvisor"
+      reliability: 4
+      type: "리뷰 플랫폼"
+      search_modifier: "site:tripadvisor.com"
+
+    - domain: "booking.com"
+      name: "Booking.com"
+      reliability: 4
+      type: "숙소 예약"
+      search_modifier: "site:booking.com"
+
+    - domain: "naver.com"
+      name: "네이버 맛집/여행"
+      reliability: 3
+      type: "한국 플랫폼"
+      search_modifier: "site:naver.com 맛집 OR 여행"
+
+  secondary:
+    - domain: "airbnb.com"
+      name: "Airbnb"
+      reliability: 4
+      type: "숙소"
+      search_modifier: "site:airbnb.com"
+
+    - domain: "skyscanner.co.kr"
+      name: "스카이스캐너"
+      reliability: 4
+      type: "항공권"
+      search_modifier: "site:skyscanner.co.kr"
+
+    - domain: "mangoplate.com"
+      name: "망고플레이트"
+      reliability: 4
+      type: "한국 맛집"
+      search_modifier: "site:mangoplate.com"
+
+    - domain: "catchtable.co.kr"
+      name: "캐치테이블"
+      reliability: 4
+      type: "한국 맛집"
+      search_modifier: "site:catchtable.co.kr"
+
+  tertiary:
+    - domain: "여행 블로그"
+      reliability: 3
+    - domain: "인스타그램/유튜브"
+      reliability: 2
+
+# 분야별 키워드
+keywords:
+  travel:
+    - 여행지
+    - 관광
+    - 투어
+    - 코스
+    - 일정
+
+  accommodation:
+    - 호텔
+    - 숙소
+    - 리조트
+    - 에어비앤비
+    - 게스트하우스
+
+  food:
+    - 맛집
+    - 레스토랑
+    - 카페
+    - 로컬 음식
+    - 미슐랭
+
+# 검색 전략
+search_strategy:
+  priority: ["리뷰 플랫폼", "예약 사이트", "블로그"]
+  time_filter: "최근 6개월"
+  cross_reference:
+    - "트립어드바이저"
+    - "네이버 리뷰"
+    - "구글 맵스"
+
+# 면책 조항
+disclaimer:
+  required: false
+
+# 최신성 정책
+freshness:
+  max_age_days: 180
+  warning_age_days: 90
+  stale_label: "⚠️ 영업 정보가 변경되었을 수 있습니다"

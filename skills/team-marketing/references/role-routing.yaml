@@ -1,0 +1,212 @@
+# team-marketing Role 라우팅 테이블
+# 한국어 키워드 → Role → marketing-skills 스킬 매핑
+# 우선순위: 배열 순서대로 평가. 다중 매칭 시 상위 Role 우선.
+
+version: 1
+last_updated: 2026-04-21
+
+priority_order:
+  - cmo-strategist
+  - insight-analyst
+  - copy-content-chief
+  - cro-engineer
+  - acquisition-lead
+  - growth-gtm-ops
+
+routes:
+  cmo-strategist:
+    korean_keywords:
+      - 포지셔닝
+      - ICP
+      - 타겟 정의
+      - 런칭
+      - 런칭 전략
+      - 가격 전략
+      - 가격 패키징
+      - 마케팅 아이디어
+      - 심리 설득
+      - 인지편향
+      - AIDA
+      - 전략 수립
+      - 브랜드 포지셔닝
+      - 제품 알리기
+    skills:
+      - marketing-skills:product-marketing-context
+      - marketing-skills:marketing-ideas
+      - marketing-skills:marketing-psychology
+      - marketing-skills:launch-strategy
+      - marketing-skills:pricing-strategy
+
+  insight-analyst:
+    korean_keywords:
+      - VOC
+      - JTBD
+      - 고객 리서치
+      - 고객 인터뷰
+      - 페르소나
+      - 페르소나 도출
+      - 경쟁사 분석
+      - 경쟁사
+      - 대체재
+      - alternatives
+      - 콘텐츠 갭
+      - 토픽 발굴
+      - 벤치마킹
+      - 고객 인사이트
+    skills:
+      - marketing-skills:customer-research
+      - marketing-skills:competitor-alternatives
+      - marketing-skills:content-strategy
+    research_presets:
+      - marketing-voc-sources
+      - marketing-competitor-queries
+      - marketing-content-gap
+      - marketing-interview-bias
+
+  copy-content-chief:
+    korean_keywords:
+      - 카피
+      - 헤드라인
+      - 랜딩 카피
+      - 세일즈 카피
+      - 리라이트
+      - 카피 편집
+      - 블로그 글
+      - 블로그 본문
+      - 브랜드 보이스
+      - SNS 원본
+      - 인스타 콘텐츠
+      - 트위터 스레드
+      - 링크드인 캐러셀
+      - 이메일 시퀀스
+      - 드립
+      - 웰컴 메일
+      - 재참여 메일
+      - 콜드 이메일
+      - 아웃리치
+      - 이번 주 콘텐츠
+    content_creator_fallback:
+      # content-creator로 위임할 요청 유형
+      - 블로그 본문
+      - 브랜드 보이스 분석
+      - 콘텐츠 캘린더
+      - SNS 원본 생성
+    marketing_skills_priority:
+      # marketing-skills에 위임할 요청 유형
+      - 랜딩 페이지 카피: marketing-skills:copywriting
+      - 세일즈 카피: marketing-skills:copywriting
+      - 카피 최종 검수: marketing-skills:copy-editing
+      - SNS 리퍼포징: marketing-skills:social-content
+      - 이메일 자동화: marketing-skills:email-sequence
+      - 콜드 아웃리치: marketing-skills:cold-email
+    skills:
+      - marketing-skills:copywriting
+      - marketing-skills:copy-editing
+      - marketing-skills:cold-email
+      - marketing-skills:email-sequence
+      - marketing-skills:social-content
+      - content-creator
+
+  cro-engineer:
+    korean_keywords:
+      - CRO
+      - 전환율
+      - 랜딩 최적화
+      - 회원가입 플로우
+      - 회원가입 개선
+      - 온보딩
+      - 폼 최적화
+      - 팝업
+      - 모달
+      - 페이월
+      - 업셀
+      - 업그레이드 스크린
+      - ASO
+      - 앱스토어 최적화
+      - A/B 테스트
+      - 실험 설계
+      - 5초 테스트
+      - 안 사
+      - 안 팔려
+    skills:
+      - marketing-skills:page-cro
+      - marketing-skills:signup-flow-cro
+      - marketing-skills:onboarding-cro
+      - marketing-skills:form-cro
+      - marketing-skills:popup-cro
+      - marketing-skills:paywall-upgrade-cro
+      - marketing-skills:aso-audit
+      - marketing-skills:ab-test-setup
+
+  acquisition-lead:
+    korean_keywords:
+      - SEO
+      - SEO 감사
+      - AI 검색
+      - LLM 인용
+      - AEO
+      - 스키마
+      - 구조화 데이터
+      - 프로그래매틱 SEO
+      - 사이트 구조
+      - 내부 링크
+      - 유료 광고
+      - 구글 광고
+      - 메타 광고
+      - 링크드인 광고
+      - 틱톡 광고
+      - 광고 소재
+      - 애드 크리에이티브
+      - GA4
+      - GA
+      - UTM
+      - 추적 이벤트
+      - 구글 검색
+      - 검색 안 나와
+    skills:
+      - marketing-skills:seo-audit
+      - marketing-skills:ai-seo
+      - marketing-skills:schema-markup
+      - marketing-skills:programmatic-seo
+      - marketing-skills:site-architecture
+      - marketing-skills:paid-ads
+      - marketing-skills:ad-creative
+      - marketing-skills:analytics-tracking
+
+  growth-gtm-ops:
+    korean_keywords:
+      - 이탈률
+      - 해지 방어
+      - 리텐션
+      - 재방문
+      - 추천 프로그램
+      - 레퍼럴
+      - 바이럴
+      - 커뮤니티 마케팅
+      - 무료 도구
+      - 프리툴
+      - 리드 매그넷
+      - 무료 자료
+      - RevOps
+      - MQL
+      - SQL 리드
+      - 리드 스코링
+      - 세일즈 인에이블먼트
+      - 피치덱
+      - 원페이저
+      - 데모 스크립트
+      - 금방 나가
+      - 가입하고 이탈
+    skills:
+      - marketing-skills:churn-prevention
+      - marketing-skills:referral-program
+      - marketing-skills:community-marketing
+      - marketing-skills:free-tool-strategy
+      - marketing-skills:lead-magnets
+      - marketing-skills:revops
+      - marketing-skills:sales-enablement
+
+# 다중 매칭 규칙
+# - 같은 프롬프트에서 여러 Role 매칭 시 우선순위 순서대로 1개만 주 Role 선택
+# - 나머지는 협업 Role로 outbox 메시지 전달
+# - content-creator vs marketing-skills 분기는 copy-content-chief 내부 규칙 참조

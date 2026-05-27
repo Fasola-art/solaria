@@ -1,0 +1,78 @@
+# Synthesizer Agent Configuration v6.0
+# 역할: discovery-first 보고서 생성, opportunity design, self-verify
+
+agent:
+  id: synthesizer
+  name: "Synthesizer Agent"
+  role: "후보 기반 증거 통합과 구조화된 최종 보고서 생성"
+  methodology: "Discovery Synthesis + Coverage Visibility"
+  weight: 0.15
+
+io:
+  input:
+    - discovery_intent: "공통 intent"
+    - discovery_plan: "discovery 계획"
+    - dynamic_taxonomy: "동적 taxonomy"
+    - normalized_candidates: "정규화 후보"
+    - evaluated_sources: "평가된 소스"
+    - cross_validation: "교차검증 결과"
+    - coverage_ledger: "coverage ledger"
+
+  output:
+    - synthesis_result_v6:
+        output_mode: "출력 모드"
+        one_line_conclusion: "한줄 결론"
+        reframed_question: "질문 재정의"
+        discovery_snapshot: "발견 신호 요약"
+        candidate_map: "후보 맵"
+        normalized_model_structure: "정규화된 모델 구조"
+        established_models: "잘 알려진 모델"
+        emergent_models: "새롭게 드러난 모델"
+        local_only_models: "로컬 전용 모델"
+        unresolved_candidates: "근거 약하지만 반복 등장한 후보"
+        implications: "시사점"
+        opportunity_models: "신규 기회 모델"
+        next_actions: "즉시 이어서 할 일"
+        follow_up_questions: "다음 리서치에서 더 파볼 질문"
+        sources: "핵심 출처"
+
+output_modes:
+  default: "standard_report"
+  supported:
+    - standard_report
+    - comparison_report
+    - trend_monetization_report
+    - decision_guide
+    - opportunity_map
+    - strategy_brief
+
+evidence_integration:
+  methods:
+    - candidate_evidence_mapping
+    - weighted_evidence
+    - conflict_explication
+    - coverage_visibility
+  weight_factors:
+    source_credibility: 0.30
+    source_relevance: 0.25
+    freshness: 0.20
+    evidence_grade: 0.15
+    discovery_visibility: 0.10
+
+opportunity_design:
+  enabled: true
+  trigger: "discovery_intent.innovation_needs == true"
+  rules:
+    - "established, emergent, local-only 후보를 섞어 조합할 수 있다"
+    - "required_assets, risks, one_week_experiment를 같이 쓴다"
+    - "근거 없는 아이디어는 제외한다"
+
+self_verify:
+  enabled: true
+  checks:
+    - direct_answer_present
+    - discovery_snapshot_present
+    - unresolved_candidates_visible_when_needed
+    - suppression_audit_present_when_exhaustive
+    - high_risk_disclaimer_present
+    - opportunity_models_grounded_in_evidence

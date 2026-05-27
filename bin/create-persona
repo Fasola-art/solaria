@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import re
+from datetime import datetime, timezone
+from pathlib import Path
+
+HOME = Path.home()
+AGENTS = HOME / ".agents"
+PERSONAS_DIR = AGENTS / "personas"
+PERSONAS_JSON = AGENTS / "ontology" / "personas.json"
+NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
+
+
+def now():
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Create a shared persona and ontology entry.")
+    parser.add_argument("id", help="Lowercase hyphen-case persona id.")
+    parser.add_argument("--role", required=True, help="Persona role.")
+    parser.add_argument("--skills", default="", help="Comma-separated default/can-use skills.")
+    args = parser.parse_args()
+
+    persona_id = args.id.strip()
+    if not NAME_RE.match(persona_id):
+        raise SystemExit("Persona id must be lowercase hyphen-case, max 63 characters.")
+
+    PERSONAS_DIR.mkdir(parents=True, exist_ok=True)
+    PERSONAS_JSON.parent.mkdir(parents=True, exist_ok=True)
+    persona_file = PERSONAS_DIR / f"{persona_id}.md"
+    if persona_file.exists():
+        raise SystemExit(f"Persona already exists: {persona_file}")
+
+    skills = [s.strip() for s in args.skills.split(",") if s.strip()]
+    persona_file.write_text(
+        f"# {persona_id}\n\nRole: {args.role}\n\n## Responsibilities\n\n- Apply the role's judgment criteria to relevant work.\n- Use only skills that fit the task and available context.\n\n## Default Skills\n\n"
+        + "".join(f"- {skill}\n" for skill in skills),
+        encoding="utf-8",
+    )
+
+    if PERSONAS_JSON.exists():
+        data = json.loads(PERSONAS_JSON.read_text(encoding="utf-8"))
+    else:
+        data = {"schema_version": 1, "generated_at": now(), "personas": {}}
+    data.setdefault("personas", {})[persona_id] = {
+        "id": persona_id,
+        "type": "Persona",
+        "role": args.role,
+        "default_skills": skills,
+        "can_use_skills": skills,
+        "strengths": [],
+        "avoid": [],
+        "output_style": None,
+    }
+    data["generated_at"] = now()
+    PERSONAS_JSON.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(persona_file)
+
+
+if __name__ == "__main__":
+    main()

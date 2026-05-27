@@ -1,0 +1,113 @@
+# 취업/커리어 분야 신뢰 소스
+# v3.0 - 분야별 특화 검색 시스템
+
+domain:
+  id: career_jobs
+  name: "취업/커리어"
+  description: "채용, 연봉, 이직, 면접 관련 리서치"
+
+# 트리거 키워드
+triggers:
+  - "채용"
+  - "연봉"
+  - "이직"
+  - "면접"
+  - "경력"
+  - "신입"
+  - "포트폴리오"
+  - "취업"
+  - "구직"
+  - "자기소개서"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "wanted.co.kr"
+      name: "원티드"
+      reliability: 4
+      type: "채용 플랫폼"
+      search_modifier: "site:wanted.co.kr"
+
+    - domain: "saramin.co.kr"
+      name: "사람인"
+      reliability: 4
+      type: "채용 플랫폼"
+      search_modifier: "site:saramin.co.kr"
+
+    - domain: "jobkorea.co.kr"
+      name: "잡코리아"
+      reliability: 4
+      type: "채용 플랫폼"
+      search_modifier: "site:jobkorea.co.kr"
+
+    - domain: "linkedin.com"
+      name: "LinkedIn"
+      reliability: 4
+      type: "글로벌 네트워크"
+      search_modifier: "site:linkedin.com"
+
+  secondary:
+    - domain: "glassdoor.com"
+      name: "Glassdoor"
+      reliability: 4
+      type: "회사 리뷰/연봉"
+      search_modifier: "site:glassdoor.com"
+
+    - domain: "blind.kr"
+      name: "블라인드"
+      reliability: 3
+      type: "익명 커뮤니티"
+      search_modifier: "site:blind.kr"
+
+    - domain: "programmers.co.kr"
+      name: "프로그래머스"
+      reliability: 4
+      type: "IT 채용"
+      search_modifier: "site:programmers.co.kr"
+
+  tertiary:
+    - domain: "취업 카페/커뮤니티"
+      reliability: 2
+      warning: "⚠️ 개인 경험담"
+
+# 분야별 키워드
+keywords:
+  job_search:
+    - 채용
+    - 공고
+    - 지원
+    - 합격
+    - 불합격
+
+  compensation:
+    - 연봉
+    - 복지
+    - 스톡옵션
+    - 보너스
+    - 협상
+
+  interview:
+    - 면접
+    - 코딩테스트
+    - 과제전형
+    - 인성면접
+    - 기술면접
+
+# 검색 전략
+search_strategy:
+  priority: ["채용 플랫폼", "회사 리뷰", "커뮤니티"]
+  time_filter: "최근 1년"
+  cross_reference:
+    - "채용 공고"
+    - "Glassdoor 리뷰"
+    - "블라인드"
+
+# 면책 조항
+disclaimer:
+  required: false
+
+# 최신성 정책
+freshness:
+  max_age_days: 180
+  warning_age_days: 90
+  stale_label: "⚠️ 채용 시장이 변경되었을 수 있습니다"

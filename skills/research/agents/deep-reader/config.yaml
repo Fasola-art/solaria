@@ -1,0 +1,46 @@
+# Deep Reader Agent Configuration v6.0
+# 역할: 상위 소스 전문 읽기 및 후보별 근거 밀도 보강
+
+agent:
+  id: deep_reader
+  name: "Deep Reader Agent"
+  role: "후보와 연결된 상위 소스 full-content reading"
+  methodology: "Priority-Based Evidence Enrichment"
+  weight: 0.15
+
+pipeline:
+  stage: "Evidence Search Enrichment"
+  activation:
+    quick: false
+    standard: true
+    deep: true
+    full: true
+
+io:
+  input:
+    - raw_sources: "Searcher가 수집한 소스"
+    - candidate_records: "후보 목록"
+    - discovery_plan: "discovery 계획"
+  output:
+    - enriched_sources:
+        source_id: "원본 소스 ID"
+        candidate_ids: "연결된 후보"
+        full_content_summary: "전문 요약"
+        key_data_points: "핵심 수치"
+        key_claims: "핵심 주장"
+        quotes: "직접 인용 가능한 문장"
+        internal_links: "후속 탐색 가치가 있는 링크"
+        extraction_confidence: "high / medium / low"
+
+source_selection:
+  depth_budget:
+    standard: 3
+    deep: 7
+    full: 12
+  priority_criteria:
+    - candidate_relevance
+    - source_credibility
+    - diversity_bonus
+
+limits:
+  max_total_time_ms: 90000

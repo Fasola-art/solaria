@@ -1,0 +1,84 @@
+# Analyzer Agent Configuration v6.0
+# 역할: candidate normalization, source evaluation, coverage ledger
+
+agent:
+  id: analyzer
+  name: "Analyzer Agent"
+  role: "후보 정규화, 소스 평가, coverage ledger 작성"
+  methodology: "Candidate Normalization + Evidence Evaluation"
+  weight: 0.30
+
+io:
+  input:
+    - candidate_records: "Searcher가 수집한 후보"
+    - raw_sources: "Searcher가 수집한 소스"
+    - enriched_sources: "Deep Reader가 보강한 소스 (optional)"
+    - discovery_plan: "Planner의 discovery 계획"
+
+  output:
+    - candidate_graph:
+        synonym_edges: "동의어 관계"
+        contains_edges: "포함 관계"
+        overlap_edges: "부분 중복"
+        merge_candidates: "병합 후보"
+        split_candidates: "분리 후보"
+        orphans: "단독 후보"
+    - normalized_candidates:
+        candidate_id: "후보 식별자"
+        normalized_label: "정규화 레이블"
+        confidence: "high / medium / low"
+        status: "established / emergent / local-only / unresolved"
+    - evaluated_sources:
+        source_id: "소스 식별자"
+        credibility: "신뢰도 1-5"
+        relevance: "관련성 1-5"
+        freshness: "fresh / aging / stale"
+        independence_group: "독립성 그룹"
+        key_facts: "핵심 사실"
+    - cross_validation:
+        facts: "교차검증된 사실"
+        agreement_level: "일치도"
+        conflicts: "충돌 항목"
+        verification_levels: "fact-level 검증 수준"
+    - coverage_ledger:
+        axis_hits: "축별 적중"
+        weak_axes: "약한 축"
+        candidate_gaps: "후보 부족 영역"
+        suppressed_candidates: "제거된 후보와 이유"
+        evidence_weak_candidates: "근거 약한 후보"
+        freshness_window: "최신성 창"
+
+evaluation_axes:
+  candidate_quality:
+    - repeat_signal_strength
+    - payout_clarity
+    - action_specificity
+    - locality_specificity
+  source_quality:
+    - credibility
+    - relevance
+    - freshness
+    - independence
+
+normalization_rules:
+  merge_if:
+    - "reward_type, recruitment_type, action_type가 실질적으로 동일"
+    - "raw_term만 다르고 근거 구조가 동일"
+  split_if:
+    - "같은 raw_term이라도 payout model이 다름"
+    - "같은 표현이 다른 실행 구조를 가짐"
+  unresolved_if:
+    - "반복 등장하지만 증거가 약함"
+    - "정규화할 근거가 부족함"
+
+coverage_sufficiency:
+  enabled: true
+  audit_dimensions:
+    - axis_hits
+    - candidate_diversity
+    - locality_balance
+    - suppression_visibility
+    - unresolved_visibility
+
+limits:
+  max_analysis_time_ms: 60000

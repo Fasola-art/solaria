@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+import argparse
+import os
+import re
+import subprocess
+from pathlib import Path
+
+HOME = Path.home()
+AGENTS = HOME / ".agents"
+AGENT_SKILLS = AGENTS / "skills"
+CLAUDE_SKILLS = HOME / ".claude" / "skills"
+CODEX_SKILLS = HOME / ".codex" / "skills"
+HEALTH = AGENTS / "bin" / "skill-health-check"
+NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
+
+
+def symlink_force(target, link):
+    link.parent.mkdir(parents=True, exist_ok=True)
+    if link.exists() or link.is_symlink():
+        if link.is_symlink() and link.resolve() == target.resolve():
+            return
+        raise SystemExit(f"Refusing to replace existing path: {link}")
+    rel_target = os.path.relpath(target, link.parent)
+    link.symlink_to(rel_target)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Create a shared agent skill in ~/.agents/skills.")
+    parser.add_argument("name", help="Lowercase hyphen-case skill name.")
+    parser.add_argument("--description", default=None, help="Skill frontmatter description.")
+    parser.add_argument("--codex", action="store_true", help="Also expose the skill through ~/.codex/skills.")
+    parser.add_argument("--no-claude", action="store_true", help="Do not create the Claude symlink.")
+    parser.add_argument("--resources", default="", help="Comma-separated resource directories: references,scripts,assets.")
+    args = parser.parse_args()
+
+    name = args.name.strip()
+    if not NAME_RE.match(name):
+        raise SystemExit("Skill name must be lowercase hyphen-case, max 63 characters.")
+
+    skill_dir = AGENT_SKILLS / name
+    if skill_dir.exists():
+        raise SystemExit(f"Skill already exists: {skill_dir}")
+
+    desc = args.description or f"Use when creating, updating, or applying the {name} capability."
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text(
+        f"---\nname: {name}\ndescription: {desc}\n---\n\n# {name}\n\nUse this skill for {name}-related work.\n\n## Workflow\n\n1. Inspect the user's request and relevant local context.\n2. Load only the references needed for the task.\n3. Make scoped changes or recommendations.\n4. Validate the result before reporting completion.\n",
+        encoding="utf-8",
+    )
+
+    for resource in [part.strip() for part in args.resources.split(",") if part.strip()]:
+        if resource not in {"references", "scripts", "assets"}:
+            raise SystemExit(f"Unsupported resource directory: {resource}")
+        (skill_dir / resource).mkdir()
+
+    if not args.no_claude:
+        symlink_force(skill_dir, CLAUDE_SKILLS / name)
+    if args.codex:
+        symlink_force(skill_dir, CODEX_SKILLS / name)
+
+    if HEALTH.exists():
+        subprocess.run([str(HEALTH), "--write"], check=False)
+
+    print(skill_dir)
+
+
+if __name__ == "__main__":
+    main()

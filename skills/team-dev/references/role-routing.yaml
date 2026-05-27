@@ -1,0 +1,323 @@
+# team-dev Role 라우팅 테이블
+# 한국어 키워드 → Role → 에이전트/스킬 매핑
+# 우선순위: 배열 순서대로 평가. 다중 매칭 시 상위 Role 우선.
+
+version: 1
+last_updated: 2026-04-21
+
+priority_order:
+  - tech-lead-architect
+  - security-eng
+  - backend-eng
+  - frontend-eng
+  - qa-automation
+  - devops-sre
+  - release-manager
+
+routes:
+  tech-lead-architect:
+    korean_keywords:
+      - 아키텍처
+      - 설계
+      - ADR
+      - 기술 결정
+      - 시스템 설계
+      - 모노레포
+      - 마이크로서비스
+      - 기술 부채
+      - 리팩토링
+      - 모듈화
+      - 의존성 정리
+      - 코드 구조
+      - 서비스 분리
+      - API 설계
+      - 스키마 설계
+      - 인터페이스 정의
+      - PR 최종 승인
+    personas:
+      - architect
+      - refactorer
+      - performance
+    skills:
+      - worker
+      - reviewer
+      - /simulate
+      - /codex-route
+
+  security-eng:
+    korean_keywords:
+      - 보안
+      - 취약점
+      - CVE
+      - OWASP
+      - SQL 인젝션
+      - XSS
+      - CSRF
+      - 인증
+      - 인가
+      - 권한
+      - 시크릿
+      - API 키
+      - 토큰
+      - 자격증명
+      - 암호화
+      - HTTPS
+      - CORS
+      - 세션
+      - JWT
+      - OAuth
+      - 2FA
+      - MFA
+      - 보안 감사
+      - 침투 테스트
+      - secret rotate
+      - credential
+    personas:
+      - security
+      - architect
+    force_trigger:
+      # 이 키워드 감지 시 다른 Role 요청이어도 Security Eng 강제 참여
+      - auth
+      - payment
+      - admin
+      - secret
+      - token
+      - credential
+    skills:
+      - worker
+      - reviewer
+      - /autofix
+
+  backend-eng:
+    korean_keywords:
+      - 백엔드
+      - API
+      - REST
+      - GraphQL
+      - 서버
+      - 데이터베이스
+      - DB
+      - SQL
+      - PostgreSQL
+      - MySQL
+      - Redis
+      - Prisma
+      - ORM
+      - 쿼리
+      - 마이그레이션
+      - 엔드포인트
+      - 미들웨어
+      - 서비스 레이어
+      - 비즈니스 로직
+      - 트랜잭션
+      - 배치 처리
+      - 큐
+      - 웹훅
+      - N+1
+      - 인덱스
+      - 성능 쿼리
+      - cron
+    personas:
+      - backend
+      - security
+      - qa
+    skills:
+      - worker
+      - reviewer
+      - healer
+      - /autofix
+      - /test-driven-development
+
+  frontend-eng:
+    korean_keywords:
+      - 프론트엔드
+      - React
+      - Next.js
+      - 컴포넌트
+      - UI
+      - 화면
+      - 페이지
+      - 레이아웃
+      - 스타일
+      - Tailwind
+      - CSS
+      - 상태관리
+      - Zustand
+      - TanStack Query
+      - 훅
+      - 폼
+      - 유효성 검사
+      - 접근성
+      - a11y
+      - 반응형
+      - 모바일
+      - 번들
+      - 성능 최적화
+      - LCP
+      - CLS
+      - INP
+      - 이미지 최적화
+      - Vercel 배포
+      - SSR
+      - CSR
+      - 랜딩 구현
+      - 랜딩 개발
+      - 대시보드 구현
+    personas:
+      - frontend
+      - performance
+      - qa
+    skills:
+      - worker
+      - reviewer
+      - /autofix
+      - /workflow code
+    frontend_stack_delegation:
+      # design-marketing-integration S3 위임 진입점
+      - case: web
+        stage: S3
+        policy: INFORM_5m
+      - case: commerce
+        stage: S3
+        policy: INFORM_5m
+        security_required: true  # 결제 흐름 → Security Eng 강제
+      - case: media
+        stage: S3
+        policy: INFORM_5m
+
+  qa-automation:
+    korean_keywords:
+      - 테스트
+      - QA
+      - 품질
+      - E2E
+      - 단위 테스트
+      - 통합 테스트
+      - Playwright
+      - Vitest
+      - Jest
+      - 커버리지
+      - 테스트 커버리지
+      - 테스트 케이스
+      - 회귀 테스트
+      - 자동화 테스트
+      - CI 테스트
+      - 테스트 실패
+      - 버그 재현
+      - MSW
+      - 모킹
+    personas:
+      - qa
+      - security
+    skills:
+      - worker
+      - reviewer
+      - /test-driven-development
+      - /autofix
+
+  devops-sre:
+    korean_keywords:
+      - DevOps
+      - SRE
+      - 인프라
+      - CI/CD
+      - GitHub Actions
+      - 파이프라인
+      - 배포
+      - 도커
+      - Docker
+      - 컨테이너
+      - Kubernetes
+      - k8s
+      - 모니터링
+      - 알럿
+      - 로그
+      - 메트릭
+      - Grafana
+      - Prometheus
+      - 인시던트
+      - 장애
+      - 다운타임
+      - 롤백
+      - 비용 최적화
+      - AWS
+      - GCP
+      - Azure
+      - Vercel
+      - 환경변수
+      - 시크릿 관리
+      - 스케일링
+      - 로드밸런서
+    personas:
+      - devops
+      - security
+      - performance
+    skills:
+      - worker
+      - reviewer
+      - healer
+      - /autofix
+      - /simulate
+
+  release-manager:
+    korean_keywords:
+      - 릴리즈
+      - 배포 일정
+      - 배포 윈도우
+      - 버전 관리
+      - 태그
+      - 릴리즈 노트
+      - 변경 이력
+      - CHANGELOG
+      - 핫픽스
+      - 패치
+      - 마이너
+      - 메이저 릴리즈
+      - 배포 계획
+      - 롤아웃
+      - 피처 플래그
+      - feature flag
+      - 의존성 업그레이드
+      - npm 업데이트
+      - 패키지 업데이트
+    personas:
+      - devops
+      - architect
+    skills:
+      - worker
+      - reviewer
+      - /simulate
+
+# 다중 매칭 규칙
+# - 같은 프롬프트에서 여러 Role 매칭 시 priority_order 순서대로 1개만 주 Role 선택
+# - 나머지는 협업 Role로 참여 (최대 3개 동시 활성)
+# - force_trigger 키워드 감지 시 Security Eng 무조건 참여 (주 Role 수에 포함)
+# - 500줄 이상 PR → /codex-route 자동 추가
+
+force_security_with:
+  - auth
+  - payment
+  - admin
+  - secret
+  - token
+  - credential
+
+checkpoint_map:
+  SILENT:
+    - pr_review
+    - log_analysis
+    - test_result_report
+    - devdep_add
+    - feature_flag_toggle
+    - rollback
+  INFORM_5m:
+    - code_modify
+    - deploy_any_env
+    - ci_change
+    - prod_dep_add
+  GATE_1h:
+    - hotfix_prod_merge
+  GATE_24h:
+    - db_migration_destructive
+    - secret_rotate
+    - force_push

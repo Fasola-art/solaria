@@ -1,0 +1,77 @@
+# Planner Agent Configuration v6.0
+# 역할: discovery planning, dynamic taxonomy shaping
+
+agent:
+  id: planner
+  name: "Planner Agent"
+  role: "후보 발견 전략 설계, taxonomy 초안 설계, 검색 계획 수립"
+  methodology: "Discovery Planning + Dynamic Taxonomy"
+  weight: 0.20
+
+io:
+  input:
+    - user_query: "사용자 질문"
+    - discovery_intent: "Interviewer가 정리한 intent"
+    - interview_context: "추가 인터뷰 응답 (optional)"
+    - preset: "감지된 프리셋 (optional)"
+
+  output:
+    - discovery_plan:
+        discovery_profile: "compact / broad / exhaustive / local-market-sensitive"
+        seed_term_sets: "후보 발굴 시드 용어 묶음"
+        discovery_axes: "발굴 축"
+        locale_bias: "kr-first / global-first / balanced"
+        query_families: "discovery / evidence / validation query sets"
+        normalization_hints: "병합/분리 규칙 힌트"
+        gap_budget: "약한 후보 보강 슬롯"
+        research_type_primary: "주 리서치 유형"
+        research_type_tags: "보조 유형 태그 목록"
+        output_mode: "보고서 모드"
+    - discovery_hypotheses:
+        list: "발견을 도와주는 약한 가설 목록"
+        optional: "필요 시에만 생성"
+    - taxonomy_seed:
+        likely_clusters: "예상 카테고리 후보"
+        prohibited_assumptions: "초기에 고정하면 안 되는 가정"
+    - metadata:
+        complexity: "복잡도 점수"
+        likely_locality_bias: "예상 로컬 편향"
+
+planning_policy:
+  always_build_discovery_plan: true
+  seed_term_strategy:
+    include:
+      - user_language
+      - platform_terms
+      - reward_terms
+      - recruitment_terms
+      - action_terms
+      - local slang or market phrases
+  no_fixed_taxonomy_before_discovery: true
+  max_seed_term_sets: 8
+
+research_type_taxonomy:
+  primary_allowed:
+    - general_research
+    - competitive_analysis
+    - market_research
+    - trend_research
+    - monetization_research
+    - strategy_research
+    - opportunity_research
+    - decision_research
+  tagging_rules:
+    - "한 시나리오가 여러 유형을 가지면 primary 1개 + tags 여러 개를 사용한다"
+    - "trend + monetization 같이 겹치는 요청은 tags에 둘 다 남긴다"
+
+query_family_rules:
+  discovery:
+    purpose: "후보와 표현을 넓게 찾기"
+  evidence:
+    purpose: "후보별 근거를 찾기"
+  validation:
+    purpose: "약한 후보와 unresolved candidate를 검증하기"
+
+limits:
+  max_planning_time_ms: 30000
+  max_retries: 2

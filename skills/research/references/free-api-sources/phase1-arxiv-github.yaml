@@ -1,0 +1,405 @@
+# Phase 1 Core (2/2): ArXiv + GitHub
+
+  # --------------------------------------------------------------------------
+  # 3. ArXiv
+  # --------------------------------------------------------------------------
+  arxiv:
+    name: "ArXiv API (Atom Feed)"
+    description: "사전 인쇄(preprint) 학술 논문. AI/ML/CS/물리/수학 분야 최신 연구."
+    source_type: "academic"
+    credibility_base: 4  # 사전 인쇄이나 학술 수준
+    language: "en"
+    response_format: "XML (Atom 1.0)"
+
+    endpoints:
+      query:
+        url: "https://export.arxiv.org/api/query"
+        method: GET
+        description: "논문 검색. Atom XML 반환."
+        parameters:
+          search_query:
+            type: string
+            required: true
+            description: "검색 쿼리. 필드 접두사 + 불리언 연산자 지원."
+            field_prefixes:
+              - "all: - 모든 필드 (기본)"
+              - "ti: - 제목"
+              - "au: - 저자"
+              - "abs: - 초록"
+              - "cat: - 카테고리"
+              - "co: - 댓글"
+              - "jr: - 저널 레퍼런스"
+            boolean_operators:
+              - "AND - 교집합"
+              - "OR - 합집합"
+              - "ANDNOT - 차집합"
+            grouping: "괄호 () 사용 가능"
+            examples:
+              basic: "all:LLM+agent"
+              field_specific: "ti:transformer+AND+abs:attention"
+              category: "cat:cs.AI+AND+all:multimodal"
+              author: "au:hinton+AND+ti:deep+learning"
+              complex: "(ti:LLM+OR+ti:large+language+model)+AND+cat:cs.CL"
+          start:
+            type: integer
+            required: false
+            default: 0
+            description: "결과 시작 인덱스 (페이지네이션)"
+          max_results:
+            type: integer
+            required: false
+            default: 10
+            max: 2000
+            recommended: 10
+            description: "최대 결과 수"
+          sortBy:
+            type: string
+            required: false
+            default: "relevance"
+            values:
+              - "relevance"
+              - "lastUpdatedDate"
+              - "submittedDate"
+          sortOrder:
+            type: string
+            required: false
+            default: "descending"
+            values:
+              - "ascending"
+              - "descending"
+          id_list:
+            type: string
+            required: false
+            description: "특정 논문 ID로 직접 조회 (콤마 구분)"
+            example: "2409.01907v1,2401.07324v3"
+        example_url: "https://export.arxiv.org/api/query?search_query=all:LLM+agent&max_results=10&sortBy=submittedDate&sortOrder=descending"
+
+    response_structure:
+      format: "Atom 1.0 XML"
+      namespace: "http://www.w3.org/2005/Atom"
+      arxiv_namespace: "http://arxiv.org/schemas/atom"
+      opensearch_namespace: "http://a9.com/-/spec/opensearch/1.1/"
+
+      feed_metadata:
+        title: "string - 쿼리 설명"
+        id: "string - 피드 고유 ID"
+        updated: "string - 피드 업데이트 시간 (ISO 8601)"
+        opensearch_totalResults: "integer - 총 결과 수 (예: 112869)"
+        opensearch_startIndex: "integer - 시작 인덱스"
+        opensearch_itemsPerPage: "integer - 페이지당 항목 수"
+
+      entry_fields:
+        id: "string - 논문 URL (예: 'http://arxiv.org/abs/2409.01907v1')"
+        title: "string - 논문 제목"
+        summary: "string - 초록 (전문)"
+        published: "string - 최초 게시일 (ISO 8601)"
+        updated: "string - 최종 수정일 (ISO 8601)"
+        author:
+          name: "string - 저자명 (entry당 복수 가능)"
+        link:
+          - rel: "alternate"
+            href: "string - HTML 페이지 URL"
+            type: "text/html"
+          - rel: "related"
+            href: "string - PDF URL"
+            type: "application/pdf"
+            title: "pdf"
+        arxiv_primary_category:
+          term: "string - 주 카테고리 (예: 'cs.AI', 'cs.CL', 'cs.HC')"
+          scheme: "http://arxiv.org/schemas/atom"
+        category:
+          term: "string - 카테고리 (복수 가능)"
+        arxiv_comment: "string|null - 저자 코멘트 (페이지 수, 학회명 등)"
+        arxiv_doi: "string|null - DOI (있으면)"
+        arxiv_journal_ref: "string|null - 저널 레퍼런스 (있으면)"
+
+      note: "XML 파싱 필요. DOMParser 또는 정규식으로 entry 추출."
+
+    raw_sources_mapping:
+      url: "entry.id (예: http://arxiv.org/abs/2409.01907v1)"
+      title: "entry.title (줄바꿈/공백 정규화 필요)"
+      snippet: "entry.summary (초록 전문, 300자 제한 권장)"
+      source_type: "'academic'"
+      timestamp: "entry.published"
+      credibility: 4  # ArXiv 고정 (peer-review 아님을 보고서에 명시)
+      metadata:
+        authors: "entry.author[].name"
+        categories: "entry.category[].term"
+        pdf_url: "entry.link[rel='related' AND title='pdf'].href"
+        doi: "entry.arxiv:doi (있으면)"
+        comment: "entry.arxiv:comment (학회/페이지 정보)"
+
+    error_handling:
+      rate_limit:
+        limit: "3초 간격 권장 (공식)"
+        headers: "없음"
+        detection: "HTTP 503 반환"
+        action: "3초 이상 대기 후 재시도"
+        policy: |
+          ArXiv는 명시적 rate limit 헤더를 제공하지 않으나,
+          너무 빈번한 요청 시 503 반환. 연속 호출 시 3초 이상 간격 유지.
+      errors:
+        400: "잘못된 쿼리 문법 (불리언 연산자 오류 등)"
+        503: "Rate Limit 또는 서버 과부하"
+      no_results_detection: "opensearch:totalResults == 0 AND entry 태그 없음"
+      error_vs_empty: "HTTP 200 + totalResults=0 = 결과 없음, HTTP 503 = 과부하/제한"
+
+    query_optimization:
+      korean_queries:
+        strategy: "반드시 영어로 번역하여 검색"
+        reason: "ArXiv 논문은 거의 전부 영어. 한국어 검색 시 결과 없음."
+        example:
+          input: "대규모 언어 모델 에이전트"
+          translated: "all:large+language+model+AND+all:agent"
+      advanced_operators:
+        category_filter: "cat:cs.AI (AI), cat:cs.CL (NLP), cat:cs.LG (ML), cat:cs.CV (Vision)"
+        date_range: "쿼리 파라미터로 직접 지원하지 않음. submittedDate 정렬 + max_results로 우회."
+        field_combination: "ti:transformer+AND+abs:attention+AND+cat:cs.CL"
+      common_cs_categories:
+        - "cs.AI - Artificial Intelligence"
+        - "cs.CL - Computation and Language (NLP)"
+        - "cs.LG - Machine Learning"
+        - "cs.CV - Computer Vision"
+        - "cs.SE - Software Engineering"
+        - "cs.HC - Human-Computer Interaction"
+        - "cs.MA - Multiagent Systems"
+        - "cs.CR - Cryptography and Security"
+        - "cs.DB - Databases"
+        - "cs.IR - Information Retrieval"
+      best_practices:
+        - "max_results=10 권장 (XML 크기 관리)"
+        - "sortBy=submittedDate로 최신 논문 우선"
+        - "ti:와 abs: 필드를 조합하면 정밀도 향상"
+        - "PDF URL은 link[title='pdf'] 에서 추출"
+        - "arxiv:comment에 학회명 있으면 peer-reviewed 가능성 높음"
+        - "요청 간 최소 3초 간격 유지 (rate limit 회피)"
+
+  # --------------------------------------------------------------------------
+  # 4. GitHub (REST API v3)
+  # --------------------------------------------------------------------------
+  github:
+    name: "GitHub Search API (REST v3)"
+    description: "오픈소스 프로젝트/라이브러리/도구 검색. 기술 생태계 파악."
+    source_type: "repository"
+    credibility_base: 3  # 코드 저장소, engagement로 보정
+    language: "multilingual"
+
+    endpoints:
+      search_repositories:
+        url: "https://api.github.com/search/repositories"
+        method: GET
+        description: "저장소 검색. 스타 수, 포크, 언어 등 풍부한 메타데이터."
+        parameters:
+          q:
+            type: string
+            required: true
+            description: "검색 쿼리. 키워드 + 한정자(qualifier) 조합"
+            qualifiers:
+              - "language:{lang} - 프로그래밍 언어 필터"
+              - "stars:>{n} - 최소 스타 수"
+              - "stars:{min}..{max} - 스타 범위"
+              - "forks:>{n} - 최소 포크 수"
+              - "topic:{topic} - 토픽 필터"
+              - "created:>{YYYY-MM-DD} - 생성일 이후"
+              - "pushed:>{YYYY-MM-DD} - 최근 푸시 이후"
+              - "license:{spdx_id} - 라이선스 필터"
+              - "archived:false - 아카이브 제외"
+              - "is:public - 공개 저장소만"
+            examples:
+              basic: "AI+agent+framework"
+              filtered: "LLM+agent+language:python+stars:>100"
+              recent: "AI+agent+pushed:>2025-01-01+stars:>50"
+              topic: "topic:llm+topic:agent"
+          sort:
+            type: string
+            required: false
+            default: "best match"
+            values:
+              - "stars"
+              - "forks"
+              - "help-wanted-issues"
+              - "updated"
+          order:
+            type: string
+            required: false
+            default: "desc"
+            values: ["desc", "asc"]
+          per_page:
+            type: integer
+            required: false
+            default: 30
+            max: 100
+            recommended: 10
+          page:
+            type: integer
+            required: false
+            default: 1
+        example_url: "https://api.github.com/search/repositories?q=AI+agent+framework+language:python+stars:>100&sort=stars&per_page=10"
+
+      search_code:
+        url: "https://api.github.com/search/code"
+        method: GET
+        description: "코드 내 검색. 특정 패턴/함수/설정 찾기."
+        parameters:
+          q:
+            type: string
+            required: true
+            qualifiers:
+              - "filename:{name} - 파일명"
+              - "extension:{ext} - 확장자"
+              - "path:{path} - 경로"
+              - "repo:{owner/repo} - 특정 저장소 내"
+              - "language:{lang} - 언어"
+        note: "인증 없이는 매우 제한적. 저장소 검색 위주 사용 권장."
+
+    response_structure:
+      top_level:
+        total_count: "integer - 총 결과 수 (예: 9541)"
+        incomplete_results: "boolean - 결과 불완전 여부 (타임아웃 시 true)"
+        items: "array - 저장소 객체 배열"
+
+      item_fields:
+        # 기본 정보
+        id: "integer - 저장소 고유 ID"
+        name: "string - 저장소명 (예: 'langchain')"
+        full_name: "string - 전체명 (예: 'langchain-ai/langchain')"
+        html_url: "string - GitHub 페이지 URL"
+        description: "string|null - 저장소 설명"
+        homepage: "string|null - 홈페이지 URL"
+        private: "boolean - 비공개 여부 (false)"
+
+        # 타임스탬프
+        created_at: "string - 생성일 (ISO 8601)"
+        updated_at: "string - 최종 업데이트 (ISO 8601)"
+        pushed_at: "string - 최종 푸시 (ISO 8601)"
+
+        # 참여 지표
+        stargazers_count: "integer - 스타 수 (예: 131228)"
+        watchers_count: "integer - 워처 수"
+        forks_count: "integer - 포크 수 (예: 21608)"
+        open_issues_count: "integer - 열린 이슈 수"
+
+        # 저장소 정보
+        language: "string|null - 주 언어 (예: 'Python')"
+        size: "integer - 저장소 크기(KB)"
+        default_branch: "string - 기본 브랜치 (예: 'master')"
+        visibility: "string - public/private"
+        archived: "boolean - 아카이브 여부"
+        disabled: "boolean - 비활성화 여부"
+        topics: "array - 토픽 태그 배열 (예: ['agents','ai','llm','rag'])"
+
+        # 기능 플래그
+        has_issues: "boolean"
+        has_discussions: "boolean"
+        has_wiki: "boolean"
+
+        # 라이선스
+        license:
+          key: "string - SPDX ID (예: 'mit')"
+          name: "string - 라이선스명 (예: 'MIT License')"
+          spdx_id: "string - SPDX 식별자"
+
+        # 소유자
+        owner:
+          login: "string - 사용자/조직명"
+          type: "string - User/Organization"
+          avatar_url: "string - 아바타 URL"
+
+    raw_sources_mapping:
+      url: "item.html_url"
+      title: "item.full_name + ': ' + item.description"
+      snippet: "item.description + ' | ' + item.language + ' | Stars: ' + item.stargazers_count"
+      source_type: "'repository'"
+      timestamp: "item.pushed_at (최종 활동 기준)"
+      credibility: "engagement_score(item.stargazers_count, item.forks_count)를 기반으로 3-5"
+      engagement:
+        stars: "item.stargazers_count"
+        forks: "item.forks_count"
+        issues: "item.open_issues_count"
+      metadata:
+        language: "item.language"
+        license: "item.license.spdx_id"
+        topics: "item.topics"
+        archived: "item.archived"
+
+    engagement_scoring:
+      description: "GitHub 스타와 포크 수 기반 신뢰도 보정"
+      formula: |
+        base = 3 (repository 기본)
+        if stars >= 10000 AND forks >= 1000: credibility = 5
+        elif stars >= 1000 AND forks >= 100: credibility = 4
+        elif stars >= 100 AND forks >= 10: credibility = 3
+        else: credibility = 2
+        if archived == true: credibility -= 1 (최소 1)
+      field_paths:
+        stars: "item.stargazers_count"
+        forks: "item.forks_count"
+      thresholds:
+        flagship:
+          stars: 10000
+          forks: 1000
+          credibility: 5
+          label: "생태계 핵심 프로젝트"
+        established:
+          stars: 1000
+          forks: 100
+          credibility: 4
+          label: "검증된 프로젝트"
+        growing:
+          stars: 100
+          forks: 10
+          credibility: 3
+          label: "성장 중"
+        emerging:
+          stars_below: 100
+          credibility: 2
+          label: "초기 단계"
+
+    error_handling:
+      rate_limit:
+        unauthenticated:
+          search: "10 requests/minute"
+          core: "60 requests/hour"
+        authenticated:
+          search: "30 requests/minute"
+          core: "5000 requests/hour"
+        headers:
+          X-RateLimit-Limit: "integer - 분당 최대 요청"
+          X-RateLimit-Remaining: "integer - 남은 요청 수"
+          X-RateLimit-Reset: "integer - 리셋 Unix timestamp"
+          X-RateLimit-Used: "integer - 사용된 요청 수"
+        detection: "HTTP 403 + X-RateLimit-Remaining == 0"
+        action: "X-RateLimit-Reset까지 대기"
+      errors:
+        403: "Rate Limit 초과 또는 접근 거부"
+        422: "검색 쿼리 유효성 오류"
+        503: "서비스 일시 불가"
+      no_results_detection: "total_count == 0 AND items == []"
+      incomplete_flag: "incomplete_results == true -> 타임아웃으로 일부 결과 누락"
+
+    query_optimization:
+      korean_queries:
+        strategy: "영어로 번역하여 검색 (대부분 영어 프로젝트)"
+        exception: "한국어 프로젝트 검색 시 원어 유지"
+        example:
+          input: "AI 에이전트 프레임워크"
+          translated: "AI+agent+framework"
+      advanced_operators:
+        star_filter: "stars:>1000 (품질 보장)"
+        date_filter: "pushed:>2025-01-01 (활성 프로젝트)"
+        language_filter: "language:python (언어별)"
+        topic_filter: "topic:llm+topic:agent (토픽 교집합)"
+        combined: "AI+agent+language:python+stars:>500+pushed:>2025-01-01"
+      best_practices:
+        - "per_page=10 권장 (rate limit 절약)"
+        - "sort=stars로 품질순 정렬"
+        - "stars:>100 필터로 노이즈 제거"
+        - "pushed:>최근날짜 로 활성 프로젝트만"
+        - "archived:false 로 아카이브 프로젝트 제외"
+        - "인증 없이 분당 10회 제한 -> 배치 간 6초+ 간격"
+        - "incomplete_results=true면 쿼리를 더 구체적으로 좁힐 것"
+
+
+# ============================================================================
+# Phase 2: 후보 소스 (검증 완료, 통합 대기)
+# ============================================================================

@@ -1,0 +1,123 @@
+# 암호화폐/블록체인 분야 신뢰 소스
+# v3.0 - 분야별 특화 검색 시스템
+
+domain:
+  id: crypto_blockchain
+  name: "암호화폐/블록체인"
+  description: "암호화폐, 블록체인, DeFi, NFT 관련 리서치"
+
+# 트리거 키워드
+triggers:
+  - "비트코인"
+  - "이더리움"
+  - "코인"
+  - "블록체인"
+  - "NFT"
+  - "DeFi"
+  - "거래소"
+  - "지갑"
+  - "토큰"
+  - "가상화폐"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "coinmarketcap.com"
+      name: "CoinMarketCap"
+      reliability: 4
+      type: "시세/데이터"
+      search_modifier: "site:coinmarketcap.com"
+
+    - domain: "coingecko.com"
+      name: "CoinGecko"
+      reliability: 4
+      type: "시세/데이터"
+      search_modifier: "site:coingecko.com"
+
+    - domain: "messari.io"
+      name: "Messari"
+      reliability: 5
+      type: "분석/리서치"
+      search_modifier: "site:messari.io"
+
+    - domain: "defillama.com"
+      name: "DefiLlama"
+      reliability: 4
+      type: "DeFi 데이터"
+      search_modifier: "site:defillama.com"
+
+  secondary:
+    - domain: "decrypt.co"
+      name: "Decrypt"
+      reliability: 4
+      type: "뉴스"
+      search_modifier: "site:decrypt.co"
+
+    - domain: "theblock.co"
+      name: "The Block"
+      reliability: 4
+      type: "뉴스/분석"
+      search_modifier: "site:theblock.co"
+
+    - domain: "coindesk.com"
+      name: "CoinDesk"
+      reliability: 4
+      type: "뉴스"
+      search_modifier: "site:coindesk.com"
+
+  tertiary:
+    - domain: "트위터/X"
+      reliability: 2
+      warning: "⚠️ 검증 필요"
+    - domain: "텔레그램/디스코드"
+      reliability: 1
+      warning: "⚠️ 스캠 주의"
+
+# 분야별 키워드
+keywords:
+  assets:
+    - 비트코인
+    - 이더리움
+    - 알트코인
+    - 토큰
+    - NFT
+
+  technology:
+    - 블록체인
+    - 스마트컨트랙트
+    - 레이어2
+    - 브릿지
+    - 컨센서스
+
+  defi:
+    - DeFi
+    - DEX
+    - 스테이킹
+    - 일드파밍
+    - 유동성
+
+# 검색 전략
+search_strategy:
+  priority: ["데이터 플랫폼", "전문 미디어", "공식 문서"]
+  time_filter: "최근 3개월"
+  cross_reference:
+    - "CoinMarketCap"
+    - "공식 프로젝트 사이트"
+
+# 면책 조항
+disclaimer:
+  required: true
+  priority: "critical"
+  text: |
+    ⚠️ **암호화폐 투자 경고**
+    - 암호화폐는 매우 높은 변동성을 가진 자산입니다.
+    - 투자 원금 전액을 잃을 수 있습니다.
+    - 이 정보는 투자 조언이 아닙니다.
+    - 투자 결정 전 충분한 조사와 전문가 상담을 권장합니다.
+    - 스캠/사기 프로젝트에 주의하세요.
+
+# 최신성 정책
+freshness:
+  max_age_days: 30
+  warning_age_days: 7
+  stale_label: "⚠️ 크립토 시장은 매우 빠르게 변합니다"

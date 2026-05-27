@@ -1,0 +1,152 @@
+# Research Rubric System v2.0
+# discovery-first pipeline 기준 품질 루브릭
+
+rubric_system:
+  version: "2.0"
+  description: "리서치 작업용 루브릭 - discovery-first canonical pipeline 위에서 검증"
+
+  # DeepResearch Bench (RACE + FACT) 평가 차원 정렬
+  evaluation_dimensions:
+    information_recall: "discovery snapshot + 3+ discovery axis + unresolved candidates"
+    analysis: "정량 데이터 + 해석/시사점 + opportunity model"
+    presentation: "direct answer + 표준 보고서 구조"
+    citation_accuracy: "2+ 독립 소스 + 모든 주장의 출처 grounding"
+
+  priority_levels:
+    must:
+      - criterion: "핵심 질문에 대한 직접적 답변 포함"
+        verification: "보고서 첫 부분에 direct answer 존재"
+        maps_to: "synthesis_result_v6.one_line_conclusion present"
+
+      - criterion: "최소 2개 독립 소스 기반"
+        verification: "독립 source group 2개 이상"
+        maps_to: "cross_validation.verification_level >= 2"
+
+      - criterion: "discovery snapshot 존재"
+        verification: "발견된 raw term 또는 신호 요약 존재"
+        maps_to: "synthesis_result_v6.discovery_snapshot present"
+
+      - criterion: "현재성 요청이면 freshness window 명시"
+        verification: "trend 또는 최신성 요청에서 freshness window가 보고서에 존재"
+        maps_to: "coverage_ledger.freshness_window present"
+
+      - criterion: "필수 면책 조항 포함 (해당 분야 시)"
+        verification: "health/legal/finance disclaimer 적용"
+        maps_to: "disclaimers.mandatory_applied == true"
+
+      - criterion: "모든 사실 주장이 출처에 grounding (citation accuracy)"
+        verification: "각 주장이 evaluated_sources에 매칭, 미검증은 [미검증] 표기"
+        maps_to: "synthesizer self-verify 4-1 통과"
+
+    good_to_have:
+      - criterion: "반증 또는 weak candidate 보강 수행"
+        verification: "targeted gap search 또는 weak candidate 보강 실행"
+        maps_to: "targeted_gap_search.executed == true"
+
+      - criterion: "정량적 데이터 포함"
+        verification: "보고서에 수치 데이터 존재"
+        maps_to: "evidence_grade >= B"
+
+      - criterion: "소스 계보 추적 완료"
+        verification: "원본/파생 관계와 독립성 판단 존재"
+        maps_to: "genealogy.tracked == true"
+
+      - criterion: "local 또는 emergent model 노출"
+        verification: "필요한 경우 local_only_models 또는 emergent_models 존재"
+        maps_to: "synthesis_result_v6.local_only_models or emergent_models present"
+
+      - criterion: "완전성 요청이면 suppression audit 포함"
+        verification: "exhaustive request에서 suppressed_candidates 또는 empty audit 명시"
+        maps_to: "coverage_ledger.suppressed_candidates present"
+
+    ideal:
+      - criterion: "3개 이상 discovery axis 커버"
+        verification: "reward/recruitment/action/language/policy/locality 중 3개 이상 hit"
+        maps_to: "coverage_ledger.axis_hits >= 3"
+
+      - criterion: "unresolved candidates 명시"
+        verification: "근거 약하지만 반복 등장한 후보 섹션 존재"
+        maps_to: "synthesis_result_v6.unresolved_candidates count >= 1"
+
+      - criterion: "실행 가능한 권고사항 포함"
+        verification: "다음 액션 또는 실험안 존재"
+        maps_to: "synthesis_result_v6.next_actions >= 1"
+
+      - criterion: "신규 아이디어 요청이면 evidence-grounded opportunity models 포함"
+        verification: "opportunity_models에 required_assets/risks/experiment 존재"
+        maps_to: "synthesis_result_v6.opportunity_models structured == true"
+
+mapping:
+  must_to_research:
+    verification_level: 2
+    evidence_grade: "C"
+  good_to_have_to_research:
+    verification_level: 2
+    evidence_grade: "B"
+  ideal_to_research:
+    verification_level: 3
+    evidence_grade: "A"
+
+concealment:
+  hidden_from: ["searcher"]
+  visible_to: ["analyzer", "synthesizer", "orchestrator"]
+
+depth_activation:
+  quick:
+    rubric_enabled: false
+  standard:
+    rubric_enabled: true
+    apply_levels: ["must"]
+  deep:
+    rubric_enabled: true
+    apply_levels: ["must", "good_to_have"]
+    self_verify: true
+    max_retry: 2
+  full:
+    rubric_enabled: true
+    apply_levels: ["must", "good_to_have", "ideal"]
+    self_verify: true
+    max_retry: 3
+
+type_overrides:
+  competitive_analysis:
+    must_additions:
+      - "평가축 최소 3개 포함"
+  market_research:
+    must_additions:
+      - "시장 정의와 범위를 명시"
+  trend_research:
+    must_additions:
+      - "freshness window 명시"
+      - "signal cluster 제시"
+  monetization_research:
+    must_additions:
+      - "established 모델 외에 local/emergent/unresolved 중 최소 1개 노출"
+    good_to_have_additions:
+      - "한국/글로벌 차이 반영"
+    ideal_additions:
+      - "evidence-grounded opportunity model 포함"
+  health_medical:
+    must_additions:
+      - "의료 면책 조항 포함"
+  legal:
+    must_additions:
+      - "법률 면책 조항 포함"
+  stocks_finance:
+    must_additions:
+      - "데이터 기준 날짜 명시"
+      - "투자 면책 조항 포함"
+
+type_resolution:
+  primary_field: "discovery_plan.research_type_primary"
+  tags_field: "discovery_plan.research_type_tags"
+  merge_multiple_overrides: true
+
+auto_generation:
+  trigger: "Discovery Planning 완료 직후"
+  process:
+    1_detect_type: "discovery_plan의 research_type_primary와 research_type_tags 수집"
+    2_load_base: "priority_levels 기본 루브릭 로드"
+    3_apply_override: "type_overrides에서 primary와 tags 모두 병합"
+    4_apply_depth: "depth profile 기준 적용"
+    5_conceal: "agent visibility 정책 적용"

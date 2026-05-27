@@ -1,0 +1,162 @@
+# team-business Role 라우팅 테이블
+# 한국어 키워드 → Role → 실행 대상 매핑
+# 우선순위: 배열 순서대로 평가. 다중 매칭 시 상위 Role 우선.
+
+version: 1
+last_updated: 2026-04-21
+
+priority_order:
+  - strategy-lead
+  - market-intelligence-analyst
+  - competitive-scout
+  - trend-researcher
+  - opportunity-scanner
+
+routes:
+  strategy-lead:
+    korean_keywords:
+      - 신시장
+      - 신시장 진입
+      - 진입 전략
+      - 위협 대응
+      - 위협 이벤트
+      - 경쟁 위협
+      - 전략적 판단
+      - 사업 방향
+      - 피벗
+      - 시장 철수
+      - 규제
+      - 법적 이슈
+      - compliance
+      - GDPR
+      - lawsuit
+      - 진입 장벽
+      - 포터 5력
+      - 리스크
+      - 위기 대응
+    personas:
+      - ceo
+      - risk_analyst
+      - realist
+    force_risk_analyst: true
+    delegates:
+      - /research
+      - /simulate
+    research_depth: deep
+
+  market-intelligence-analyst:
+    korean_keywords:
+      - 경쟁사
+      - 경쟁사 모니터링
+      - 경쟁사 동향
+      - 경쟁사 업데이트
+      - 주간 모니터링
+      - 경쟁사 가격
+      - 경쟁사 기능
+      - delta
+      - 최신 동향
+      - 시장 현황
+      - 업계 동향
+      - 경쟁 현황
+    personas:
+      - researcher
+      - realist
+    delegates:
+      - /research
+      - /ontology
+    research_depth: quick
+    cron_trigger: "월요일 09:00"
+
+  competitive-scout:
+    korean_keywords:
+      - 벤치마킹
+      - 벤치마크
+      - 기능 비교
+      - 가격 비교
+      - 경쟁사 비교
+      - 제품 비교
+      - 대체재
+      - alternatives
+      - 경쟁 매트릭스
+      - 비교 분석
+      - 포지셔닝 맵
+      - 차별화 포인트
+      - 우리만의 강점
+    personas:
+      - researcher
+      - critic
+    delegates:
+      - /research
+      - /ontology
+    research_depth: medium
+    frontend_stack_supply: true
+    # frontend-stack Commerce/Brand Stage 1에 벤치마크 데이터 자동 공급
+
+  trend-researcher:
+    korean_keywords:
+      - 트렌드
+      - 트렌드 스캔
+      - 시장 트렌드
+      - 기술 트렌드
+      - 업계 트렌드
+      - 트렌드 리포트
+      - 떠오르는
+      - emerging
+      - 새로운 흐름
+      - 미래 전망
+      - 예측
+      - 월간 트렌드
+    personas:
+      - researcher
+      - growth
+    delegates:
+      - /research
+      - /ontology
+    research_depth: medium
+    schedule: "월 1회"
+
+  opportunity-scanner:
+    korean_keywords:
+      - 기회
+      - 기회 분석
+      - 사업 기회
+      - 시장 기회
+      - 블루오션
+      - 틈새시장
+      - 니치
+      - JTBD
+      - 고객 과제
+      - 미충족 수요
+      - 페인 포인트
+      - 기회 스코링
+      - 신사업 아이디어
+      - 성장 기회
+    personas:
+      - growth
+      - marketing
+      - critic
+    delegates:
+      - /research
+      - /prd-create
+      - /ontology
+    research_depth: medium
+    prd_trigger:
+      # Opportunity.score >= threshold 시 /prd-create 자동 위임 + INFORM_5m
+      enabled: true
+      policy: INFORM_5m
+
+# 다중 매칭 규칙
+# - 같은 요청에서 여러 Role 매칭 시 priority_order 순서대로 1개를 주 Role 선택
+# - 나머지는 협업 Role로 병렬 실행 또는 outbox 전달
+# - 법적·규제·compliance·신시장·lawsuit·GDPR 키워드 → strategy-lead 강제 포함
+
+force_risk_analyst_with:
+  - 법적
+  - 규제
+  - compliance
+  - 신시장
+  - lawsuit
+  - GDPR
+  - 진입 장벽
+  - 규제 리스크
+  - 법적 이슈

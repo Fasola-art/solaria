@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+import argparse
+import json
+from collections import defaultdict
+from datetime import datetime, timezone
+from pathlib import Path
+
+HOME = Path.home()
+AGENTS = HOME / ".agents"
+RUNTIME = AGENTS / "runtime"
+USAGE_LOG = RUNTIME / "skill-usage.jsonl"
+ONTOLOGY = AGENTS / "ontology"
+SKILLS = ONTOLOGY / "skills.json"
+PERSONAS = ONTOLOGY / "personas.json"
+WORKFLOWS = ONTOLOGY / "workflows.json"
+ROUTES = ONTOLOGY / "routes.json"
+
+
+def now():
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def load_json(path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def save_json(path, data):
+    data["generated_at"] = now()
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def load_events(path):
+    if not path.exists():
+        return []
+    events = []
+    for idx, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            events.append({"_invalid": True, "line": idx})
+            continue
+        if event.get("event") == "skill_usage":
+            events.append(event)
+    return events
+
+
+def bump(entity, ts):
+    entity["usage_count"] = int(entity.get("usage_count", 0)) + 1
+    if ts and (not entity.get("last_used") or ts > entity["last_used"]):
+        entity["last_used"] = ts
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Sync skill usage logs into ontology usage metadata.")
+    parser.add_argument("--log", default=str(USAGE_LOG), help="Path to skill-usage.jsonl.")
+    parser.add_argument("--dry-run", action="store_true", help="Report changes without writing ontology files.")
+    parser.add_argument("--json", action="store_true", help="Print JSON report.")
+    args = parser.parse_args()
+
+    events = load_events(Path(args.log))
+    skills_doc = load_json(SKILLS)
+    personas_doc = load_json(PERSONAS)
+    workflows_doc = load_json(WORKFLOWS)
+    routes_doc = load_json(ROUTES)
+
+    known = {
+        "skills": skills_doc.get("skills", {}),
+        "personas": personas_doc.get("personas", {}),
+        "workflows": workflows_doc.get("workflows", {}),
+        "routes": routes_doc.get("routes", {}),
+    }
+    stats = {
+        "events": 0,
+        "invalid_lines": 0,
+        "updated": defaultdict(int),
+        "unknown": defaultdict(list),
+    }
+
+    for event in events:
+        if event.get("_invalid"):
+            stats["invalid_lines"] += 1
+            continue
+        stats["events"] += 1
+        ts = event.get("ts")
+        for skill in event.get("skills", []) or []:
+            if skill in known["skills"]:
+                bump(known["skills"][skill], ts)
+                stats["updated"]["skills"] += 1
+            else:
+                stats["unknown"]["skills"].append(skill)
+        for persona in event.get("personas", []) or []:
+            if persona in known["personas"]:
+                bump(known["personas"][persona], ts)
+                stats["updated"]["personas"] += 1
+            else:
+                stats["unknown"]["personas"].append(persona)
+        workflow = event.get("workflow")
+        if workflow:
+            if workflow in known["workflows"]:
+                bump(known["workflows"][workflow], ts)
+                stats["updated"]["workflows"] += 1
+            else:
+                stats["unknown"]["workflows"].append(workflow)
+        route = event.get("route")
+        if route:
+            if route in known["routes"]:
+                bump(known["routes"][route], ts)
+                stats["updated"]["routes"] += 1
+            else:
+                stats["unknown"]["routes"].append(route)
+
+    report = {
+        "events": stats["events"],
+        "invalid_lines": stats["invalid_lines"],
+        "updated": dict(stats["updated"]),
+        "unknown": {k: sorted(set(v)) for k, v in stats["unknown"].items() if v},
+        "dry_run": args.dry_run,
+    }
+
+    if not args.dry_run:
+        save_json(SKILLS, skills_doc)
+        save_json(PERSONAS, personas_doc)
+        save_json(WORKFLOWS, workflows_doc)
+        save_json(ROUTES, routes_doc)
+
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    else:
+        print(f"events: {report['events']}")
+        print(f"invalid_lines: {report['invalid_lines']}")
+        print(f"updated: {report['updated']}")
+        if report["unknown"]:
+            print(f"unknown: {report['unknown']}")
+    if report["unknown"] or report["invalid_lines"]:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

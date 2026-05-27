@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import re
+import subprocess
+import sys
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+HOME = Path.home()
+AGENTS = HOME / ".agents"
+REGISTRY = AGENTS / "skills-registry.json"
+ONTOLOGY = AGENTS / "ontology"
+PERSONAS = ONTOLOGY / "personas.json"
+ROUTES = ONTOLOGY / "routes.json"
+EVAL_DIR = AGENTS / "evals" / "trigger"
+RUN_DIR = EVAL_DIR / "runs"
+
+
+def load(path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def iter_case_files(paths):
+    if paths:
+        for item in paths:
+            yield Path(item)
+        return
+    for path in sorted(EVAL_DIR.glob("*.json")):
+        yield path
+
+
+def collect_cases(paths):
+    cases = []
+    for path in iter_case_files(paths):
+        doc = load(path)
+        for case in doc.get("cases", []):
+            item = dict(case)
+            item["_file"] = str(path)
+            cases.append(item)
+    return cases
+
+
+def known_values():
+    registry = load(REGISTRY)
+    personas_doc = load(PERSONAS)
+    routes_doc = load(ROUTES)
+    return {
+        "skills": sorted(registry.get("skills", {}).keys()),
+        "personas": sorted(personas_doc.get("personas", {}).keys()),
+        "routes": sorted(routes_doc.get("routes", {}).keys()),
+    }
+
+
+def build_prompt(case, values):
+    payload = {
+        "task": "Predict which local agent skills/personas/routes should be triggered for the user request.",
+        "rules": [
+            "Return JSON only. Do not add markdown.",
+            "Only choose ids from known_skills, known_personas, and known_routes.",
+            "skills should include every skill that should be loaded for this request.",
+            "personas should include useful execution perspectives, not tone presets.",
+            "route may be null if no route is appropriate.",
+        ],
+        "schema": {
+            "skills": ["skill-id"],
+            "personas": ["persona-id"],
+            "route": "route-id-or-null",
+            "reason": "brief trigger rationale",
+        },
+        "known_skills": values["skills"],
+        "known_personas": values["personas"],
+        "known_routes": values["routes"],
+        "user_request": case["query"],
+    }
+    return json.dumps(payload, ensure_ascii=False, indent=2)
+
+
+def extract_json(text):
+    stripped = text.strip()
+    if stripped.startswith("{") and stripped.endswith("}"):
+        return json.loads(stripped)
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    if not match:
+        raise ValueError("model output did not contain a JSON object")
+    return json.loads(match.group(0))
+
+
+def run_codex(prompt, timeout):
+    with tempfile.NamedTemporaryFile(prefix="model-trigger-eval-", suffix=".txt", delete=False) as handle:
+        output_path = Path(handle.name)
+    cmd = [
+        "codex",
+        "exec",
+        "--sandbox",
+        "read-only",
+        "--skip-git-repo-check",
+        "--output-last-message",
+        str(output_path),
+        "-",
+    ]
+    proc = subprocess.run(cmd, input=prompt, text=True, capture_output=True, timeout=timeout)
+    last_message = ""
+    if output_path.exists():
+        last_message = output_path.read_text(encoding="utf-8", errors="replace")
+        output_path.unlink(missing_ok=True)
+    return {
+        "command": ["codex", "exec", "--sandbox", "read-only", "--skip-git-repo-check", "--output-last-message", "<tmp>", "-"],
+        "returncode": proc.returncode,
+        "stdout": proc.stdout,
+        "stderr": proc.stderr,
+        "last_message": last_message,
+    }
+
+
+def score(case, prediction):
+    predicted_skills = set(prediction.get("skills") or [])
+    predicted_personas = set(prediction.get("personas") or [])
+    expected_skills = set(case.get("should_trigger") or [])
+    blocked_skills = set(case.get("should_not_trigger") or [])
+    expected_personas = set(case.get("personas") or [])
+
+    missing_skills = sorted(expected_skills - predicted_skills)
+    forbidden_skills = sorted(blocked_skills & predicted_skills)
+    missing_personas = sorted(expected_personas - predicted_personas)
+    route_ok = True
+    if case.get("route"):
+        route_ok = prediction.get("route") == case.get("route")
+
+    errors = []
+    if missing_skills:
+        errors.append({"code": "missing-skill", "values": missing_skills})
+    if forbidden_skills:
+        errors.append({"code": "forbidden-skill", "values": forbidden_skills})
+    if missing_personas:
+        errors.append({"code": "missing-persona", "values": missing_personas})
+    if not route_ok:
+        errors.append({"code": "route-mismatch", "expected": case.get("route"), "actual": prediction.get("route")})
+
+    return {
+        "pass": not errors,
+        "errors": errors,
+        "expected": {
+            "skills": sorted(expected_skills),
+            "not_skills": sorted(blocked_skills),
+            "personas": sorted(expected_personas),
+            "route": case.get("route"),
+        },
+        "actual": {
+            "skills": sorted(predicted_skills),
+            "personas": sorted(predicted_personas),
+            "route": prediction.get("route"),
+        },
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Run model-based trigger evals against local skill/persona/route cases.")
+    parser.add_argument("files", nargs="*", help="Optional trigger case JSON files.")
+    parser.add_argument("--case", dest="case_id", help="Run one case id.")
+    parser.add_argument("--limit", type=int, help="Limit number of cases.")
+    parser.add_argument("--run", action="store_true", help="Actually call Codex. Without this flag, only print a dry-run plan.")
+    parser.add_argument("--timeout", type=int, default=120, help="Per-case Codex timeout in seconds.")
+    parser.add_argument("--out", help="Write report to this path. Defaults to ~/.agents/evals/trigger/runs/<timestamp>.json when --run is used.")
+    parser.add_argument("--json", action="store_true", help="Print JSON report.")
+    args = parser.parse_args()
+
+    values = known_values()
+    cases = collect_cases(args.files)
+    if args.case_id:
+        cases = [case for case in cases if case.get("id") == args.case_id]
+    if args.limit is not None:
+        cases = cases[: args.limit]
+
+    if not cases:
+        print("No trigger eval cases selected.", file=sys.stderr)
+        raise SystemExit(2)
+
+    report = {
+        "schema_version": 1,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "mode": "codex",
+        "ran_model": bool(args.run),
+        "case_count": len(cases),
+        "pass_count": 0,
+        "fail_count": 0,
+        "cases": [],
+    }
+
+    for case in cases:
+        prompt = build_prompt(case, values)
+        entry = {
+            "id": case.get("id"),
+            "query": case.get("query"),
+            "prompt": prompt if not args.run else None,
+        }
+        if args.run:
+            raw = run_codex(prompt, args.timeout)
+            entry["raw"] = raw
+            try:
+                prediction = extract_json(raw.get("last_message") or raw["stdout"])
+                entry["prediction"] = prediction
+                entry["score"] = score(case, prediction)
+            except Exception as exc:
+                entry["prediction"] = None
+                entry["score"] = {"pass": False, "errors": [{"code": "invalid-output", "message": str(exc)}]}
+            if raw["returncode"] != 0:
+                entry["score"]["pass"] = False
+                entry["score"].setdefault("errors", []).append({"code": "codex-exit", "returncode": raw["returncode"]})
+            if entry["score"]["pass"]:
+                report["pass_count"] += 1
+            else:
+                report["fail_count"] += 1
+        report["cases"].append(entry)
+
+    if args.run:
+        out = Path(args.out) if args.out else RUN_DIR / f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-codex.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        report["output_path"] = str(out)
+
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    else:
+        print(f"cases: {report['case_count']}")
+        print(f"ran_model: {str(report['ran_model']).lower()}")
+        if args.run:
+            print(f"passes: {report['pass_count']}")
+            print(f"failures: {report['fail_count']}")
+            print(f"output: {report['output_path']}")
+            for case in report["cases"]:
+                if not case.get("score", {}).get("pass"):
+                    print(f"[fail] {case['id']}: {case.get('score', {}).get('errors')}")
+        else:
+            print("dry_run: add --run to call codex exec in read-only mode")
+            for case in report["cases"]:
+                print(f"- {case['id']}: {case['query']}")
+
+    if args.run and report["fail_count"]:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

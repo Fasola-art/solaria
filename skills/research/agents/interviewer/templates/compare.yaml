@@ -1,0 +1,200 @@
+# Competitive Analysis 인터뷰 템플릿
+# 경쟁 분석/제품 비교를 위한 맞춤형 질문
+
+template:
+  name: competitive_analysis
+  description: "경쟁사 비교/제품 비교를 위한 인터뷰 템플릿"
+  trigger_keywords:
+    - "비교"
+    - "compare"
+    - "vs"
+    - "경쟁"
+    - "차이"
+    - "장단점"
+
+# 핵심 질문
+questions:
+  # Q1: 비교 목적
+  purpose:
+    question: "비교의 주요 목적은?"
+    category: "purpose"
+    priority: high
+    options:
+      - label: "도입/구매 결정"
+        description: "어떤 제품/서비스를 선택할지"
+        output_format: "decision_matrix"
+        focus_areas:
+          - "기능 비교"
+          - "가격 비교"
+          - "장단점"
+          - "추천"
+      - label: "경쟁사 분석"
+        description: "경쟁 현황 파악"
+        output_format: "competitive_landscape"
+        focus_areas:
+          - "시장 포지션"
+          - "전략 분석"
+          - "SWOT"
+      - label: "기술 평가"
+        description: "기술적 차이점 분석"
+        output_format: "tech_comparison"
+        focus_areas:
+          - "아키텍처"
+          - "성능"
+          - "확장성"
+      - label: "일반 비교"
+        description: "전반적인 차이점 파악"
+        output_format: "general_comparison"
+        focus_areas:
+          - "개요 비교"
+          - "주요 특징"
+
+  # Q2: 비교 기준
+  criteria:
+    question: "어떤 측면을 중점적으로 비교할까요?"
+    category: "keywords"
+    priority: high
+    multiSelect: true  # 다중 선택 가능
+    options:
+      - label: "기능/제품"
+        description: "핵심 기능 및 제품 특성"
+        search_modifier: "features comparison"
+      - label: "가격/비용"
+        description: "가격 정책 및 TCO"
+        search_modifier: "pricing cost"
+      - label: "사용성/UX"
+        description: "사용 편의성 및 학습 곡선"
+        search_modifier: "usability UX user experience"
+      - label: "성능/안정성"
+        description: "속도, 안정성, 확장성"
+        search_modifier: "performance reliability scalability"
+
+  # Q3: 사용 환경
+  context:
+    question: "어떤 환경에서 사용할 예정인가요?"
+    category: "scope"
+    priority: medium
+    conditional: true
+    show_if: "purpose == '도입/구매 결정'"
+    options:
+      - label: "개인/소규모 팀"
+        description: "1-10명 사용"
+        search_modifier: "individual small team personal"
+      - label: "중소기업"
+        description: "11-100명 사용"
+        search_modifier: "SMB small business"
+      - label: "엔터프라이즈"
+        description: "100명+ 대규모 조직"
+        search_modifier: "enterprise large organization"
+      - label: "스타트업"
+        description: "빠른 성장 중인 조직"
+        search_modifier: "startup"
+
+  # Q4: 예산 범위 (선택적)
+  budget:
+    question: "예산 범위가 있나요?"
+    category: "constraints"
+    priority: low
+    conditional: true
+    show_if: "purpose == '도입/구매 결정'"
+    options:
+      - label: "무료/저렴"
+        description: "월 $0-20 수준"
+        search_modifier: "free cheap budget"
+      - label: "중간"
+        description: "월 $20-100 수준"
+        search_modifier: "mid-range pricing"
+      - label: "프리미엄"
+        description: "월 $100+ 기꺼이"
+        search_modifier: "premium enterprise pricing"
+      - label: "비용 무관"
+        description: "예산 제한 없음"
+        search_modifier: ""
+
+  # Q5: 추가 비교 대상 (선택적)
+  additional_competitors:
+    question: "추가로 비교할 대상이 있나요?"
+    category: "keywords"
+    priority: low
+    type: "open_ended"
+    placeholder: "예: Slack, Teams, Discord 등"
+
+# 기본값
+defaults:
+  purpose: "일반 비교"
+  criteria: ["기능/제품", "가격/비용"]
+  context: null
+  budget: "비용 무관"
+
+# 컨텍스트 템플릿
+context_template: |
+  이해한 내용:
+  - 비교 대상: {subjects}
+  - 비교 목적: {purpose}
+  - 비교 기준: {criteria}
+  {context_line}
+  {budget_line}
+
+  맞으시면 진행하겠습니다.
+
+# 검색 전략 매핑
+search_strategy:
+  base_queries:
+    - "{subject_a} vs {subject_b}"
+    - "{subject_a} {subject_b} comparison"
+    - "{subject_a} vs {subject_b} {year}"
+    - "{subject_a} {subject_b} pros cons"
+
+  criteria_queries:
+    기능/제품:
+      - "{subject_a} vs {subject_b} features"
+      - "{subject_a} {subject_b} feature comparison"
+    가격/비용:
+      - "{subject_a} vs {subject_b} pricing"
+      - "{subject_a} {subject_b} cost comparison"
+    사용성/UX:
+      - "{subject_a} vs {subject_b} usability"
+      - "{subject_a} {subject_b} user experience"
+    성능/안정성:
+      - "{subject_a} vs {subject_b} performance"
+      - "{subject_a} {subject_b} benchmark"
+
+  context_queries:
+    개인/소규모 팀:
+      - "{subjects} for individuals"
+      - "{subjects} small team"
+    중소기업:
+      - "{subjects} for SMB"
+      - "{subjects} small business"
+    엔터프라이즈:
+      - "{subjects} enterprise"
+      - "{subjects} large organization"
+    스타트업:
+      - "{subjects} for startups"
+
+# 출력 형식 매핑
+output_formats:
+  decision_matrix:
+    sections:
+      - "비교 개요"
+      - "기능 비교 매트릭스"
+      - "가격 비교"
+      - "장단점 정리"
+      - "상황별 추천"
+      - "최종 권고"
+
+  competitive_landscape:
+    sections:
+      - "시장 개요"
+      - "Magic Quadrant"
+      - "SWOT 분석"
+      - "전략 비교"
+      - "미래 전망"
+
+  tech_comparison:
+    sections:
+      - "기술 개요"
+      - "아키텍처 비교"
+      - "성능 벤치마크"
+      - "확장성 비교"
+      - "기술 스택"

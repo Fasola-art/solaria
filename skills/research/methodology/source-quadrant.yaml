@@ -1,0 +1,191 @@
+# Gartner 2축 평가 방법론
+# v3.0 - 전문 리서치 회사 방법론 통합
+
+methodology:
+  name: "Two-Axis Evaluation (Magic Quadrant Style)"
+  source: "Gartner"
+  description: "두 축을 기준으로 소스/솔루션을 평가하는 프레임워크"
+
+# 소스 평가용 2축
+source_quadrant:
+  x_axis:
+    name: "관련성 (Relevance)"
+    description: "질문에 대한 정보의 관련도"
+    scale: [1, 5]
+    criteria:
+      1: "관련 없음"
+      2: "간접적 관련"
+      3: "보통 관련"
+      4: "높은 관련"
+      5: "직접적/핵심 관련"
+
+  y_axis:
+    name: "신뢰도 (Reliability)"
+    description: "소스의 신뢰성과 권위"
+    scale: [1, 5]
+    criteria:
+      1: "출처 불명/의심스러움"
+      2: "개인 의견/블로그"
+      3: "인정된 미디어"
+      4: "전문 기관/리서치"
+      5: "공식/학술/정부"
+
+  quadrants:
+    leaders:
+      position: "높은 관련성 + 높은 신뢰도"
+      action: "핵심 인용 소스"
+      score_threshold:
+        relevance: ">= 4"
+        reliability: ">= 4"
+
+    visionaries:
+      position: "높은 관련성 + 낮은 신뢰도"
+      action: "교차검증 후 사용"
+      score_threshold:
+        relevance: ">= 4"
+        reliability: "< 4"
+
+    challengers:
+      position: "낮은 관련성 + 높은 신뢰도"
+      action: "배경 참고용"
+      score_threshold:
+        relevance: "< 4"
+        reliability: ">= 4"
+
+    niche_players:
+      position: "낮은 관련성 + 낮은 신뢰도"
+      action: "제외 또는 주의 표시"
+      score_threshold:
+        relevance: "< 4"
+        reliability: "< 4"
+
+# 시각화 템플릿
+visualization:
+  quadrant_chart:
+    - "Y축: 신뢰도"
+    - "우상단 Leaders: 핵심 인용"
+    - "우하단 Visionaries: 관련성 높으나 교차검증 필요"
+    - "좌상단 Challengers: 배경 참고"
+    - "좌하단 Niche Players: 제외 또는 주의 표시"
+    - "X축: 관련성"
+
+  legend:
+    - "Leaders: 핵심 인용 (신뢰도 4+, 관련성 4+)"
+    - "Visionaries: 교차검증 필요 (관련성 높음, 신뢰도 낮음)"
+    - "Challengers: 배경 정보 (신뢰도 높음, 관련성 낮음)"
+    - "Niche Players: 제외 권장"
+
+# Hype Cycle 통합
+hype_cycle:
+  description: "기술 성숙도 평가 프레임워크"
+  stages:
+    1_innovation_trigger:
+      name: "혁신 촉발기"
+      description: "기술 등장, 초기 관심"
+      action: "잠재력 평가, 리스크 인지"
+
+    2_peak_of_inflated_expectations:
+      name: "거품 정점기"
+      description: "과대 기대, 과장된 성공 사례"
+      action: "현실적 검증 필요"
+
+    3_trough_of_disillusionment:
+      name: "환멸기"
+      description: "실패 사례 증가, 관심 하락"
+      action: "장기적 관점 유지"
+
+    4_slope_of_enlightenment:
+      name: "계몽기"
+      description: "실질적 이해 증가, 실용 사례"
+      action: "도입 검토 시작"
+
+    5_plateau_of_productivity:
+      name: "생산성 안정기"
+      description: "안정적 가치 제공, 광범위 채택"
+      action: "도입 권장"
+
+  template: |
+    기술 성숙도: {technology_name}
+
+    현재 위치: {current_stage}
+    안정기까지: {years_to_plateau}
+
+    ▲ 기대
+    │    ●
+    │   /│\
+    │  / │ \     ●
+    │ /  │  \   / \__●
+    │●   │   \ /
+    │    │    ●
+    └────┴────────────▶ 시간
+         1  2  3  4  5
+
+# Critical Capabilities 평가
+critical_capabilities:
+  description: "핵심 역량 기반 상세 평가"
+
+  process:
+    1_define:
+      action: "핵심 평가 기준 정의"
+      output: "기준 목록 + 가중치"
+
+    2_score:
+      action: "각 기준별 점수 부여"
+      scale: [1, 5]
+
+    3_weight:
+      action: "가중치 적용 종합 점수"
+      formula: "Σ(점수 × 가중치)"
+
+    4_compare:
+      action: "대안 간 비교"
+      output: "순위표"
+
+  example:
+    use_case: "AI 에이전트 플랫폼 비교"
+    capabilities:
+      - name: "성능"
+        weight: 0.30
+      - name: "확장성"
+        weight: 0.25
+      - name: "사용성"
+        weight: 0.20
+      - name: "비용"
+        weight: 0.15
+      - name: "지원"
+        weight: 0.10
+
+# Research Skill 적용
+application:
+  analyzer_agent:
+    role: "2축 평가 수행"
+    actions:
+      - "각 소스에 관련성 점수 부여"
+      - "각 소스에 신뢰도 점수 부여"
+      - "사분면 분류"
+      - "활용 방안 결정"
+
+  synthesizer_agent:
+    role: "평가 결과 종합"
+    actions:
+      - "Leaders 소스 중심 결론"
+      - "Visionaries 소스 교차검증"
+      - "불확실성 표시"
+
+# 출력 형식
+output_format:
+  source_evaluation:
+    columns:
+      - "소스"
+      - "관련성 (1-5)"
+      - "신뢰도 (1-5)"
+      - "사분면"
+      - "활용"
+
+  quadrant_summary:
+    sections:
+      - "평가 기준 설명"
+      - "2축 차트 시각화"
+      - "사분면별 소스 목록"
+      - "핵심 인용 소스 (Leaders)"
+      - "교차검증 필요 소스 (Visionaries)"

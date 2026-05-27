@@ -1,0 +1,248 @@
+# 다중 분야 충돌 해결
+# v3.0 - 안전장치 시스템
+
+version: "3.0"
+description: "복합 주제(예: 'AI 주식')에서 다중 분야 처리 규칙"
+
+# 핵심 목표
+goals:
+  - "복합 주제 정확한 분류"
+  - "다중 분야 소스 통합"
+  - "충돌 없는 결과 제공"
+
+# 다중 분야 감지
+multi_domain_detection:
+  # 감지 방법
+  detection_methods:
+    - name: "키워드 조합 분석"
+      example: "'AI 주식 투자' → AI + 주식/금융"
+
+    - name: "문맥 분석"
+      example: "'비트코인 법적 문제' → 암호화폐 + 법률"
+
+    - name: "명시적 언급"
+      example: "'기술과 금융 관점에서'"
+
+  # 일반적인 복합 주제 패턴
+  common_patterns:
+    - primary: "ai_technology"
+      secondary: "stocks_finance"
+      examples:
+        - "AI 관련주"
+        - "인공지능 기업 투자"
+        - "AI 스타트업 펀딩"
+
+    - primary: "crypto_blockchain"
+      secondary: "legal"
+      examples:
+        - "비트코인 세금"
+        - "암호화폐 규제"
+        - "NFT 법적 지위"
+
+    - primary: "real_estate"
+      secondary: "stocks_finance"
+      examples:
+        - "리츠 투자"
+        - "부동산 펀드"
+        - "건설주 분석"
+
+    - primary: "health_medical"
+      secondary: "startup_business"
+      examples:
+        - "헬스케어 스타트업"
+        - "의료 AI 기업"
+        - "디지털 헬스 시장"
+
+    - primary: "environment_esg"
+      secondary: "stocks_finance"
+      examples:
+        - "ESG 투자"
+        - "그린 펀드"
+        - "탄소중립 기업"
+
+# 충돌 해결 전략
+resolution_strategies:
+  # 전략 1: 병합 (기본)
+  merge:
+    description: "양쪽 분야 소스를 모두 활용"
+    when: "분야 간 보완 관계"
+    action:
+      - "primary 분야 소스 우선 검색"
+      - "secondary 분야 소스 추가 검색"
+      - "결과 통합 시 분야별 태깅"
+
+    example:
+      query: "AI 관련주 분석"
+      sources:
+        ai_technology:
+          - "arxiv.org (기술 분석)"
+          - "techcrunch.com (트렌드)"
+        stocks_finance:
+          - "dart.fss.or.kr (재무 정보)"
+          - "investing.com (시세)"
+
+  # 전략 2: 우선순위 (명확한 주제)
+  prioritize:
+    description: "주요 분야 중심, 보조 분야 참고"
+    when: "한 분야가 명확히 주요"
+    action:
+      - "primary 분야 소스 80%"
+      - "secondary 분야 소스 20%"
+
+    example:
+      query: "삼성전자 AI 반도체"
+      priority: "stocks_finance"
+      reason: "기업 분석이 주목적"
+
+  # 전략 3: 분리 (상충 관계)
+  separate:
+    description: "분야별로 별도 섹션 제공"
+    when: "분야 간 관점이 다를 수 있음"
+    action:
+      - "분야별 결과 별도 정리"
+      - "관점 차이 명시"
+
+    example:
+      query: "암호화폐 규제"
+      sections:
+        - "법률 관점: 현행 규제와 판례"
+        - "시장 관점: 규제가 가격에 미치는 영향"
+
+# 우선순위 결정 규칙
+priority_rules:
+  # 키워드 기반 우선순위
+  keyword_priority:
+    # 투자/금융 관련 키워드가 있으면 금융 우선
+    finance_keywords:
+      triggers: ["투자", "주식", "펀드", "시세", "매수", "매도"]
+      priority: "stocks_finance"
+
+    # 기술/연구 키워드가 있으면 기술 우선
+    tech_keywords:
+      triggers: ["기술", "연구", "개발", "논문", "벤치마크"]
+      priority: "ai_technology"
+
+    # 법적 키워드가 있으면 법률 우선
+    legal_keywords:
+      triggers: ["법적", "규제", "소송", "판결", "법률"]
+      priority: "legal"
+
+  # 사용자 목적 기반 우선순위
+  purpose_priority:
+    investment:
+      purpose: "투자 판단"
+      priority: "stocks_finance"
+
+    research:
+      purpose: "기술 연구"
+      priority: "ai_technology"
+
+    compliance:
+      purpose: "규제 준수"
+      priority: "legal"
+
+# 면책 조항 처리
+disclaimer_handling:
+  # 다중 분야 면책
+  multi_domain:
+    rule: "모든 해당 분야의 면책 조항 표시"
+    order: "critical 레벨 순"
+
+  # 예시
+  example:
+    query: "비트코인 투자 법적 문제"
+    disclaimers:
+      - domain: "crypto_blockchain"
+        level: "critical"
+        display: true
+      - domain: "stocks_finance"
+        level: "critical"
+        display: true
+      - domain: "legal"
+        level: "critical"
+        display: true
+
+# 결과 통합 형식
+output_integration:
+  # 병합 형식
+  merged_format: |
+    ## {query} 종합 분석
+
+    ### 📊 {domain_1} 관점
+    {domain_1_findings}
+
+    ### 💼 {domain_2} 관점
+    {domain_2_findings}
+
+    ### 🔗 종합 인사이트
+    {integrated_insights}
+
+    ---
+    *이 분석은 {domain_list} 분야를 통합하여 작성되었습니다.*
+
+  # 분리 형식
+  separated_format: |
+    ## {query} 분석
+
+    > ⚠️ 이 주제는 여러 분야에 걸쳐 있어 관점별로 정리했습니다.
+
+    ---
+
+    ## Part 1: {domain_1} 관점
+    {domain_1_findings}
+
+    ---
+
+    ## Part 2: {domain_2} 관점
+    {domain_2_findings}
+
+    ---
+
+    *각 관점은 해당 분야의 전문 소스를 기반으로 합니다.*
+
+# 에이전트 적용
+agent_application:
+  planner:
+    role: "다중 분야 감지 및 전략 결정"
+    actions:
+      - "쿼리 분석으로 관련 분야 식별"
+      - "분야 간 관계 파악 (보완/상충)"
+      - "해결 전략 선택"
+      - "분야별 검색 계획 수립"
+
+  synthesizer:
+    role: "다중 분야 결과 통합"
+    actions:
+      - "분야별 결과 수집"
+      - "선택된 전략에 따라 통합"
+      - "모든 해당 면책 조항 포함"
+      - "분야별 소스 태깅"
+
+# 충돌 사례 및 해결
+conflict_examples:
+  - case: "AI 주식 투자"
+    domains: ["ai_technology", "stocks_finance"]
+    strategy: "merge"
+    reason: "기술 분석 + 재무 분석 모두 필요"
+    output:
+      - "AI 기술 트렌드 (기술 소스)"
+      - "관련 기업 재무 정보 (금융 소스)"
+      - "시장 전망 (양쪽 통합)"
+
+  - case: "암호화폐 세금 신고"
+    domains: ["crypto_blockchain", "legal"]
+    strategy: "prioritize"
+    priority: "legal"
+    reason: "법률 준수가 주목적"
+    output:
+      - "세금 신고 방법 (법률 소스 중심)"
+      - "관련 거래 기록 (암호화폐 소스 참고)"
+
+  - case: "헬스케어 AI 스타트업 투자"
+    domains: ["health_medical", "ai_technology", "startup_business"]
+    strategy: "merge"
+    reason: "세 분야 모두 관련"
+    output:
+      - "의료 AI 기술 동향 (기술 소스)"
+      - "헬스케어 시장 규모 (의료 소스)"
+      - "투자 트렌드/펀딩 (스타트업 소스)"

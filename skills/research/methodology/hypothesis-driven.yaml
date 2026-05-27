@@ -1,0 +1,142 @@
+# McKinsey 가설 주도 리서치 방법론
+# v3.0 - 전문 리서치 회사 방법론 통합
+
+methodology:
+  name: "Hypothesis-Driven Research"
+  source: "McKinsey & Company"
+  description: "가설을 먼저 세우고 검증하는 리서치 접근법"
+
+# 핵심 원칙
+principles:
+  - name: "Day One Answer"
+    description: "첫날부터 가설적 결론을 세움"
+    application: "리서치 시작 전 예상 결론 도출"
+
+  - name: "Pyramid Principle"
+    description: "결론 먼저, 근거 나중"
+    application: "보고서 구조화"
+
+  - name: "So What? Test"
+    description: "모든 발견에 '그래서 뭐?' 테스트"
+    application: "실행 가능한 인사이트만 포함"
+
+# MECE 분해
+mece:
+  description: "Mutually Exclusive, Collectively Exhaustive"
+
+  validation_checklist:
+    mutually_exclusive:
+      - "각 카테고리가 겹치지 않는가?"
+      - "동일 항목이 여러 카테고리에 속하지 않는가?"
+
+    collectively_exhaustive:
+      - "모든 가능성이 포함되었는가?"
+      - "누락된 카테고리가 없는가?"
+
+  decomposition_types:
+    - type: "2x2 Matrix"
+      use_when: "두 가지 축으로 분류 가능할 때"
+      example: "신뢰도 × 관련성"
+
+    - type: "Issue Tree"
+      use_when: "복잡한 문제 분해 시"
+      example: "왜 매출이 감소했는가?"
+
+    - type: "Process Flow"
+      use_when: "순서가 있는 프로세스"
+      example: "구매 여정 단계별 분석"
+
+# 가설 수립 프로세스
+hypothesis_process:
+  steps:
+    1_generate:
+      name: "가설 생성"
+      description: "사전 지식과 직관으로 초기 가설 도출"
+      output: "초기 가설 목록"
+      format: "If [조건], then [결과]"
+
+    2_structure:
+      name: "가설 구조화"
+      description: "MECE 원칙에 따라 가설 정리"
+      output: "가설 트리"
+      template: |
+        주요 질문: {main_question}
+        ├── H1: {hypothesis_1}
+        │   └── 검증 방법: {verification_1}
+        ├── H2: {hypothesis_2}
+        │   └── 검증 방법: {verification_2}
+        └── H3: {hypothesis_3}
+            └── 검증 방법: {verification_3}
+
+    3_test:
+      name: "가설 검증"
+      description: "데이터와 분석으로 가설 검증"
+      output: "검증 결과"
+      outcomes:
+        - "✅ 검증됨 (Validated)"
+        - "🟡 부분 검증 (Partially Validated)"
+        - "❌ 기각 (Rejected)"
+        - "⚪ 미검증 (Not Tested)"
+
+    4_refine:
+      name: "가설 정제"
+      description: "검증 결과 기반 가설 수정"
+      output: "정제된 가설"
+      actions:
+        - "기각된 가설 폐기"
+        - "부분 검증된 가설 수정"
+        - "새로운 가설 추가"
+
+# Research Skill 적용
+application:
+  planner_agent:
+    role: "가설 수립 및 MECE 분해"
+    actions:
+      - "사용자 질문 분석"
+      - "초기 가설 생성"
+      - "MECE 트리 구성"
+      - "검색 전략 도출"
+
+  analyzer_agent:
+    role: "가설 검증"
+    actions:
+      - "수집된 소스로 가설 테스트"
+      - "지지/반박 증거 분류"
+      - "검증 결과 판정"
+
+  synthesizer_agent:
+    role: "결론 도출"
+    actions:
+      - "검증된 가설 종합"
+      - "So What? 테스트 적용"
+      - "실행 가능한 권고 도출"
+
+# 출력 형식
+output_format:
+  hypothesis_tree:
+    sections:
+      - "주요 질문"
+      - "가설 트리 (시각화)"
+      - "가설별 검증 결과"
+      - "핵심 발견"
+      - "권고사항"
+
+  validation_table:
+    columns:
+      - "가설 ID"
+      - "가설 내용"
+      - "검증 결과"
+      - "근거"
+      - "소스"
+
+# 품질 기준
+quality_criteria:
+  hypothesis_quality:
+    - "구체적이고 명확한가?"
+    - "검증 가능한가?"
+    - "질문에 직접 답변하는가?"
+
+  analysis_quality:
+    - "모든 가설을 검증했는가?"
+    - "충분한 증거가 있는가?"
+    - "반박 증거도 고려했는가?"

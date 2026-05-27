@@ -1,0 +1,203 @@
+# Team PM Role Routing
+# SSOT: rules/pm-skills-integration.md §6
+# 키워드 다중 매칭 시 priority 낮은 번호 우선
+
+roles:
+  pm-strategist:
+    priority: 1
+    keywords:
+      - 전략
+      - 비전
+      - BMC
+      - Lean Canvas
+      - 린 캔버스
+      - 9섹션
+      - Pricing
+      - 가격 전략
+      - 사업성
+      - 사업성 검토
+      - 포지셔닝
+      - SWOT
+      - PESTLE
+      - Porter
+      - Ansoff
+      - value proposition
+      - 가치 제안
+    skills:
+      - pm-product-strategy:product-strategy
+      - pm-product-strategy:product-vision
+      - pm-product-strategy:business-model
+      - pm-product-strategy:lean-canvas
+      - pm-product-strategy:startup-canvas
+      - pm-product-strategy:value-proposition
+      - pm-product-strategy:pricing-strategy
+      - pm-product-strategy:monetization-strategy
+      - pm-product-strategy:swot-analysis
+      - pm-product-strategy:pestle-analysis
+      - pm-product-strategy:porters-five-forces
+      - pm-product-strategy:ansoff-matrix
+
+  discovery-lead:
+    priority: 2
+    keywords:
+      - 가설
+      - assumption
+      - OST
+      - opportunity tree
+      - 기회 트리
+      - 인터뷰
+      - 실험 설계
+      - 아이디어 정렬
+      - brainstorm
+      - metrics dashboard
+    skills:
+      - pm-product-discovery:opportunity-solution-tree
+      - pm-product-discovery:identify-assumptions-new
+      - pm-product-discovery:identify-assumptions-existing
+      - pm-product-discovery:prioritize-assumptions
+      - pm-product-discovery:brainstorm-ideas-new
+      - pm-product-discovery:brainstorm-ideas-existing
+      - pm-product-discovery:brainstorm-experiments-new
+      - pm-product-discovery:brainstorm-experiments-existing
+      - pm-product-discovery:interview-script
+      - pm-product-discovery:summarize-interview
+      - pm-product-discovery:analyze-feature-requests
+      - pm-product-discovery:prioritize-features
+      - pm-product-discovery:metrics-dashboard
+
+  execution-lead:
+    priority: 3
+    keywords:
+      - PRD 섹션
+      - 8섹션 PRD
+      - OKR
+      - 스프린트
+      - 리트로
+      - 회고
+      - 유저 스토리
+      - 잡 스토리
+      - 릴리즈 노트
+      - 프리모템
+      - pre-mortem
+      - 이해관계자 맵
+      - stakeholder
+    skills:
+      - pm-execution:create-prd
+      - pm-execution:brainstorm-okrs
+      - pm-execution:outcome-roadmap
+      - pm-execution:sprint-plan
+      - pm-execution:retro
+      - pm-execution:user-stories
+      - pm-execution:job-stories
+      - pm-execution:wwas
+      - pm-execution:test-scenarios
+      - pm-execution:release-notes
+      - pm-execution:pre-mortem
+      - pm-execution:stakeholder-map
+      - pm-execution:summarize-meeting
+      - pm-execution:prioritization-frameworks
+      - pm-execution:dummy-dataset
+    branches:
+      prd:
+        korean_ux: prd-create
+        framework: pm-execution:create-prd
+
+  research-lead:
+    priority: 4
+    keywords:
+      - 페르소나
+      - persona
+      - 세그먼트
+      - CJM
+      - 고객 여정
+      - customer journey
+      - TAM
+      - SAM
+      - SOM
+      - 시장 크기
+      - market sizing
+      - sentiment
+      - 감성 분석
+    skills:
+      - pm-market-research:user-personas
+      - pm-market-research:user-segmentation
+      - pm-market-research:market-segments
+      - pm-market-research:customer-journey-map
+      - pm-market-research:market-sizing
+      - pm-market-research:competitor-analysis
+      - pm-market-research:sentiment-analysis
+    delegates_to:
+      - team-business  # 주간 경쟁사 모니터링 크론
+
+  analytics-lead:
+    priority: 5
+    keywords:
+      - SQL
+      - cohort
+      - 코호트
+      - 응집군
+      - A/B 분석
+      - A/B 결과
+      - 유의성
+      - 효과크기
+    skills:
+      - pm-data-analytics:sql-queries
+      - pm-data-analytics:cohort-analysis
+      - pm-data-analytics:ab-test-analysis
+    complements:
+      - marketing-skills:ab-test-setup  # 설계 담당
+
+  gtm-lead:
+    priority: 6
+    keywords:
+      - GTM
+      - Go-to-Market
+      - Beachhead
+      - 비치헤드
+      - ICP
+      - ideal customer
+      - Growth Loop
+      - 성장 루프
+      - Battlecard
+      - 배틀카드
+      - PLG
+      - SLG
+      - gtm motion
+    skills:
+      - pm-go-to-market:gtm-strategy
+      - pm-go-to-market:beachhead-segment
+      - pm-go-to-market:ideal-customer-profile
+      - pm-go-to-market:growth-loops
+      - pm-go-to-market:gtm-motions
+      - pm-go-to-market:competitive-battlecard
+    collaborates_with:
+      - team-marketing:growth-gtm-ops
+
+  toolkit-lead:
+    priority: 7
+    keywords:
+      - 이력서
+      - resume
+      - NDA
+      - 비밀유지
+      - 개인정보처리방침
+      - privacy policy
+      - 문법
+      - 교정
+      - grammar
+    skills:
+      - pm-toolkit:review-resume
+      - pm-toolkit:draft-nda
+      - pm-toolkit:privacy-policy
+      - pm-toolkit:grammar-check
+
+external_delegation:
+  marketing_growth:
+    target: team-marketing:cmo-strategist
+    skills:
+      - pm-marketing-growth:north-star-metric
+      - pm-marketing-growth:positioning-ideas
+      - pm-marketing-growth:value-prop-statements
+      - pm-marketing-growth:product-name
+      - pm-marketing-growth:marketing-ideas
+    reason: "North Star·Positioning·Naming은 CMO Strategist 단독 담당 (team-pm 중복 금지)"

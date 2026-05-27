@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Log skill file changes after Write/Edit without blocking the tool.
+set -u
+
+OUT="$HOME/.agents/runtime/skill-changes.jsonl"
+mkdir -p "$(dirname "$OUT")"
+
+if ! command -v jq >/dev/null 2>&1; then
+  exit 0
+fi
+
+INPUT=$(cat 2>/dev/null || true)
+TOOL=$(printf '%s' "$INPUT" | jq -r '.tool_name // ""' 2>/dev/null || echo "")
+FILE=$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // ""' 2>/dev/null || echo "")
+
+case "$TOOL" in
+  Write|Edit) ;;
+  *) exit 0 ;;
+esac
+
+case "$FILE" in
+  "$HOME/.agents/skills/"*|"$HOME/.claude/skills/"*|"$HOME/.codex/skills/"*) ;;
+  *) exit 0 ;;
+esac
+
+case "$FILE" in
+  */SKILL.md|*/references/*|*/scripts/*|*/assets/*) ;;
+  *) exit 0 ;;
+esac
+
+jq -cn --arg ts "$(date -u +%FT%TZ)" \
+       --arg tool "$TOOL" \
+       --arg file "$FILE" \
+       '{ts:$ts, event:"skill_file_changed", tool:$tool, file:$file}' >> "$OUT" 2>/dev/null || true
+
+exit 0

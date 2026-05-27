@@ -1,0 +1,198 @@
+# Phase 2 (2/2): CrossRef, Mastodon, StackOverflow + Utilities
+
+phase_2_part_2:
+  crossref:
+    name: "CrossRef REST API"
+    description: "학술 논문 메타데이터와 DOI 기반 검색"
+    source_type: academic
+    credibility_base: 5
+    language: multilingual
+    endpoints:
+      works:
+        url: "https://api.crossref.org/works"
+        method: GET
+        description: "논문 검색"
+        key_parameters:
+          - query
+          - rows
+          - offset
+          - sort
+          - order
+          - filter
+          - select
+    response_structure:
+      top_level:
+        - status
+        - message
+      item_fields:
+        - DOI
+        - URL
+        - title
+        - author
+        - abstract
+        - container-title
+        - type
+        - issued
+        - is-referenced-by-count
+    raw_sources_mapping:
+      url: item.URL
+      title: item.title[0]
+      snippet: abstract_or_title
+      source_type: academic
+      timestamp: issued_to_iso
+    query_optimization:
+      korean_queries: "영어 번역 후 검색"
+      best_practices:
+        - "select로 필요한 필드만 요청"
+        - "is-referenced-by-count 정렬로 영향력 높은 논문 우선"
+        - "has-abstract:true 필터 활용"
+        - "ArXiv와 병행 사용"
+    error_handling:
+      rate_limit: "429 시 재시도"
+      no_results_detection: "message.total-results == 0"
+
+  mastodon:
+    name: "Mastodon Public API"
+    description: "분산형 소셜 네트워크의 공개 타임라인 검색"
+    source_type: social
+    credibility_base: 2
+    language: multilingual
+    endpoints:
+      tag_timeline:
+        url: "https://mastodon.social/api/v1/timelines/tag/{hashtag}"
+        method: GET
+        description: "해시태그별 공개 타임라인"
+        key_parameters:
+          - hashtag
+          - limit
+          - min_id
+          - max_id
+          - since_id
+    response_structure:
+      format: json_array
+      item_fields:
+        - id
+        - created_at
+        - url
+        - content
+        - language
+        - account
+        - tags
+    raw_sources_mapping:
+      url: status.url
+      title: stripped_content_short
+      snippet: stripped_content
+      source_type: social
+      timestamp: status.created_at
+    query_optimization:
+      korean_queries: "영어 해시태그 우선, 한국어 해시태그 보조"
+      best_practices:
+        - "여러 인스턴스 병행 조회"
+        - "HTML 제거 후 저장"
+        - "팔로워 수와 반응 수로 우선순위 조정"
+    error_handling:
+      rate_limit: "429 시 reset 시점까지 대기"
+      no_results_detection: "빈 배열"
+
+  stackoverflow:
+    name: "Stack Exchange API v2.3"
+    description: "프로그래밍 Q&A 검색과 구현 힌트 수집"
+    source_type: community
+    credibility_base: 4
+    language: en
+    webfetch_compatible: false
+    endpoints:
+      search:
+        url: "https://api.stackexchange.com/2.3/search"
+        method: GET
+        description: "질문 제목 기반 검색"
+        key_parameters:
+          - intitle
+          - site
+          - order
+          - sort
+          - pagesize
+          - page
+          - tagged
+          - fromdate
+          - todate
+      search_advanced:
+        url: "https://api.stackexchange.com/2.3/search/advanced"
+        method: GET
+        description: "제목+본문 기반 고급 검색"
+        key_parameters:
+          - q
+          - title
+          - body
+          - accepted
+          - answers
+          - views
+    response_structure:
+      top_level:
+        - items
+        - has_more
+        - quota_max
+        - quota_remaining
+      item_fields:
+        - question_id
+        - title
+        - link
+        - tags
+        - score
+        - view_count
+        - answer_count
+        - accepted_answer_id
+        - creation_date
+        - owner
+    raw_sources_mapping:
+      url: item.link
+      title: html_decoded_title
+      snippet: tags_score_views
+      source_type: community
+      timestamp: creation_date_to_iso
+    query_optimization:
+      korean_queries: "영어 번역 후 검색"
+      best_practices:
+        - "sort=votes로 검증된 답변 우선"
+        - "accepted=true와 views 필터 병행"
+        - "curl --compressed 사용"
+        - "quota_remaining 모니터링"
+    error_handling:
+      rate_limit: "quota_remaining == 0 또는 backoff 응답 시 대기"
+      no_results_detection: "items == [] and has_more == false"
+
+  utilities:
+    date_helpers:
+      unix_to_iso: "new Date(unix_seconds * 1000).toISOString()"
+      rfc2822_to_iso: "new Date(rfc2822_string).toISOString()"
+      date_parts_to_iso: "YYYY-MM-DD 조합"
+      days_ago_to_unix: "현재 시각에서 days 만큼 차감"
+    html_helpers:
+      strip_html: "HTML 태그 제거"
+      strip_highlight: "강조 태그 제거"
+    korean_translation_guide:
+      description: "한국어 쿼리를 영어 검색어로 바꾸는 가이드"
+      strategy:
+        - "직역보다 검색 친화적 표현 사용"
+        - "고유 명사는 원어와 영어를 병기"
+        - "LLM, AI, ML 같은 약어는 유지"
+      korean_only_sources:
+        - "Google News RSS (hl=ko&gl=KR)"
+        - "Wikipedia 한국어"
+    webfetch_compatibility:
+      compatible:
+        - hackernews
+        - wikipedia
+        - arxiv
+        - github
+        - google_news_rss
+        - devto
+        - crossref
+        - mastodon
+      incompatible_use_curl:
+        - source: reddit
+          reason: "WebFetch 차단"
+          alternative: "curl -H User-Agent"
+        - source: stackoverflow
+          reason: "WebFetch 차단"
+          alternative: "curl --compressed"

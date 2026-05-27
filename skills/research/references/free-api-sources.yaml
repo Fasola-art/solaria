@@ -1,0 +1,55 @@
+# Free API Sources Index v5.2
+# 상세 소스 정의는 free-api-sources/ 디렉토리에 분할 보관
+# Searcher agent가 WebFetch로 직접 호출하는 무료 API 목록
+
+version: "1.0"
+last_verified: "2026-03-26"
+
+# 분할 파일 목록
+includes:
+  - free-api-sources/phase1-hn-wiki.yaml    # HN, Wikipedia
+  - free-api-sources/phase1-arxiv-github.yaml # ArXiv, GitHub
+  - free-api-sources/phase1-domain.yaml     # PubMed, 국가법령, CoinGecko, DART
+  - free-api-sources/phase1-korea.yaml      # Naver Search + 한국 도메인 site filter
+  - free-api-sources/phase2-reddit-devto.yaml   # Reddit, Google News, Dev.to
+  - free-api-sources/phase2-crossref-so.yaml  # CrossRef, Mastodon, SO
+
+# Phase 1 소스 요약 (9개)
+phase1_summary:
+  hackernews: { type: community, credibility: 3, domains: [ai_technology, startup_business] }
+  wikipedia:  { type: reference, credibility: 4, domains: [all] }
+  arxiv:      { type: academic, credibility: 5, domains: [academic_papers, ai_technology] }
+  github:     { type: code, credibility: 4, domains: [ai_technology, startup_business] }
+  pubmed:     { type: academic, credibility: 5, domains: [health_medical] }
+  law_go_kr:  { type: official, credibility: 5, domains: [legal] }
+  coingecko:  { type: data_provider, credibility: 4, domains: [crypto_blockchain] }
+  dart:       { type: official, credibility: 5, domains: [stocks_finance], requires_key: true }
+  naver:      { type: community, credibility: 3, domains: [all], requires_key: true, korean: true }
+
+# Enhanced Site Search (API 미지원 도메인의 대체 전략)
+enhanced_site_search:
+  description: "Free API 미지원 도메인에서 WebSearch에 site: 쿼리 자동 주입"
+  max_additional_queries: 2
+  template: "{query} site:{domain}"
+  domain_targets:
+    startup_business: ["crunchbase.com", "thevc.kr"]
+    education_learning: ["coursera.org", "inflearn.com"]
+    travel_food: ["tripadvisor.com", "mangoplate.com"]
+    career_jobs: ["wanted.co.kr", "saramin.co.kr"]
+    shopping_reviews: ["rtings.com", "danawa.com"]
+    environment_esg: ["ipcc.ch", "env.go.kr"]
+
+# 공통 설정
+common:
+  webfetch_timeout: 8000
+  max_concurrent: 3
+  retry: false
+  tagging:
+    fetch_method: "free_api"
+    deep_reader_action: "skip_fetch"
+    source_genealogy_type: "origin"
+    stakeholder_interest: "independent"
+  korean_query:
+    direct_support: [naver, law_go_kr, dart, wikipedia_ko, google_news_rss]
+    requires_translation: [hackernews, arxiv, github, pubmed, coingecko]
+    strategy: "Planner bilingual 확장의 영어 쿼리를 Free API에 전달. 한국어 쿼리는 직역 금지 — phase1-korea.yaml korean_query_localization 참조"

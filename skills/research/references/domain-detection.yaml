@@ -1,0 +1,339 @@
+# 분야 자동 감지 설정
+# v3.0 - 키워드 기반 분야 감지 시스템
+
+version: "3.0"
+description: "사용자 질문에서 분야를 자동으로 감지하여 특화 검색 수행"
+
+# 감지 설정
+detection_config:
+  min_keyword_match: 2       # 최소 2개 키워드 매칭 필요
+  context_check: true        # 문맥 확인
+  multi_domain_support: true # 다중 분야 지원
+  fallback: "general"        # 감지 실패 시 범용 검색
+
+# v5.2: Free API 연동
+free_api_reference:
+  config_path: "agents/searcher/config.yaml -> free_api.domain_mapping"
+  source_ref: "references/free-api-sources.yaml"
+
+# 분야별 트리거 키워드
+domain_triggers:
+  real_estate:
+    primary:
+      - "부동산"
+      - "아파트"
+      - "전세"
+      - "월세"
+      - "청약"
+      - "실거래가"
+    secondary:
+      - "분양"
+      - "시세"
+      - "매물"
+      - "재개발"
+      - "재건축"
+      - "오피스텔"
+      - "상가"
+      - "토지"
+      - "빌라"
+      - "단독주택"
+      - "다세대"
+      - "연립"
+      - "공매"
+      - "경매"
+      - "입찰"
+      - "감정가"
+      - "전세가율"
+      - "갭투자"
+      - "수익률"
+      - "낙찰"
+      - "DSR"
+      - "LTV"
+    confidence_boost:
+      - "KB부동산"
+      - "호갱노노"
+      - "평당가"
+      - "국토부"
+      - "실거래"
+      - "온비드"
+      - "청약홈"
+      - "부동산114"
+      - "네이버부동산"
+      - "법원경매"
+    preferred_free_api: []  # MCP: real-estate server
+
+  stocks_finance:
+    primary:
+      - "주식"
+      - "투자"
+      - "펀드"
+      - "ETF"
+      - "배당"
+    secondary:
+      - "PER"
+      - "시가총액"
+      - "실적"
+      - "공시"
+      - "증권"
+      - "재테크"
+    confidence_boost:
+      - "DART"
+      - "종목"
+      - "차트"
+    preferred_free_api: ["dart"]  # DART_API_KEY 필요
+
+  ai_technology:
+    primary:
+      - "AI"
+      - "인공지능"
+      - "LLM"
+      - "GPT"
+      - "Claude"
+    secondary:
+      - "머신러닝"
+      - "딥러닝"
+      - "에이전트"
+      - "transformer"
+      - "fine-tuning"
+      - "프롬프트"
+    confidence_boost:
+      - "OpenAI"
+      - "Anthropic"
+      - "RLHF"
+    preferred_free_api: ["arxiv", "github"]
+
+  health_medical:
+    primary:
+      - "건강"
+      - "질병"
+      - "증상"
+      - "치료"
+      - "약"
+    secondary:
+      - "부작용"
+      - "병원"
+      - "진료"
+      - "비타민"
+      - "영양제"
+    confidence_boost:
+      - "처방"
+      - "진단"
+      - "의사"
+    preferred_free_api: ["pubmed"]
+
+  legal:
+    primary:
+      - "법률"
+      - "소송"
+      - "계약"
+      - "권리"
+      - "법원"
+    secondary:
+      - "판례"
+      - "조문"
+      - "변호사"
+      - "분쟁"
+      - "시행령"
+    confidence_boost:
+      - "법제처"
+      - "대법원"
+    preferred_free_api: ["law_go_kr"]
+
+  startup_business:
+    primary:
+      - "스타트업"
+      - "펀딩"
+      - "투자"
+      - "유니콘"
+    secondary:
+      - "시리즈"
+      - "밸류에이션"
+      - "IPO"
+      - "M&A"
+      - "VC"
+      - "엑싯"
+    confidence_boost:
+      - "Crunchbase"
+      - "THE VC"
+    preferred_free_api: []  # enhanced_site_search
+
+  education_learning:
+    primary:
+      - "강의"
+      - "수강"
+      - "자격증"
+      - "학습"
+    secondary:
+      - "커리큘럼"
+      - "부트캠프"
+      - "온라인 강좌"
+      - "공부"
+      - "배우기"
+    confidence_boost:
+      - "Coursera"
+      - "Udemy"
+      - "인프런"
+    preferred_free_api: []  # enhanced_site_search
+
+  travel_food:
+    primary:
+      - "여행"
+      - "맛집"
+      - "숙소"
+      - "호텔"
+    secondary:
+      - "항공권"
+      - "관광"
+      - "추천 맛집"
+      - "휴가"
+      - "투어"
+    confidence_boost:
+      - "트립어드바이저"
+      - "에어비앤비"
+    preferred_free_api: []  # enhanced_site_search
+
+  academic_papers:
+    primary:
+      - "논문"
+      - "연구"
+      - "학술"
+      - "저널"
+    secondary:
+      - "인용"
+      - "학회"
+      - "peer review"
+      - "abstract"
+    confidence_boost:
+      - "arXiv"
+      - "PubMed"
+      - "Google Scholar"
+    preferred_free_api: ["arxiv"]
+
+  career_jobs:
+    primary:
+      - "채용"
+      - "연봉"
+      - "이직"
+      - "취업"
+    secondary:
+      - "면접"
+      - "경력"
+      - "구직"
+      - "자기소개서"
+    confidence_boost:
+      - "원티드"
+      - "사람인"
+      - "블라인드"
+    preferred_free_api: []  # enhanced_site_search
+
+  shopping_reviews:
+    primary:
+      - "리뷰"
+      - "추천"
+      - "비교"
+      - "언박싱"
+    secondary:
+      - "가성비"
+      - "할인"
+      - "구매"
+      - "스펙"
+    confidence_boost:
+      - "다나와"
+      - "RTINGS"
+    preferred_free_api: []  # enhanced_site_search
+
+  crypto_blockchain:
+    primary:
+      - "비트코인"
+      - "이더리움"
+      - "코인"
+      - "블록체인"
+    secondary:
+      - "NFT"
+      - "DeFi"
+      - "거래소"
+      - "토큰"
+    confidence_boost:
+      - "CoinMarketCap"
+      - "업비트"
+      - "바이낸스"
+    preferred_free_api: ["coingecko"]
+
+  environment_esg:
+    primary:
+      - "ESG"
+      - "탄소중립"
+      - "친환경"
+    secondary:
+      - "지속가능성"
+      - "재생에너지"
+      - "탄소배출"
+      - "그린"
+    confidence_boost:
+      - "IPCC"
+      - "넷제로"
+    preferred_free_api: []  # enhanced_site_search
+
+# 다중 분야 처리
+multi_domain_handling:
+  strategy: "primary_plus_secondary"
+  description: "두 분야가 겹칠 경우 두 분야 소스 모두 사용"
+
+  examples:
+    - query: "AI 주식"
+      domains: ["ai_technology", "stocks_finance"]
+      strategy: "merge_sources"
+
+    - query: "부동산 투자"
+      domains: ["real_estate", "stocks_finance"]
+      strategy: "merge_sources"
+
+    - query: "헬스케어 스타트업"
+      domains: ["health_medical", "startup_business"]
+      strategy: "merge_sources"
+
+# 감지 점수 계산
+scoring:
+  primary_match: 3.0      # 주요 키워드 매칭
+  secondary_match: 1.5    # 보조 키워드 매칭
+  confidence_boost: 2.0   # 신뢰도 부스트 키워드
+  threshold: 4.0          # 분야 확정 최소 점수
+
+# 분야 우선순위 (충돌 시)
+priority_order:
+  - health_medical     # 면책 조항 필요
+  - legal              # 면책 조항 필요
+  - stocks_finance     # 면책 조항 필요
+  - crypto_blockchain  # 면책 조항 필요
+  - real_estate
+  - ai_technology
+  - startup_business
+  - academic_papers
+  - career_jobs
+  - education_learning
+  - shopping_reviews
+  - travel_food
+  - environment_esg
+
+# 예외 처리
+exceptions:
+  # "코인 세탁기" → 암호화폐가 아님
+  false_positive_prevention:
+    crypto_blockchain:
+      exclude_when:
+        - "세탁기"
+        - "게임 코인"
+        - "동전"
+
+    health_medical:
+      exclude_when:
+        - "건강한 코드"
+        - "증상 재현"  # 개발 용어
+
+  # 맥락 기반 재판단
+  context_override:
+    - pattern: "기술 트렌드"
+      force_domain: "ai_technology"
+
+    - pattern: "시장 점유율"
+      force_domain: null  # 맥락에 따라 결정

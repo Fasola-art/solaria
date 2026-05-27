@@ -1,0 +1,137 @@
+# Phase 1 Domain: PubMed, 국가법령, CoinGecko, DART
+# 도메인 전문 API (health, legal, crypto, finance)
+
+phase_1_domain_specific:
+
+  pubmed:
+    name: "PubMed E-utilities"
+    description: "NCBI 의학/생명과학 논문. 2-step (ESearch -> ESummary)."
+    source_type: "academic"
+    credibility_base: 5
+    language: "en"
+    webfetch_compatible: true
+    domains: [health_medical]
+    multi_step: true
+
+    endpoints:
+      esearch:
+        url: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term={query}&retmax={limit}&sort=relevance&retmode=json"
+        description: "Step 1: PubMed ID 목록 검색"
+        response_path: "esearchresult.idlist"
+      esummary:
+        url: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id={id_list}&retmode=json"
+        description: "Step 2: ID -> 상세 정보 (쉼표 구분)"
+        response_path: "result.{uid}"
+
+    raw_sources_mapping:
+      url: "'https://pubmed.ncbi.nlm.nih.gov/' + uid + '/'"
+      title: "result[uid].title"
+      snippet: "'Published in ' + fulljournalname + ' (' + pubdate + ')'"
+      date: "pubdate"
+      source_type: "academic"
+      credibility_preliminary: 5
+
+    rate_limit: "3 req/sec (키 없이)"
+    error_handling:
+      "200": "정상 (count='0'이면 결과 없음)"
+      "429": "Rate limit - 스킵"
+    query_tips:
+      korean: "영어 의학 용어 필수"
+      operators: "MeSH: vitamin D[MeSH], 날짜: 2024[pdat]"
+
+  law_go_kr:
+    name: "국가법령정보센터 Open API"
+    description: "대한민국 법령 검색. 인증 불필요 공공 API."
+    source_type: "official"
+    credibility_base: 5
+    language: "ko"
+    webfetch_compatible: true
+    domains: [legal]
+
+    endpoints:
+      search:
+        url: "https://www.law.go.kr/DRF/lawSearch.do?OC=test&target=law&type=JSON&query={query}&display={limit}"
+        response_path: "LawSearch.law"
+
+    raw_sources_mapping:
+      url: "'https://www.law.go.kr' + 법령상세링크"
+      title: "법령명한글 + ' (' + 현행연혁코드 + ')'"
+      snippet: "'시행일: ' + 시행일자 + ' | 약칭: ' + 법령약칭명"
+      date: "시행일자"
+      source_type: "official"
+      credibility_preliminary: 5
+
+    rate_limit: "제한 없음 (공공 API)"
+    error_handling:
+      "200": "정상 (totalCnt='0'이면 결과 없음)"
+    query_tips:
+      korean: "한국어 직접 검색"
+
+  coingecko:
+    name: "CoinGecko API"
+    description: "암호화폐 시세/시총. 2-step (search -> detail)."
+    source_type: "data_provider"
+    credibility_base: 4
+    language: "en"
+    webfetch_compatible: true
+    domains: [crypto_blockchain]
+    multi_step: true
+
+    endpoints:
+      search:
+        url: "https://api.coingecko.com/api/v3/search?query={coin_name}"
+        response_path: "coins"
+      detail:
+        url: "https://api.coingecko.com/api/v3/coins/{coin_id}?localization=false&tickers=false&community_data=false&developer_data=false"
+        response_path: "market_data"
+
+    raw_sources_mapping:
+      url: "'https://www.coingecko.com/en/coins/' + id"
+      title: "name + ' (' + symbol + ') #' + market_cap_rank"
+      snippet: "'$' + current_price.usd + ' | 24h: ' + price_change_percentage_24h + '%'"
+      date: "현재 시각 (ISO 8601)"
+      source_type: "authoritative_reports"
+      credibility_preliminary: 4
+
+    rate_limit: "10-30 req/min"
+    error_handling:
+      "200": "정상"
+      "429": "Rate limit - 스킵"
+    query_tips:
+      korean: "코인명 영문 변환 (비트코인->bitcoin)"
+
+  dart:
+    name: "DART OpenAPI (금융감독원 전자공시)"
+    description: "상장기업 공시 문서. API 키 필요 (DART_API_KEY)."
+    source_type: "official"
+    credibility_base: 5
+    language: "ko"
+    webfetch_compatible: true
+    domains: [stocks_finance]
+    requires_key: true
+    key_env_var: "DART_API_KEY"
+
+    endpoints:
+      list:
+        url: "https://opendart.fss.or.kr/api/list.json?crtfc_key={DART_API_KEY}&corp_name={company}&page_count={limit}&sort=date&sort_mth=desc"
+        response_path: "list"
+
+    raw_sources_mapping:
+      url: "'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=' + rcept_no"
+      title: "corp_name + ' - ' + report_nm"
+      snippet: "'접수일: ' + rcept_dt + ' | 제출인: ' + flr_nm"
+      date: "rcept_dt"
+      source_type: "official"
+      credibility_preliminary: 5
+
+    rate_limit: "1,000 req/day"
+    error_handling:
+      "200_status_000": "정상"
+      "200_status_013": "API 키 오류 - 스킵"
+      no_key: "DART_API_KEY 미설정 -> 자동 스킵"
+    query_tips:
+      korean: "한국어 직접 검색 (회사명)"
+
+# ============================================================================
+# Enhanced Site Search (API 미지원 도메인의 대체 전략)
+# ============================================================================

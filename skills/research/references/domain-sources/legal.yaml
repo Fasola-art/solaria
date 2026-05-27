@@ -1,0 +1,118 @@
+# 법률 분야 신뢰 소스
+# v3.0 - 분야별 특화 검색 시스템
+
+domain:
+  id: legal
+  name: "법률"
+  description: "법률, 판례, 계약, 소송, 규제 관련 리서치"
+
+# 트리거 키워드
+triggers:
+  - "법률"
+  - "소송"
+  - "계약"
+  - "권리"
+  - "분쟁"
+  - "법적"
+  - "판례"
+  - "조문"
+  - "시행령"
+  - "변호사"
+  - "법원"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "law.go.kr"
+      name: "국가법령정보센터"
+      reliability: 5
+      type: "정부/법령"
+      search_modifier: "site:law.go.kr"
+
+    - domain: "scourt.go.kr"
+      name: "대법원"
+      reliability: 5
+      type: "정부/판례"
+      search_modifier: "site:scourt.go.kr"
+
+    - domain: "moleg.go.kr"
+      name: "법제처"
+      reliability: 5
+      type: "정부"
+      search_modifier: "site:moleg.go.kr"
+
+    - domain: "klac.or.kr"
+      name: "대한법률구조공단"
+      reliability: 5
+      type: "공공기관"
+      search_modifier: "site:klac.or.kr"
+
+  secondary:
+    - domain: "lawnb.com"
+      name: "로앤비"
+      reliability: 4
+      type: "법률DB"
+      search_modifier: "site:lawnb.com"
+
+    - domain: "casenote.kr"
+      name: "케이스노트"
+      reliability: 4
+      type: "판례DB"
+      search_modifier: "site:casenote.kr"
+
+    - domain: "법무법인 웹사이트"
+      reliability: 4
+      type: "전문가 해설"
+
+  tertiary:
+    - domain: "법률 Q&A 사이트"
+      reliability: 2
+      warning: "⚠️ 전문가 검증 필요"
+
+# 분야별 키워드
+keywords:
+  documents:
+    - 법령
+    - 조문
+    - 시행령
+    - 시행규칙
+    - 판례
+
+  process:
+    - 소송
+    - 재판
+    - 항소
+    - 상고
+    - 조정
+
+  contracts:
+    - 계약서
+    - 약관
+    - 조항
+    - 해지
+    - 위반
+
+# 검색 전략
+search_strategy:
+  priority: ["법령", "판례", "법무법인 해설"]
+  time_filter: "최신 법령 기준"
+  cross_reference:
+    - "국가법령정보센터"
+    - "대법원 판례"
+
+# 면책 조항
+disclaimer:
+  required: true
+  priority: "critical"
+  text: |
+    ⚠️ **법률 면책 조항**
+    - 이 정보는 법률적 조언이 아닙니다.
+    - 법률 정보는 변경될 수 있으며, 개별 사안에 따라 적용이 다를 수 있습니다.
+    - 법적 문제는 반드시 자격을 갖춘 변호사와 상담하세요.
+    - 중요한 결정 전 전문 법률 상담을 권장합니다.
+
+# 최신성 정책
+freshness:
+  max_age_days: 365
+  warning_age_days: 180
+  stale_label: "⚠️ 법령이 개정되었을 수 있습니다"

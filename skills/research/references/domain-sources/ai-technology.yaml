@@ -1,0 +1,137 @@
+# AI/기술 분야 신뢰 소스
+# v3.0 - 분야별 특화 검색 시스템
+
+domain:
+  id: ai_technology
+  name: "AI/기술"
+  description: "인공지능, 머신러닝, LLM, 기술 트렌드 관련 리서치"
+
+# 트리거 키워드
+triggers:
+  - "AI"
+  - "인공지능"
+  - "LLM"
+  - "GPT"
+  - "Claude"
+  - "머신러닝"
+  - "딥러닝"
+  - "에이전트"
+  - "transformer"
+  - "fine-tuning"
+  - "RLHF"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "arxiv.org"
+      name: "arXiv"
+      reliability: 5
+      type: "논문"
+      search_modifier: "site:arxiv.org"
+
+    - domain: "openai.com"
+      name: "OpenAI"
+      reliability: 5
+      type: "공식"
+      search_modifier: "site:openai.com"
+
+    - domain: "anthropic.com"
+      name: "Anthropic"
+      reliability: 5
+      type: "공식"
+      search_modifier: "site:anthropic.com"
+
+    - domain: "deepmind.com"
+      name: "DeepMind"
+      reliability: 5
+      type: "공식"
+      search_modifier: "site:deepmind.com"
+
+    - domain: "ai.google"
+      name: "Google AI"
+      reliability: 5
+      type: "공식"
+      search_modifier: "site:ai.google"
+
+  secondary:
+    - domain: "techcrunch.com"
+      name: "TechCrunch"
+      reliability: 4
+      type: "뉴스"
+      search_modifier: "site:techcrunch.com"
+
+    - domain: "venturebeat.com"
+      name: "VentureBeat"
+      reliability: 4
+      type: "뉴스"
+      search_modifier: "site:venturebeat.com"
+
+    - domain: "theverge.com"
+      name: "The Verge"
+      reliability: 4
+      type: "뉴스"
+      search_modifier: "site:theverge.com"
+
+    - domain: "huggingface.co"
+      name: "Hugging Face"
+      reliability: 4
+      type: "기술/커뮤니티"
+      search_modifier: "site:huggingface.co"
+
+    - domain: "github.com"
+      name: "GitHub"
+      reliability: 4
+      type: "코드/프로젝트"
+      search_modifier: "site:github.com"
+
+  tertiary:
+    - domain: "medium.com"
+      name: "Medium"
+      reliability: 3
+    - domain: "dev.to"
+      reliability: 3
+
+# 분야별 키워드
+keywords:
+  models:
+    - LLM
+    - GPT
+    - Claude
+    - Gemini
+    - transformer
+    - diffusion
+
+  techniques:
+    - fine-tuning
+    - RLHF
+    - prompt engineering
+    - RAG
+    - agents
+    - chain-of-thought
+
+  metrics:
+    - benchmark
+    - SOTA
+    - accuracy
+    - latency
+    - tokens
+    - context length
+
+# 검색 전략
+search_strategy:
+  priority: ["논문", "공식 발표", "기술 블로그"]
+  time_filter: "최근 2년"
+  cross_reference:
+    - "arXiv"
+    - "공식 사이트"
+    - "기술 미디어"
+
+# 면책 조항
+disclaimer:
+  required: false
+
+# 최신성 정책
+freshness:
+  max_age_days: 180
+  warning_age_days: 90
+  stale_label: "⚠️ AI 분야는 빠르게 변화합니다. 최신 정보를 확인하세요."

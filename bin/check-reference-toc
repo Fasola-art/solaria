@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import re
+from pathlib import Path
+
+HOME = Path.home()
+ROOTS = [HOME / ".agents" / "skills", HOME / ".claude" / "skills"]
+SKIP_PARTS = {"_archive", "_backup", "_drafts", "__pycache__", "node_modules", ".venv", "venv", ".git"}
+HEADER_RE = re.compile(r"^(#{2,3})\s+(.+?)\s*$")
+
+
+def slug(text):
+    value = re.sub(r"[^\w가-힣 -]", "", text.lower()).strip()
+    value = re.sub(r"\s+", "-", value)
+    return value
+
+
+def is_reference(path):
+    if path.suffix.lower() != ".md":
+        return False
+    if set(path.parts) & SKIP_PARTS:
+        return False
+    return "references" in path.parts and path.is_file()
+
+
+def iter_refs():
+    seen = set()
+    for root in ROOTS:
+        if not root.exists():
+            continue
+        for path in root.rglob("*.md"):
+            if not is_reference(path):
+                continue
+            real = path.resolve()
+            if real in seen:
+                continue
+            seen.add(real)
+            yield path
+
+
+def has_toc(text):
+    head = "\n".join(text.splitlines()[:40]).lower()
+    return "table of contents" in head or "## contents" in head or "## 목차" in head
+
+
+def build_toc(text):
+    items = []
+    for line in text.splitlines():
+        match = HEADER_RE.match(line)
+        if not match:
+            continue
+        level, title = match.groups()
+        clean = title.strip().strip("#").strip()
+        if clean.lower() in {"contents", "table of contents", "목차"}:
+            continue
+        indent = "  " if level == "###" else ""
+        items.append(f"{indent}- [{clean}](#{slug(clean)})")
+        if len(items) >= 30:
+            break
+    if not items:
+        return None
+    return "## Contents\n\n" + "\n".join(items) + "\n"
+
+
+def add_toc(path, text):
+    toc = build_toc(text)
+    if not toc:
+        return False
+    lines = text.splitlines()
+    insert_at = 0
+    if lines and lines[0].startswith("# "):
+        insert_at = 1
+        while insert_at < len(lines) and lines[insert_at].strip() == "":
+            insert_at += 1
+    new_lines = lines[:insert_at] + ["", toc.rstrip(), ""] + lines[insert_at:]
+    path.write_text("\n".join(new_lines).rstrip() + "\n", encoding="utf-8")
+    return True
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Check long skill reference files for a table of contents.")
+    parser.add_argument("--min-lines", type=int, default=100, help="Only check references at or above this line count.")
+    parser.add_argument("--write", action="store_true", help="Add generated TOCs where missing.")
+    parser.add_argument("--json", action="store_true", help="Print JSON report.")
+    args = parser.parse_args()
+
+    records = []
+    issues = []
+    changed = []
+    for path in sorted(iter_refs()):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        lines = len(text.splitlines())
+        if lines < args.min_lines:
+            continue
+        toc = has_toc(text)
+        record = {"path": str(path), "lines": lines, "has_toc": toc}
+        if not toc:
+            issues.append({"severity": "warning", "path": str(path), "code": "missing-toc", "message": f"Reference has {lines} lines and no TOC near top"})
+            if args.write and add_toc(path, text):
+                record["toc_added"] = True
+                changed.append(str(path))
+        records.append(record)
+
+    report = {
+        "checked": len(records),
+        "warning_count": len(issues),
+        "changed": changed,
+        "issues": issues,
+        "records": records,
+    }
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    else:
+        print(f"checked: {report['checked']}")
+        print(f"warnings: {report['warning_count']}")
+        print(f"changed: {len(changed)}")
+        for issue in issues:
+            print(f"[{issue['severity']}] {issue['code']}: {issue['path']} - {issue['message']}")
+
+
+if __name__ == "__main__":
+    main()

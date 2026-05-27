@@ -1,0 +1,240 @@
+# 소스 헬스체크 시스템
+# v3.0 - 안전장치 시스템
+
+version: "3.0"
+description: "정기적 소스 유효성 검증 및 자동 업데이트"
+
+# 핵심 목표
+goals:
+  - "소스 URL 유효성 검증"
+  - "콘텐츠 품질 모니터링"
+  - "자동 대체 소스 전환"
+
+# 헬스체크 대상
+health_check_targets:
+  # URL 유효성
+  url_validity:
+    checks:
+      - "HTTP 상태 코드 (200 OK)"
+      - "리다이렉트 추적"
+      - "페이지 로드 시간"
+
+    failure_criteria:
+      - status: 404
+        action: "비활성화"
+      - status: 403
+        action: "접근 제한 표시"
+      - status: 500
+        action: "일시 비활성화"
+      - timeout: "> 30초"
+        action: "느린 소스 표시"
+
+  # 콘텐츠 품질
+  content_quality:
+    checks:
+      - "페이월 감지"
+      - "로그인 필요 여부"
+      - "콘텐츠 최신성"
+      - "광고/스팸 비율"
+
+    failure_criteria:
+      - paywall: true
+        action: "유료 소스 표시"
+      - login_required: true
+        action: "로그인 필요 표시"
+      - last_update: "> 2년"
+        action: "오래된 소스 표시"
+
+  # 신뢰도 변화
+  trust_changes:
+    checks:
+      - "도메인 소유권 변경"
+      - "콘텐츠 정책 변경"
+      - "편향/품질 저하 신고"
+
+    failure_criteria:
+      - ownership_changed: true
+        action: "수동 검토 필요"
+      - quality_reports: "> 3"
+        action: "티어 하향"
+
+# 검증 주기
+check_frequency:
+  tier_1:
+    description: "핵심 공식 소스"
+    frequency: "월 1회"
+    priority: critical
+
+  tier_2:
+    description: "신뢰할 수 있는 미디어"
+    frequency: "월 1회"
+    priority: high
+
+  tier_3:
+    description: "전문 블로그/커뮤니티"
+    frequency: "분기 1회"
+    priority: medium
+
+  tier_4:
+    description: "개인 블로그"
+    frequency: "검색 시 실시간"
+    priority: low
+
+# 자동 대체 규칙
+fallback_rules:
+  # 1차 소스 실패 시
+  primary_failure:
+    action: "2차 소스로 자동 전환"
+    notification: |
+      ℹ️ {primary_source}에 접근할 수 없어
+      {fallback_source}를 대신 사용합니다.
+
+  # 모든 소스 실패 시
+  all_failure:
+    action: "범용 검색으로 전환"
+    notification: |
+      ⚠️ 전문 소스에 접근할 수 없어
+      일반 웹 검색으로 진행합니다.
+      결과의 신뢰도가 낮을 수 있습니다.
+
+  # 분야별 대체 소스
+  domain_fallbacks:
+    real_estate:
+      primary: ["kbland.kr", "r114.com"]
+      fallback: ["land.naver.com", "zigbang.com"]
+      emergency: ["일반 웹 검색"]
+
+    stocks_finance:
+      primary: ["dart.fss.or.kr", "kind.krx.co.kr"]
+      fallback: ["investing.com", "naver.finance"]
+      emergency: ["일반 웹 검색"]
+
+    ai_technology:
+      primary: ["arxiv.org", "openai.com"]
+      fallback: ["techcrunch.com", "huggingface.co"]
+      emergency: ["일반 웹 검색"]
+
+# 상태 추적
+status_tracking:
+  # 소스별 상태
+  source_status:
+    healthy:
+      label: "🟢"
+      description: "정상 작동"
+
+    degraded:
+      label: "🟡"
+      description: "성능 저하"
+
+    down:
+      label: "🔴"
+      description: "접근 불가"
+
+    unknown:
+      label: "⚪"
+      description: "미확인"
+
+  # 상태 기록
+  status_history:
+    retention: "90일"
+    metrics:
+      - "가용성 비율"
+      - "평균 응답 시간"
+      - "오류 빈도"
+
+# 알림 시스템
+notification_system:
+  # 즉시 알림
+  immediate:
+    trigger: "tier_1 소스 다운"
+    action: "대체 소스 자동 전환 + 로그"
+
+  # 배치 알림
+  batch:
+    trigger: "주간 헬스체크 완료"
+    action: "상태 요약 저장"
+
+# 복구 프로세스
+recovery_process:
+  # 자동 복구
+  auto_recovery:
+    trigger: "이전에 다운된 소스 복구 감지"
+    action: "상태 업데이트 + 우선순위 복원"
+
+  # 수동 복구
+  manual_recovery:
+    trigger: "관리자 확인"
+    action: "소스 재활성화"
+
+# 품질 모니터링
+quality_monitoring:
+  # 검색 결과 품질
+  search_quality:
+    metrics:
+      - "검색 성공률"
+      - "관련성 점수"
+      - "사용자 피드백"
+
+    thresholds:
+      success_rate: "> 90%"
+      relevance_score: "> 3.5/5"
+      positive_feedback: "> 80%"
+
+  # 저품질 소스 처리
+  low_quality_handling:
+    trigger: "품질 지표 기준 미달"
+    actions:
+      - "티어 하향"
+      - "수동 검토 요청"
+      - "심각 시 비활성화"
+
+# 캐싱 전략
+caching_strategy:
+  # 소스 상태 캐시
+  status_cache:
+    ttl: "1시간"
+    purpose: "빈번한 헬스체크 방지"
+
+  # 콘텐츠 캐시
+  content_cache:
+    ttl: "분야별 최신성 기준"
+    purpose: "동일 쿼리 재검색 방지"
+
+# 에이전트 적용
+agent_application:
+  searcher:
+    role: "소스 상태 확인 및 대체"
+    actions:
+      - "검색 전 소스 상태 확인"
+      - "다운된 소스 스킵"
+      - "대체 소스 자동 선택"
+      - "검색 결과에 소스 상태 표시"
+
+# 출력 템플릿
+output_templates:
+  source_status_report: |
+    ### 📊 소스 상태 요약
+
+    | 도메인 | 상태 | 가용성 | 마지막 확인 |
+    |--------|------|--------|------------|
+    {source_rows}
+
+    전체 가용성: {overall_availability}%
+
+  fallback_notification: |
+    ⚠️ **소스 변경 알림**
+
+    - 원래 소스: {original_source}
+    - 상태: {status}
+    - 대체 소스: {fallback_source}
+
+    *대체 소스의 정보가 원래 소스와 다를 수 있습니다.*
+
+  all_sources_down: |
+    🔴 **경고: 전문 소스 접근 불가**
+
+    {domain} 분야의 전문 소스에 현재 접근할 수 없습니다.
+    일반 웹 검색으로 진행하며, 결과의 신뢰도가 낮을 수 있습니다.
+
+    다음 소스를 직접 확인해보시기 바랍니다:
+    {source_list}

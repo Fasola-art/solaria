@@ -1,0 +1,237 @@
+# 결론 성숙도 평가 모델
+# v3.0 - 전문 리서치 회사 방법론 통합
+
+methodology:
+  name: "Conclusion Maturity Model"
+  source: "Integrated (Forrester Wave + BCG + McKinsey)"
+  description: "리서치 결론의 신뢰도와 실행 가능성을 종합 평가"
+
+# 성숙도 레벨 정의
+maturity_levels:
+  level_5:
+    name: "Definitive"
+    label: "✅"
+    confidence_range: [90, 100]
+    criteria:
+      sources:
+        min_count: 3
+        min_reliability: 4
+        consistency: "높음"
+      evidence:
+        supporting: "강함"
+        contradicting: "없음 또는 미약"
+      validation:
+        cross_verified: true
+        expert_consensus: true
+    display:
+      text: "확정적 결론"
+      recommendation: "실행 권장"
+      color: "green"
+
+  level_4:
+    name: "High"
+    label: "🟢"
+    confidence_range: [70, 89]
+    criteria:
+      sources:
+        min_count: 2
+        min_reliability: 4
+        consistency: "대체로 높음"
+      evidence:
+        supporting: "강함"
+        contradicting: "경미"
+      validation:
+        cross_verified: true
+        expert_consensus: "부분"
+    display:
+      text: "높은 확신"
+      recommendation: "실행 권장, 모니터링 필요"
+      color: "light_green"
+
+  level_3:
+    name: "Emerging"
+    label: "🟡"
+    confidence_range: [40, 69]
+    criteria:
+      sources:
+        min_count: 1
+        min_reliability: 3
+        consistency: "혼재"
+      evidence:
+        supporting: "중간"
+        contradicting: "일부"
+      validation:
+        cross_verified: "부분"
+        expert_consensus: "불명확"
+    display:
+      text: "잠정적 결론"
+      recommendation: "추가 검증 후 실행"
+      color: "yellow"
+
+  level_2:
+    name: "Speculative"
+    label: "🟠"
+    confidence_range: [20, 39]
+    criteria:
+      sources:
+        min_count: 0
+        min_reliability: 2
+        consistency: "낮음"
+      evidence:
+        supporting: "약함"
+        contradicting: "상당"
+      validation:
+        cross_verified: false
+        expert_consensus: "없음"
+    display:
+      text: "추측성 결론"
+      recommendation: "신중한 접근 필요"
+      color: "orange"
+
+  level_1:
+    name: "Uncertain"
+    label: "🔴"
+    confidence_range: [0, 19]
+    criteria:
+      sources:
+        min_count: 0
+        min_reliability: 1
+        consistency: "매우 낮음"
+      evidence:
+        supporting: "없음 또는 매우 약함"
+        contradicting: "강함"
+      validation:
+        cross_verified: false
+        expert_consensus: "반대"
+    display:
+      text: "불확실"
+      recommendation: "결론 유보, 추가 조사 필수"
+      color: "red"
+
+# 평가 프로세스
+assessment_process:
+  steps:
+    1_collect_evidence:
+      name: "증거 수집"
+      inputs:
+        - "분석된 소스 목록"
+        - "각 소스의 신뢰도"
+        - "핵심 주장 추출"
+
+    2_check_consistency:
+      name: "일관성 확인"
+      checks:
+        - "소스 간 주장 비교"
+        - "일치/불일치 식별"
+        - "불일치 심각도 평가"
+
+    3_evaluate_validation:
+      name: "검증 수준 평가"
+      checks:
+        - "교차검증 여부"
+        - "전문가 합의 수준"
+        - "반박 증거 강도"
+
+    4_calculate_confidence:
+      name: "확신도 계산"
+      formula: |
+        확신도 = (지지 강도 × 0.4) + (소스 품질 × 0.3)
+               + (일관성 × 0.2) + (검증 수준 × 0.1)
+
+    5_assign_level:
+      name: "성숙도 레벨 할당"
+      logic: "확신도 기반 레벨 매핑"
+
+# 시각화 템플릿
+visualization:
+  maturity_gauge: |
+
+    성숙도 평가: {conclusion}
+
+    ┌────────────────────────────────────────┐
+    │  🔴   🟠   🟡   🟢   ✅  │
+    │  10%  30%  50%  70%  90%  │
+    │         ▲                              │
+    │       {current}%                       │
+    └────────────────────────────────────────┘
+
+    레벨: {level_name} ({level_label})
+    권고: {recommendation}
+
+  evidence_summary: |
+
+    ## 증거 요약
+
+    ### 지지 증거
+    {supporting_evidence}
+
+    ### 반박 증거
+    {contradicting_evidence}
+
+    ### 불확실 영역
+    {uncertain_areas}
+
+# Research Skill 적용
+application:
+  synthesizer_agent:
+    role: "성숙도 평가 및 결론 도출"
+    actions:
+      - "모든 증거 종합"
+      - "확신도 계산"
+      - "성숙도 레벨 할당"
+      - "불확실성 명시"
+      - "권고사항 도출"
+
+# 출력 형식
+output_format:
+  maturity_report:
+    sections:
+      - "결론 요약"
+      - "성숙도 레벨"
+      - "확신도 점수"
+      - "지지 증거 목록"
+      - "반박 증거 목록"
+      - "불확실 영역"
+      - "권고사항"
+
+  template: |
+    ## 결론 성숙도 평가
+
+    **결론**: {conclusion_text}
+
+    | 지표 | 값 |
+    |------|-----|
+    | 성숙도 레벨 | {level_label} {level_name} |
+    | 확신도 | {confidence}% |
+    | 지지 소스 | {supporting_count}개 |
+    | 반박 소스 | {contradicting_count}개 |
+    | 교차검증 | {cross_verified} |
+
+    ### 권고
+    {recommendation}
+
+    ### 주의사항
+    {caveats}
+
+# 특수 케이스 처리
+special_cases:
+  conflicting_high_quality:
+    description: "높은 품질 소스 간 충돌"
+    action: |
+      - 양측 관점 모두 제시
+      - 성숙도 레벨 Emerging으로 제한
+      - 추가 조사 권고
+
+  single_source:
+    description: "단일 소스만 존재"
+    action: |
+      - 성숙도 레벨 Speculative로 제한
+      - 추가 소스 확보 권고
+      - 불확실성 명시
+
+  outdated_sources:
+    description: "오래된 소스만 존재"
+    action: |
+      - 최신 정보 부재 명시
+      - 성숙도 레벨 1단계 하향
+      - 현행 상황 확인 권고

@@ -1,0 +1,124 @@
+# 학술 논문 분야 신뢰 소스
+# v3.0 - 분야별 특화 검색 시스템
+
+domain:
+  id: academic_papers
+  name: "학술 논문"
+  description: "학술 논문, 연구, 학술지 관련 리서치"
+
+# 트리거 키워드
+triggers:
+  - "논문"
+  - "연구"
+  - "인용"
+  - "저자"
+  - "abstract"
+  - "methodology"
+  - "findings"
+  - "peer review"
+  - "학술"
+  - "저널"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "arxiv.org"
+      name: "arXiv"
+      reliability: 5
+      type: "프리프린트"
+      search_modifier: "site:arxiv.org"
+
+    - domain: "scholar.google.com"
+      name: "Google Scholar"
+      reliability: 5
+      type: "논문 검색"
+      search_modifier: "site:scholar.google.com"
+
+    - domain: "ncbi.nlm.nih.gov"
+      name: "PubMed"
+      reliability: 5
+      type: "의학/생명과학"
+      search_modifier: "site:ncbi.nlm.nih.gov"
+
+    - domain: "ssrn.com"
+      name: "SSRN"
+      reliability: 5
+      type: "사회과학"
+      search_modifier: "site:ssrn.com"
+
+    - domain: "ieee.org"
+      name: "IEEE"
+      reliability: 5
+      type: "공학/컴퓨터"
+      search_modifier: "site:ieee.org"
+
+  secondary:
+    - domain: "semanticscholar.org"
+      name: "Semantic Scholar"
+      reliability: 4
+      type: "AI 기반 검색"
+      search_modifier: "site:semanticscholar.org"
+
+    - domain: "researchgate.net"
+      name: "ResearchGate"
+      reliability: 4
+      type: "연구자 네트워크"
+      search_modifier: "site:researchgate.net"
+
+    - domain: "nature.com"
+      name: "Nature"
+      reliability: 5
+      type: "학술지"
+      search_modifier: "site:nature.com"
+
+    - domain: "science.org"
+      name: "Science"
+      reliability: 5
+      type: "학술지"
+      search_modifier: "site:science.org"
+
+  tertiary:
+    - domain: "프리프린트 (비피어리뷰)"
+      reliability: 3
+      warning: "⚠️ 피어리뷰 전 논문"
+
+# 분야별 키워드
+keywords:
+  structure:
+    - abstract
+    - introduction
+    - methodology
+    - results
+    - discussion
+    - conclusion
+
+  metrics:
+    - citation
+    - impact factor
+    - h-index
+    - peer review
+
+  types:
+    - review paper
+    - survey
+    - case study
+    - meta-analysis
+    - systematic review
+
+# 검색 전략
+search_strategy:
+  priority: ["Google Scholar", "arXiv", "분야별 DB"]
+  time_filter: "분야에 따라 다름"
+  cross_reference:
+    - "인용 확인"
+    - "저자 확인"
+
+# 면책 조항
+disclaimer:
+  required: false
+
+# 최신성 정책
+freshness:
+  max_age_days: 1825  # 5년
+  warning_age_days: 1095  # 3년
+  stale_label: "⚠️ 최신 연구를 확인하세요"

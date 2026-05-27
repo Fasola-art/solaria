@@ -1,0 +1,178 @@
+# team-investment Role 라우팅 테이블
+# 한국어 키워드 → Role → 체크포인트 유형 매핑
+# 우선순위: 배열 순서대로 평가. 다중 매칭 시 상위 Role 우선.
+
+version: 1
+last_updated: 2026-04-21
+
+priority_order:
+  - portfolio-manager
+  - market-scanner
+  - signal-detector
+  - risk-analyst
+  - trade-executor
+  - research-analyst
+
+# 매매 관련 액션에 risk_analyst 페르소나 강제 동반
+force_risk_analyst_with:
+  - trade_order
+  - rebalancing
+  - stop_loss
+  - funds_transfer
+
+routes:
+  portfolio-manager:
+    description: "포트폴리오 전체 현황·손익·배분 관리 (SSOT: portfolio.json)"
+    checkpoint: SILENT
+    inform_triggers:
+      - 드로다운 5% 이상
+      - 신규 종목 편입 추천
+    gate_triggers:
+      - rebalancing
+      - funds_transfer
+    korean_keywords:
+      - 포트폴리오
+      - 보유 종목
+      - 자산 배분
+      - 수익률
+      - 손익
+      - 평가액
+      - 총 자산
+      - 비중
+      - 섹터 배분
+      - 월간 결산
+      - 리밸런싱
+      - 리밸런싱 제안
+    personas:
+      - cfo
+      - risk_analyst
+
+  market-scanner:
+    description: "시세 스캔, 일일 브리핑 생성 (Cron 08:05)"
+    checkpoint: SILENT
+    korean_keywords:
+      - 시세
+      - 주가
+      - 현재가
+      - 오늘 주가
+      - 종가
+      - 장 마감
+      - 전일 대비
+      - 52주 최고
+      - 52주 최저
+      - 일일 브리핑
+      - 오늘 시장
+      - 시장 요약
+      - 지수
+      - 코스피
+      - 나스닥
+      - S&P
+    personas:
+      - growth
+
+  signal-detector:
+    description: "기술 지표 기반 매매 시그널 탐지"
+    checkpoint: SILENT
+    inform_triggers:
+      - 신규 편입 추천
+    gate_triggers:
+      - 매매 시그널 생성
+    korean_keywords:
+      - 시그널
+      - 매수 신호
+      - 매도 신호
+      - RSI
+      - MACD
+      - 골든크로스
+      - 데드크로스
+      - 이동평균
+      - MA
+      - 볼린저밴드
+      - 기술적 분석
+      - 백테스트
+      - 전략 검증
+      - 알고리즘
+    personas:
+      - growth
+      - critic
+
+  risk-analyst:
+    description: "VaR·드로다운·집중 위험 평가. 매매 경로 강제 동반."
+    checkpoint: SILENT
+    inform_triggers:
+      - VaR 초과
+      - 드로다운 임계 도달
+      - 단일 종목 집중도 30% 초과
+    korean_keywords:
+      - 리스크
+      - 위험
+      - VaR
+      - 드로다운
+      - 손실 제한
+      - 손절선
+      - 손절
+      - stop loss
+      - 집중 위험
+      - 변동성
+      - 포트폴리오 위험
+      - 헤지
+      - 안전 자산
+    personas:
+      - risk_analyst
+      - realist
+
+  trade-executor:
+    description: "GATE_24h 매매 주문 실행. risk_analyst 선행 필수."
+    checkpoint: GATE_24h
+    gate_triggers:
+      - trade_order
+      - stop_loss
+    prerequisite: risk-analyst
+    korean_keywords:
+      - 매매
+      - 주문
+      - 매수
+      - 매도
+      - 사
+      - 팔아
+      - 시장가
+      - 지정가
+      - 체결
+      - 주문 넣어
+      - 손절
+      - 청산
+      - 전량 매도
+    personas:
+      - risk_analyst
+      - realist
+
+  research-analyst:
+    description: "종목·산업 딥리서치. /research finance 프리셋 위임."
+    checkpoint: SILENT
+    korean_keywords:
+      - 리서치
+      - 분석해
+      - 종목 분석
+      - 기업 분석
+      - 재무제표
+      - PER
+      - PBR
+      - ROE
+      - 배당
+      - 실적
+      - 산업 전망
+      - 섹터 분석
+      - 경쟁사
+      - 투자 의견
+      - 딥다이브
+      - 어닝
+      - 실적 발표
+    personas:
+      - researcher
+      - critic
+
+# 다중 매칭 규칙
+# - 같은 프롬프트에서 여러 Role 매칭 시 priority_order 순서대로 1개 주 Role 선택
+# - force_risk_analyst_with 액션 포함 시 risk-analyst 무조건 선행 실행
+# - 나머지는 협업 Role로 outbox 메시지 전달
+# - GATE_24h 액션은 반드시 decisions.jsonl에 감사 기록

@@ -1,0 +1,171 @@
+# 소스 인용 규칙
+# v3.0 - 품질 보증 시스템
+
+version: "3.0"
+description: "모든 주장에 출처 표시를 필수화하는 규칙"
+
+# 핵심 원칙
+principles:
+  - name: "No Claim Without Source"
+    description: "근거 없는 주장은 허용하지 않음"
+    enforcement: mandatory
+
+  - name: "Traceable Information"
+    description: "모든 정보는 원본까지 추적 가능해야 함"
+    enforcement: mandatory
+
+  - name: "Transparency"
+    description: "불확실한 정보는 명시적으로 표시"
+    enforcement: mandatory
+
+# 인용 요구사항
+citation_requirements:
+  # 필수 인용 대상
+  mandatory_citation:
+    - type: "factual_claims"
+      description: "사실적 주장 (숫자, 날짜, 통계)"
+      example: "시장 규모가 100억 달러 → 반드시 출처 필요"
+
+    - type: "expert_opinions"
+      description: "전문가 의견/분석"
+      example: "'전문가들은 ~라고 예측' → 출처 필요"
+
+    - type: "comparative_statements"
+      description: "비교 진술"
+      example: "'A가 B보다 성능이 좋다' → 출처 필요"
+
+    - type: "predictions"
+      description: "예측/전망"
+      example: "'2025년까지 성장할 것' → 출처 필요"
+
+  # 인용 면제 대상
+  exempt_from_citation:
+    - type: "common_knowledge"
+      description: "상식적인 정보"
+      example: "'인터넷은 정보 검색에 사용된다'"
+
+    - type: "definitions"
+      description: "일반적 정의"
+      example: "'AI는 인공지능의 약자다'"
+
+    - type: "user_provided"
+      description: "사용자가 제공한 정보"
+      example: "사용자가 직접 언급한 내용"
+
+# 인용 형식
+citation_format:
+  inline:
+    template: "[{source_name}]({url})"
+    example: "[Forbes](https://forbes.com/article)"
+
+  footnote:
+    template: "^[{number}]: {source_name}, {title}, {date}"
+    use_when: "긴 보고서에서 가독성을 위해"
+
+  list:
+    template: |
+      ## 참고 자료
+      1. [{title}]({url}) - {source_name}, {date}
+      2. ...
+    use_when: "보고서 끝에 출처 목록 제공"
+
+# 미인용 정보 처리
+unsourced_handling:
+  # 출처를 찾지 못한 경우
+  source_not_found:
+    action: "mark_as_unverified"
+    display: "⚠️ 출처 확인 필요"
+    template: "{claim} *(출처 확인 필요)*"
+
+  # Claude 지식 기반 정보
+  claude_knowledge:
+    action: "mark_as_knowledge_based"
+    display: "ℹ️ 일반 지식 기반"
+    template: "{claim} *(일반 지식 기반, 최신 정보 확인 권장)*"
+
+  # 추론/분석 결과
+  inference:
+    action: "mark_as_analysis"
+    display: "📊 분석 결과"
+    template: "{claim} *(수집된 정보 기반 분석)*"
+
+# 인용 품질 기준
+quality_criteria:
+  # 좋은 인용
+  good_citation:
+    - "직접 링크 제공"
+    - "정확한 출처명 표시"
+    - "날짜 정보 포함"
+    - "원문 요약/인용 명확"
+
+  # 나쁜 인용
+  bad_citation:
+    - "링크 없이 '~에 따르면'"
+    - "모호한 출처 ('여러 전문가에 따르면')"
+    - "오래된 정보를 최신처럼 표시"
+    - "과장된 해석"
+
+# 분야별 추가 규칙
+domain_specific:
+  health_medical:
+    additional_requirements:
+      - "학술 논문 우선 인용"
+      - "연구 날짜 필수 표시"
+      - "연구 한계점 언급"
+
+  stocks_finance:
+    additional_requirements:
+      - "데이터 날짜 필수 표시"
+      - "공시 기준일 명시"
+      - "예측과 사실 구분"
+
+  legal:
+    additional_requirements:
+      - "법령 조문 번호 명시"
+      - "판례 번호 표시"
+      - "법률 개정일 확인"
+
+# 검증 체크리스트
+validation_checklist:
+  before_output:
+    - "모든 사실적 주장에 출처가 있는가?"
+    - "링크가 유효한가?"
+    - "출처가 신뢰할 수 있는가?"
+    - "날짜 정보가 있는가?"
+    - "불확실한 정보는 표시되었는가?"
+
+# 에이전트 적용
+agent_application:
+  synthesizer:
+    role: "인용 규칙 적용 및 검증"
+    actions:
+      - "모든 주장에 출처 확인"
+      - "미인용 정보 표시 처리"
+      - "인용 형식 통일"
+      - "최종 검증 체크리스트 수행"
+
+# 출력 템플릿
+output_templates:
+  # 인용된 주장
+  cited_claim: |
+    {claim} ([{source_name}]({url}), {date})
+
+  # 미인용 주장
+  uncited_claim: |
+    {claim} *(⚠️ 출처 확인 필요)*
+
+  # 분석/추론
+  analysis_claim: |
+    {claim} *(📊 수집된 정보 기반 분석)*
+
+  # 참고 자료 섹션
+  references_section: |
+    ---
+    ## 📚 참고 자료
+
+    | # | 출처 | 제목 | 날짜 |
+    |---|------|------|------|
+    {reference_rows}
+
+    ---
+    *⚠️ 표시된 내용은 출처 확인이 필요합니다.*

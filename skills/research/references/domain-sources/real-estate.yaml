@@ -1,0 +1,529 @@
+# 부동산 분야 신뢰 소스
+# v4.0 - MCP 도메인 지식 통합 + 7개 섹션 추가
+
+domain:
+  id: real_estate
+  name: "부동산"
+  description: "부동산 매매/전월세/청약/경매/공매 + 투자분석 + 입지분석 전문 리서치"
+
+# 트리거 키워드 (28개)
+triggers:
+  - "부동산"
+  - "아파트"
+  - "전세"
+  - "월세"
+  - "청약"
+  - "분양"
+  - "재개발"
+  - "재건축"
+  - "시세"
+  - "매물"
+  - "오피스텔"
+  - "상가"
+  - "토지"
+  # --- 추가 ---
+  - "실거래가"
+  - "전세가율"
+  - "공매"
+  - "경매"
+  - "입찰"
+  - "감정가"
+  - "빌라"
+  - "단독주택"
+  - "다세대"
+  - "연립"
+  - "갭투자"
+  - "수익률"
+  - "DSR"
+  - "LTV"
+  - "낙찰"
+
+# 신뢰 소스 우선순위
+sources:
+  primary:
+    - domain: "kbland.kr"
+      name: "KB부동산"
+      reliability: 5
+      type: "데이터/시세"
+      search_modifier: "site:kbland.kr"
+
+    - domain: "r114.com"
+      name: "부동산114"
+      reliability: 5
+      type: "데이터/시세"
+      search_modifier: "site:r114.com"
+
+    - domain: "land.naver.com"
+      name: "네이버 부동산"
+      reliability: 4
+      type: "플랫폼"
+      search_modifier: "site:land.naver.com"
+
+    - domain: "molit.go.kr"
+      name: "국토교통부"
+      reliability: 5
+      type: "정부/정책"
+      search_modifier: "site:molit.go.kr"
+
+    - domain: "reb.or.kr"
+      name: "한국부동산원"
+      reliability: 5
+      type: "공공기관"
+      search_modifier: "site:reb.or.kr"
+
+    - domain: "rt.molit.go.kr"
+      name: "국토부 실거래가 공개시스템"
+      reliability: 5
+      type: "정부/공식데이터"
+      data_types: ["매매", "전월세"]
+      note: "실거래 신고 데이터. 계약일 기준 약 1-2주 지연 반영"
+      search_modifier: "site:rt.molit.go.kr"
+
+    - domain: "data.go.kr"
+      name: "공공데이터포털"
+      reliability: 5
+      type: "정부/API"
+      data_types: ["실거래가", "청약", "공매"]
+      note: "API 키 필요. 5개 물건유형 x 매매/전월세 = 10개 API"
+
+    - domain: "onbid.co.kr"
+      name: "온비드 (캠코)"
+      reliability: 5
+      type: "공공기관/공매"
+      data_types: ["공매물건", "입찰결과", "감정가"]
+      search_modifier: "site:onbid.co.kr"
+
+    - domain: "applyhome.co.kr"
+      name: "청약홈"
+      reliability: 5
+      type: "공공기관/청약"
+      note: "구 apt2you.com. 청약일정/경쟁률/당첨가점"
+      search_modifier: "site:applyhome.co.kr"
+
+  secondary:
+    - domain: "zigbang.com"
+      name: "직방"
+      reliability: 4
+      type: "플랫폼"
+      search_modifier: "site:zigbang.com"
+
+    - domain: "peterpan.co.kr"
+      name: "피터팬"
+      reliability: 3
+      type: "커뮤니티"
+      search_modifier: "site:peterpan.co.kr"
+
+    - domain: "hogangnono.com"
+      name: "호갱노노"
+      reliability: 4
+      type: "데이터/분석"
+      search_modifier: "site:hogangnono.com"
+
+    - domain: "apt2you.com"
+      name: "청약홈 (구)"
+      reliability: 5
+      type: "공공기관"
+      search_modifier: "site:apt2you.com"
+
+    - domain: "courtauction.go.kr"
+      name: "법원경매정보"
+      reliability: 5
+      type: "공공기관/경매"
+      search_modifier: "site:courtauction.go.kr"
+
+    - domain: "asil.or.kr"
+      name: "한국감정원 부동산통계"
+      reliability: 5
+      type: "공공기관/통계"
+
+    - domain: "seoulauction.or.kr"
+      name: "서울시 공공분양"
+      reliability: 4
+      type: "공공기관"
+
+  tertiary:
+    - domain: "부동산 뉴스 사이트"
+      reliability: 3
+    - domain: "블로그/커뮤니티"
+      reliability: 2
+
+# 분야별 키워드
+keywords:
+  general:
+    - 시세
+    - 매물
+    - 전세
+    - 월세
+    - 분양
+    - 청약
+
+  analysis:
+    - 입지
+    - 교통
+    - 학군
+    - 개발 호재
+    - 규제
+    - 전망
+
+  metrics:
+    - 평당가
+    - 실거래가
+    - 호가
+    - 갭투자
+    - 전세가율
+
+# 검색 전략
+search_strategy:
+  priority: ["최신 실거래가", "시세/호가", "입지 분석", "개발 계획"]
+  time_filter: "최근 1개월"
+  cross_reference:
+    - "정부 실거래가 (rt.molit.go.kr)"
+    - "민간 시세 (kbland.kr, r114.com)"
+
+# ============================================================
+# 물건 유형 분류 (real-estate-mcp 도메인 지식 기반)
+# ============================================================
+property_categories:
+  residential:
+    apartment:
+      name: "아파트"
+      keywords: ["아파트", "APT", "주상복합"]
+      api_code: "아파트"
+      note: "가장 많은 거래량. 단지/동/호 단위 데이터"
+    officetel:
+      name: "오피스텔"
+      keywords: ["오피스텔"]
+      api_code: "오피스텔"
+      note: "업무/주거 겸용. 전용면적 기준 소형 위주"
+    villa:
+      name: "빌라/연립다세대"
+      keywords: ["빌라", "연립", "다세대", "연립다세대"]
+      api_code: "연립다세대"
+      note: "house_type으로 연립/다세대 구분"
+    single_house:
+      name: "단독/다가구"
+      keywords: ["단독주택", "다가구", "단독"]
+      api_code: "단독다가구"
+      note: "대지면적/건물면적 기준. 단지명 없음"
+  commercial:
+    office:
+      name: "상업업무용"
+      keywords: ["상가", "업무용", "사무실", "상업용"]
+      api_code: "상업업무용"
+      note: "building_type/building_use로 세분류"
+  land:
+    plot:
+      name: "토지"
+      keywords: ["토지", "대지", "임야", "농지"]
+      note: "실거래가 API 별도 (토지거래)"
+
+# ============================================================
+# 거래 유형별 분석 축
+# ============================================================
+transaction_types:
+  trade:
+    name: "매매"
+    key_metrics:
+      - name: "실거래가"
+        unit: "만원"
+        description: "실제 계약 금액 (국토부 신고 기준)"
+      - name: "평당가"
+        unit: "만원/평"
+        formula: "거래금액 / (전용면적 * 0.3025)"
+        description: "전용면적 기준 평당가격"
+      - name: "전고점 대비"
+        unit: "%"
+        formula: "(현재가 - 전고점) / 전고점 * 100"
+      - name: "호가 갭"
+        unit: "만원"
+        formula: "매물호가 - 최근실거래가"
+    analysis_checklist:
+      - "최근 3개월 실거래가 추이"
+      - "동일 단지 내 동일면적 거래 비교"
+      - "주변 단지 대비 가격 수준"
+      - "거래량 변화 (급증/급감 시그널)"
+      - "매물수 대비 거래수 (소화율)"
+
+  jeonse:
+    name: "전세"
+    key_metrics:
+      - name: "전세금"
+        unit: "만원"
+      - name: "전세가율"
+        unit: "%"
+        formula: "(전세금 / 매매가) * 100"
+        risk_thresholds:
+          safe: "60% 이하"
+          caution: "60-75%"
+          danger: "75-85%"
+          critical: "85% 이상 (깡통전세 위험)"
+      - name: "보증보험 가입가능 여부"
+        description: "HUG/SGI 보증 기준 = 매매가의 일정비율 이하"
+    analysis_checklist:
+      - "전세가율 산출 (깡통전세 위험 평가)"
+      - "전세보증보험 가입 가능 여부"
+      - "최근 전세가 추이 (역전세 위험)"
+      - "전세 만기 물량 (대량 만기 시 하락 압력)"
+
+  monthly_rent:
+    name: "월세"
+    key_metrics:
+      - name: "보증금"
+        unit: "만원"
+      - name: "월세"
+        unit: "만원"
+      - name: "월세 수익률"
+        unit: "%"
+        formula: "(월세 * 12) / 매매가 * 100"
+      - name: "실질 수익률"
+        formula: "((월세*12) - 대출이자 - 관리비 - 수선비) / 투자금 * 100"
+    analysis_checklist:
+      - "보증금-월세 전환율 (보통 4-6%)"
+      - "주변 시세 대비 적정성"
+      - "공실 리스크 (지역별 공실률)"
+
+  subscription:
+    name: "청약/분양"
+    key_metrics:
+      - name: "분양가"
+        unit: "만원"
+      - name: "경쟁률"
+        unit: "대 1"
+      - name: "당첨 가점"
+        unit: "점"
+        max_score: 84
+      - name: "전매제한 기간"
+        unit: "년"
+      - name: "입주 예정일"
+    analysis_checklist:
+      - "분양가 대비 주변 시세 (프리미엄 예상)"
+      - "경쟁률 (특별공급/1순위/2순위)"
+      - "당첨 가점 커트라인 (최근 동일지역)"
+      - "전매제한/실거주의무 기간"
+      - "시공사 신용등급/브랜드"
+      - "입지 분석 (교통/학군/생활인프라)"
+
+  auction:
+    name: "경매/공매"
+    key_metrics:
+      - name: "감정가"
+        unit: "만원"
+        description: "법원 감정평가액"
+      - name: "최저입찰가"
+        unit: "만원"
+        description: "유찰 시 20-30% 감소"
+      - name: "낙찰가율"
+        unit: "%"
+        formula: "낙찰가 / 감정가 * 100"
+      - name: "유찰 횟수"
+        description: "유찰이 많을수록 최저가 하락"
+    analysis_checklist:
+      - "권리분석 (선순위 임차인, 유치권, 법정지상권)"
+      - "낙찰가율 추이 (지역별/유형별)"
+      - "명도 난이도 (점유자 현황)"
+      - "감정가 대비 시세 차이"
+      - "추가비용 (취득세, 명도비, 수리비)"
+    sources_priority:
+      - "courtauction.go.kr"
+      - "onbid.co.kr"
+
+# ============================================================
+# 투자 분석 프레임워크
+# ============================================================
+investment_framework:
+  loan_analysis:
+    description: "부동산 대출 분석 프레임워크"
+    regulations:
+      LTV:
+        name: "담보인정비율"
+        formula: "대출금 / 담보가치 * 100"
+        limits:
+          speculative_zone: "0% (투기지역)"
+          overheated_zone: "0-40%"
+          regulated_zone: "50-60%"
+          general_zone: "70%"
+        note: "지역/주택수에 따라 차등 적용. 정부 규제로 수시 변경"
+      DSR:
+        name: "총부채원리금상환비율"
+        formula: "연간 모든 대출 원리금 / 연소득 * 100"
+        limit: "40% (은행권)"
+        note: "2023년부터 전면 시행. 제2금융권 50%"
+      DTI:
+        name: "총부채상환비율"
+        formula: "연간 주택대출 원리금 + 기타대출 이자 / 연소득 * 100"
+        note: "DSR로 대체 추세이나 일부 지역 별도 적용"
+
+  investment_types:
+    gap_investment:
+      name: "갭투자"
+      description: "매매가와 전세가의 차액(갭)만으로 매수"
+      formula: "투자금 = 매매가 - 전세금"
+      risk_factors:
+        - "전세가 하락 시 역전세 위험"
+        - "전세가율 80%+ = 고위험"
+        - "금리 상승 시 전세 -> 월세 전환 가속"
+      analysis_template: |
+        - 매매가: ___만원
+        - 전세가: ___만원
+        - 갭 (투자금): ___만원
+        - 전세가율: ___%
+        - 위험 등급: [안전/주의/위험/매우위험]
+
+    monthly_rent_investment:
+      name: "월세 수익형 투자"
+      description: "월세 수입으로 대출이자 충당 + 시세차익"
+      metrics:
+        gross_yield: "연 월세 / 매매가 * 100"
+        net_yield: "(연 월세 - 대출이자 - 관리비 - 재산세 - 수선비) / 자기자본 * 100"
+      guidance: "순수익률 3-5% = 양호, 5%+ = 우수"
+
+    redevelopment:
+      name: "재개발/재건축 투자"
+      key_metrics:
+        - "비례율: (종후자산가치 - 총사업비) / 종전자산가치"
+        - "추가분담금: 분양가 - 권리가액"
+        - "사업 진행 단계: 추진위 -> 조합설립 -> 사업시행인가 -> 관리처분 -> 착공 -> 준공"
+      risk_factors:
+        - "사업 지연/무산 가능성"
+        - "추가분담금 증가"
+        - "이주비/생활비 부담"
+
+  cashflow_template:
+    monthly_income:
+      - "월세 수입"
+    monthly_expenses:
+      - "대출 원리금 (원리금균등/원금균등)"
+      - "관리비"
+      - "재산세 (연 1회, 월할)"
+      - "종합부동산세 (해당 시)"
+      - "수선유지비 (연 매매가의 1-2%, 월할)"
+      - "공실 충당금 (월세의 약 8% = 1개월/년)"
+    result: "순현금흐름 = 수입 합계 - 지출 합계"
+
+# ============================================================
+# 시장 분석 지표
+# ============================================================
+market_metrics:
+  price_indicators:
+    - name: "KB주택가격동향"
+      source: "kbland.kr"
+      frequency: "주간/월간"
+      description: "매매/전세 가격지수, 변동률"
+    - name: "한국부동산원 통계"
+      source: "reb.or.kr"
+      frequency: "월간"
+      description: "공식 주택가격지수, 거래량 통계"
+    - name: "실거래가 지수"
+      source: "rt.molit.go.kr"
+      frequency: "월간"
+      description: "실제 거래 기반 가격지수"
+
+  supply_demand:
+    - name: "입주물량"
+      description: "향후 입주 예정 세대수 (공급 지표)"
+      impact: "대량입주 = 전세가 하락 압력"
+    - name: "인허가/착공 물량"
+      description: "중장기 공급 선행 지표"
+    - name: "미분양"
+      description: "미분양 증가 = 공급 과잉 시그널"
+    - name: "매물수"
+      description: "플랫폼 등록 매물수 추이 (급매/급등 시그널)"
+
+  time_series_guidance:
+    short_term: "최근 3개월 (시세 파악)"
+    medium_term: "최근 1년 (추세 파악)"
+    long_term: "최근 3-5년 (사이클 위치 파악)"
+    note: "계절성 주의 - 봄(3-5월)/가을(9-11월) 거래량 증가, 여름/겨울 감소"
+
+# ============================================================
+# 에이전트별 지시
+# ============================================================
+agent_directives:
+  planner:
+    mece_decomposition:
+      axes:
+        - "물건유형 (아파트/오피스텔/빌라/단독/상업)"
+        - "거래유형 (매매/전세/월세/청약/경매)"
+        - "지역 (시도/시군구/읍면동)"
+        - "기간 (최근 1개월/3개월/1년/3년)"
+      sub_research_types:
+        price_lookup: "특정 지역/단지의 현재 시세 파악"
+        location_analysis: "입지 분석 (교통/학군/생활/개발)"
+        investment_analysis: "투자 수익률 및 리스크 분석"
+        subscription_analysis: "청약 정보 및 전략 분석"
+        auction_analysis: "경매/공매 물건 분석"
+
+  searcher:
+    mcp_tools:
+      enabled: true
+      server_name: "real-estate"
+      priority: "MCP 도구 > 웹 검색 (MCP 실패 시 웹 검색 폴백)"
+      available_tools:
+        trade:
+          - "get_apartment_trades"
+          - "get_officetel_trades"
+          - "get_villa_trades"
+          - "get_single_house_trades"
+          - "get_commercial_trade"
+        rent:
+          - "get_apartment_rent"
+          - "get_officetel_rent"
+          - "get_villa_rent"
+          - "get_single_house_rent"
+        subscription:
+          - "get_apt_subscription_info"
+          - "get_apt_subscription_results"
+        onbid:
+          - "get_public_auction_items"
+        utility:
+          - "get_region_code"
+          - "get_current_year_month"
+      usage_guide: |
+        1. get_region_code로 지역명 -> 5자리 법정동코드 변환
+        2. 거래유형별 도구 호출 (LAWD_CD=법정동코드, DEAL_YMD=YYYYMM)
+        3. 응답의 summary로 중위값/최소/최대 확인
+        4. 웹 검색으로 시세(KB/부동산114) 교차검증
+    query_optimization:
+      always_include_date: true
+      date_format: "YYYY년 MM월 or YYYY.MM"
+      prefer_site_filter: true
+      data_priority: "MCP API > 정부 데이터 > 공공기관 > 민간 플랫폼 > 뉴스"
+    cross_reference_rule: "실거래가(MCP/정부) vs 시세(KB/부동산114) 반드시 교차검증"
+
+  analyzer:
+    validation_rules:
+      - "면적 단위 통일: 전용면적(m2) 기준, 평 환산 시 = m2 * 0.3025"
+      - "가격 단위 통일: 만원 단위 표기"
+      - "날짜 명시: 데이터 기준일 반드시 표기"
+      - "이상치 감지: 동일 단지 내 30%+ 편차 거래는 특수거래 가능성"
+      - "정부 데이터 vs 민간 데이터 괴리 시 정부 데이터 우선"
+
+  synthesizer:
+    output_template:
+      sections:
+        - "요약 (핵심 수치 1-3개)"
+        - "시세 현황 (실거래가 기반)"
+        - "입지 분석 (해당 시)"
+        - "투자 분석 (해당 시)"
+        - "리스크 요인"
+        - "면책 조항"
+      formatting:
+        prices: "억/만원 혼합 (10억 이상: X억 Y만원, 미만: XXXX만원)"
+        areas: "전용 XXm2 (XX평)"
+        dates: "YYYY년 MM월 DD일 기준"
+
+# 면책 조항
+disclaimer:
+  required: true
+  text: |
+    [주의] **부동산 투자 주의사항**
+    - 이 정보는 참고용이며 투자 조언이 아닙니다.
+    - 부동산 투자는 원금 손실 위험이 있습니다.
+    - 실제 거래 전 반드시 전문가와 상담하세요.
+    - 현장 방문 및 실사를 권장합니다.
+
+# 최신성 정책
+freshness:
+  max_age_days: 30
+  warning_age_days: 14
+  stale_label: "[주의] 정보가 오래되었을 수 있습니다"

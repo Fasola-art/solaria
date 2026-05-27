@@ -1,0 +1,153 @@
+# team-accounting Role 라우팅 테이블
+# 한국어 키워드 → Role → 담당 책임 매핑
+# 우선순위: 배열 순서대로 평가. 다중 매칭 시 상위 Role 우선.
+
+version: 1
+last_updated: 2026-04-21
+
+priority_order:
+  - tax-preparer
+  - expense-auditor
+  - budget-controller
+  - revenue-analyst
+  - bookkeeper
+
+routes:
+  tax-preparer:
+    description: "세무 신고·납부 일정·GATE_24h 관리. risk_analyst 강제 활성."
+    persona: [realist, risk_analyst]
+    korean_keywords:
+      - 세금
+      - 세무
+      - 부가세
+      - 종소세
+      - 종합소득세
+      - 세금 신고
+      - 세금 납부
+      - 세무 신고
+      - 원천세
+      - 세금계산서
+      - 신고 기한
+      - 납부 기한
+      - 분기 결산
+      - 연말 정산
+      - 결산
+    checkpoint:
+      type: GATE_24h
+      triggers:
+        - 세금 신고 제출
+        - 계좌 이체
+        - 납부 실행
+    ontology_emits:
+      - TaxFiling
+
+  expense-auditor:
+    description: "이상 거래 탐지(3σ·중복)·감사. critic 상시 동반."
+    persona: [realist, critic]
+    korean_keywords:
+      - 이상 거래
+      - 의심 거래
+      - 중복
+      - 감사
+      - 오류
+      - 이상해
+      - 이상한 지출
+      - 3시그마
+      - 비정상
+      - 중복 결제
+      - 두 번 결제
+      - 이상 탐지
+      - 이상 감지
+      - 비용 감사
+    checkpoint:
+      type: SILENT
+      note: "탐지는 SILENT, 감지 시 [HIGH] 알림 전송"
+    ontology_emits:
+      - Anomaly
+
+  budget-controller:
+    description: "예산 대비 현황·초과 경보·배분. 50만+ / 120% 초과 시 INFORM_5m."
+    persona: [realist, cfo]
+    korean_keywords:
+      - 예산
+      - 잔여 예산
+      - 예산 초과
+      - 예산 배분
+      - 이번 달 예산
+      - 예산 현황
+      - 광고 예산
+      - 예산 집행
+      - 얼마 남았어
+      - 예산 부족
+      - 초과
+      - 예산 120
+      - 예산 관리
+      - 지출 한도
+    checkpoint:
+      type: INFORM_5m
+      triggers:
+        - 지출 50만 이상
+        - 예산 120% 초과
+        - 광고 예산 집행
+    ontology_emits:
+      - Budget
+
+  revenue-analyst:
+    description: "수익 입금·GBrain 연동·손익 분석. 월말·분기 시 +cfo."
+    persona: [realist, cfo]
+    korean_keywords:
+      - 수익
+      - 매출
+      - 입금
+      - 손익
+      - 수입
+      - 정산
+      - 수익 분석
+      - 손익계산서
+      - 순이익
+      - 총수익
+      - 총지출
+      - 월 수익
+      - 분기 수익
+      - 환불
+      - 환급
+    checkpoint:
+      type: SILENT
+      note: "수익 분석은 SILENT, 계좌 이체 포함 시 GATE_24h"
+    ontology_emits:
+      - Revenue
+
+  bookkeeper:
+    description: "일간 지출 입력·분류·xlsx 기록. 기본 진입점. 50만 미만 SILENT."
+    persona: [realist]
+    korean_keywords:
+      - 지출
+      - 영수증
+      - 입력
+      - 기록
+      - 장부
+      - 가계부
+      - 얼마 썼어
+      - 식비
+      - 교통비
+      - 구독
+      - 결제
+      - 오늘 지출
+      - 이번 주 지출
+      - 지출 입력
+      - 지출 등록
+    checkpoint:
+      type: SILENT
+      amount_gate:
+        threshold: 500000
+        below: SILENT
+        above: INFORM_5m
+    ontology_emits:
+      - Expense
+
+# 다중 매칭 규칙
+# - 같은 프롬프트에서 여러 Role 매칭 시 priority_order 순서대로 1개만 주 Role 선택
+# - 나머지는 협업 Role로 자동 위임 (outbox 메시지)
+# - "광고 예산" → budget-controller 주 역할, bookkeeper는 기록 보조
+# - "분기 결산" → tax-preparer 주 역할, revenue-analyst 병렬 협업
+# - "이상 거래 감사" → expense-auditor 주 역할, bookkeeper 데이터 제공

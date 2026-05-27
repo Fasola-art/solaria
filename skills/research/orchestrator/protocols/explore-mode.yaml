@@ -1,0 +1,32 @@
+# Discovery Breadth Protocol v6.0
+# comparison or ambiguous requests에서 후보 발산을 돕는 보조 규칙
+
+version: "6.0"
+description: "Open-World Discovery breadth control"
+
+activation:
+  keywords:
+    - "비교"
+    - "대안"
+    - "관점"
+    - "다각도"
+    - "explore"
+    - "장단점"
+    - "트레이드오프"
+    - "vs"
+  depth_profiles: [standard, deep, full]
+
+process:
+  diverge:
+    description: "서로 다른 seed term family와 discovery axis를 넓게 생성"
+    min_seed_families: 3
+    max_seed_families: 6
+  select:
+    description: "증거 가능성과 novelty를 같이 보고 우선순위를 정함"
+    outputs:
+      - prioritized_seed_term_sets
+      - secondary_seed_term_sets
+      - contrarian_seed_term_sets
+
+resource_limits:
+  timeout_ms: 30000

@@ -1,0 +1,31 @@
+# Message Format Protocol v6.0
+# discovery-first agent handoff format
+
+version: "6.0"
+
+message_structure:
+  header:
+    message_id: string
+    from: string
+    to: string
+    type: string
+    timestamp: string
+  body:
+    action: string
+    data: object
+  footer:
+    status: string
+
+message_types:
+  - name: DiscoveryIntentReady
+    required: [discovery_intent]
+  - name: DiscoveryPlanReady
+    required: [discovery_plan]
+  - name: CandidateBatchReady
+    required: [candidate_records, raw_sources]
+  - name: CandidateNormalizationReady
+    required: [candidate_graph, normalized_candidates]
+  - name: CoverageLedgerReady
+    required: [coverage_ledger]
+  - name: SynthesisReady
+    required: [synthesis_result_v6]

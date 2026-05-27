@@ -1,0 +1,2175 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T01:00:36Z",
+  "skills": {
+    "Excel": {
+      "id": "Excel",
+      "type": "Skill",
+      "domain": "documents",
+      "capability": "Excel",
+      "runtime": "codex",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "PowerPoint": {
+      "id": "PowerPoint",
+      "type": "Skill",
+      "domain": "documents",
+      "capability": "PowerPoint",
+      "runtime": "codex",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "audio-processor": {
+      "id": "audio-processor",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "audio-processor",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "autofix": {
+      "id": "autofix",
+      "type": "Skill",
+      "domain": "development",
+      "capability": "error-diagnosis-and-fix",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "shell",
+        "tests"
+      ],
+      "overlaps_with": [
+        "test-driven-development"
+      ],
+      "routes_to": [
+        "quality-gate"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "dev-debugger",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "dev-debugger"
+      ]
+    },
+    "briefing": {
+      "id": "briefing",
+      "type": "Skill",
+      "domain": "research",
+      "capability": "briefing",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "channel-guide": {
+      "id": "channel-guide",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "channel-guide",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "codex-route": {
+      "id": "codex-route",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "codex-route",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "content-creator": {
+      "id": "content-creator",
+      "type": "Skill",
+      "domain": "content",
+      "capability": "content-production",
+      "runtime": "shared",
+      "owner": "team-marketing",
+      "depends_on": [
+        "brand-context"
+      ],
+      "overlaps_with": [
+        "team-marketing"
+      ],
+      "routes_to": [
+        "content-quality-ops"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "content-strategist",
+        "fact-checker"
+      ],
+      "default_personas": [
+        "content-strategist"
+      ]
+    },
+    "content-quality-ops": {
+      "id": "content-quality-ops",
+      "type": "Skill",
+      "domain": "quality",
+      "capability": "content-quality-validation",
+      "runtime": "shared",
+      "owner": "team-marketing",
+      "depends_on": [
+        "brand-context"
+      ],
+      "overlaps_with": [
+        "quality-gate"
+      ],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "content-strategist",
+        "fact-checker",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "fact-checker"
+      ]
+    },
+    "db-manager": {
+      "id": "db-manager",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "db-manager",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "do": {
+      "id": "do",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "do",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "docx": {
+      "id": "docx",
+      "type": "Skill",
+      "domain": "documents",
+      "capability": "docx",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "find-skills": {
+      "id": "find-skills",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "find-skills",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "frontend-stack": {
+      "id": "frontend-stack",
+      "type": "Skill",
+      "domain": "frontend",
+      "capability": "frontend-design-routing",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "design-context"
+      ],
+      "overlaps_with": [
+        "nextjs15-init"
+      ],
+      "routes_to": [
+        "gsap-core",
+        "gsap-performance",
+        "gsap-react",
+        "gsap-scrolltrigger",
+        "playwright-skill",
+        "quality-gate"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "frontend-designer",
+        "technical-architect",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "frontend-designer"
+      ]
+    },
+    "gpt-image-2": {
+      "id": "gpt-image-2",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "gpt-image-2",
+      "runtime": "codex",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gsap-core": {
+      "id": "gsap-core",
+      "type": "Skill",
+      "domain": "frontend-animation",
+      "capability": "gsap-core-animation",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "javascript",
+        "dom",
+        "css"
+      ],
+      "overlaps_with": [
+        "frontend-stack"
+      ],
+      "routes_to": [
+        "gsap-timeline",
+        "gsap-scrolltrigger",
+        "gsap-performance"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "frontend-designer",
+        "technical-architect",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "frontend-designer"
+      ]
+    },
+    "gsap-performance": {
+      "id": "gsap-performance",
+      "type": "Skill",
+      "domain": "frontend-animation",
+      "capability": "animation-performance",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "browser-rendering",
+        "css-transforms"
+      ],
+      "overlaps_with": [
+        "quality-gate"
+      ],
+      "routes_to": [
+        "playwright-skill"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "frontend-designer",
+        "qa-reviewer",
+        "technical-architect"
+      ],
+      "default_personas": [
+        "qa-reviewer"
+      ]
+    },
+    "gsap-plugins": {
+      "id": "gsap-plugins",
+      "type": "Skill",
+      "domain": "frontend-animation",
+      "capability": "gsap-plugin-integration",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "gsap-core"
+      ],
+      "overlaps_with": [
+        "gsap-scrolltrigger"
+      ],
+      "routes_to": [
+        "gsap-performance"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "frontend-designer",
+        "technical-architect"
+      ],
+      "default_personas": [
+        "technical-architect"
+      ]
+    },
+    "gsap-react": {
+      "id": "gsap-react",
+      "type": "Skill",
+      "domain": "frontend-animation",
+      "capability": "gsap-react-integration",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "gsap-core",
+        "react"
+      ],
+      "overlaps_with": [
+        "frontend-stack"
+      ],
+      "routes_to": [
+        "gsap-performance"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "frontend-designer",
+        "technical-architect",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "frontend-designer"
+      ]
+    },
+    "gsap-scrolltrigger": {
+      "id": "gsap-scrolltrigger",
+      "type": "Skill",
+      "domain": "frontend-animation",
+      "capability": "scroll-driven-animation",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "gsap-core",
+        "browser-scroll"
+      ],
+      "overlaps_with": [
+        "frontend-stack"
+      ],
+      "routes_to": [
+        "gsap-performance"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "frontend-designer",
+        "technical-architect",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "frontend-designer"
+      ]
+    },
+    "gsap-timeline": {
+      "id": "gsap-timeline",
+      "type": "Skill",
+      "domain": "frontend-animation",
+      "capability": "timeline-animation-sequencing",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "gsap-core"
+      ],
+      "overlaps_with": [
+        "frontend-stack"
+      ],
+      "routes_to": [
+        "gsap-performance"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "frontend-designer",
+        "technical-architect"
+      ],
+      "default_personas": [
+        "frontend-designer"
+      ]
+    },
+    "gsap-utils": {
+      "id": "gsap-utils",
+      "type": "Skill",
+      "domain": "frontend-animation",
+      "capability": "gsap-animation-utilities",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "gsap-core"
+      ],
+      "overlaps_with": [],
+      "routes_to": [
+        "gsap-core"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "frontend-designer",
+        "technical-architect"
+      ],
+      "default_personas": [
+        "technical-architect"
+      ]
+    },
+    "gws-calendar-agenda": {
+      "id": "gws-calendar-agenda",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-calendar-agenda",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-calendar-insert": {
+      "id": "gws-calendar-insert",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-calendar-insert",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-docs-write": {
+      "id": "gws-docs-write",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-docs-write",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-drive": {
+      "id": "gws-drive",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-drive",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-forms": {
+      "id": "gws-forms",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-forms",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-gmail-read": {
+      "id": "gws-gmail-read",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-gmail-read",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-gmail-send": {
+      "id": "gws-gmail-send",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-gmail-send",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-gmail-triage": {
+      "id": "gws-gmail-triage",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-gmail-triage",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-people": {
+      "id": "gws-people",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-people",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-shared": {
+      "id": "gws-shared",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-shared",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-sheets-append": {
+      "id": "gws-sheets-append",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-sheets-append",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-sheets-read": {
+      "id": "gws-sheets-read",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-sheets-read",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-slides": {
+      "id": "gws-slides",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-slides",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-tasks": {
+      "id": "gws-tasks",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-tasks",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-workflow-email-to-task": {
+      "id": "gws-workflow-email-to-task",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-workflow-email-to-task",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-workflow-meeting-prep": {
+      "id": "gws-workflow-meeting-prep",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-workflow-meeting-prep",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-workflow-standup-report": {
+      "id": "gws-workflow-standup-report",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-workflow-standup-report",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "gws-workflow-weekly-digest": {
+      "id": "gws-workflow-weekly-digest",
+      "type": "Skill",
+      "domain": "google-workspace",
+      "capability": "gws-workflow-weekly-digest",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "hermes-route": {
+      "id": "hermes-route",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "hermes-route",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "hwpxskill": {
+      "id": "hwpxskill",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "hwpxskill",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "image-processor": {
+      "id": "image-processor",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "image-processor",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "imagegen": {
+      "id": "imagegen",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "imagegen",
+      "runtime": "codex",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "system",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis": {
+      "id": "jarvis",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-aip-logic": {
+      "id": "jarvis-aip-logic",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-aip-logic",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-blog": {
+      "id": "jarvis-blog",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-blog",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-booking": {
+      "id": "jarvis-booking",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-booking",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-claude-workflows": {
+      "id": "jarvis-claude-workflows",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-claude-workflows",
+      "runtime": "codex",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-codex-advisor": {
+      "id": "jarvis-codex-advisor",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-codex-advisor",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-contest": {
+      "id": "jarvis-contest",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-contest",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-copy": {
+      "id": "jarvis-copy",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-copy",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-discord": {
+      "id": "jarvis-discord",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-discord",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-engagement-bot": {
+      "id": "jarvis-engagement-bot",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-engagement-bot",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-experiments": {
+      "id": "jarvis-experiments",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-experiments",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-frontend": {
+      "id": "jarvis-frontend",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-frontend",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-github": {
+      "id": "jarvis-github",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-github",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-image": {
+      "id": "jarvis-image",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-image",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-kr-life": {
+      "id": "jarvis-kr-life",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-kr-life",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-mac": {
+      "id": "jarvis-mac",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-mac",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-marketing": {
+      "id": "jarvis-marketing",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-marketing",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-notion": {
+      "id": "jarvis-notion",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-notion",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-pm": {
+      "id": "jarvis-pm",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-pm",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-presentations": {
+      "id": "jarvis-presentations",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-presentations",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-reels": {
+      "id": "jarvis-reels",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-reels",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-scrape": {
+      "id": "jarvis-scrape",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-scrape",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-seo": {
+      "id": "jarvis-seo",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-seo",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-sns": {
+      "id": "jarvis-sns",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-sns",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-trends-monitor": {
+      "id": "jarvis-trends-monitor",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-trends-monitor",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-vault": {
+      "id": "jarvis-vault",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-vault",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "jarvis-video": {
+      "id": "jarvis-video",
+      "type": "Skill",
+      "domain": "jarvis",
+      "capability": "jarvis-video",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "learn": {
+      "id": "learn",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "learn",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "marketing-context-sync": {
+      "id": "marketing-context-sync",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "marketing-context-sync",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "mcp-builder": {
+      "id": "mcp-builder",
+      "type": "Skill",
+      "domain": "agent-tooling",
+      "capability": "mcp-and-agent-tool-design",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "mcp-sdk",
+        "tool-schemas"
+      ],
+      "overlaps_with": [
+        "skill-management"
+      ],
+      "routes_to": [
+        "quality-gate"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "technical-architect",
+        "dev-debugger",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "technical-architect"
+      ]
+    },
+    "nextjs15-init": {
+      "id": "nextjs15-init",
+      "type": "Skill",
+      "domain": "frontend",
+      "capability": "nextjs15-init",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "ontology": {
+      "id": "ontology",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "ontology",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "openai-docs": {
+      "id": "openai-docs",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "openai-docs",
+      "runtime": "codex",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "system",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "pdf": {
+      "id": "pdf",
+      "type": "Skill",
+      "domain": "documents",
+      "capability": "pdf",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "playwright-skill": {
+      "id": "playwright-skill",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "playwright-skill",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "plugin-creator": {
+      "id": "plugin-creator",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "plugin-creator",
+      "runtime": "codex",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "system",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "pptx": {
+      "id": "pptx",
+      "type": "Skill",
+      "domain": "documents",
+      "capability": "pptx",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "prd-create": {
+      "id": "prd-create",
+      "type": "Skill",
+      "domain": "product",
+      "capability": "prd-generation",
+      "runtime": "shared",
+      "owner": "team-pm",
+      "depends_on": [
+        "research"
+      ],
+      "overlaps_with": [
+        "team-pm"
+      ],
+      "routes_to": [
+        "simulate",
+        "quality-gate"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "product-strategist",
+        "market-researcher",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "product-strategist"
+      ]
+    },
+    "prompt-engineering": {
+      "id": "prompt-engineering",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "prompt-engineering",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "quality-gate": {
+      "id": "quality-gate",
+      "type": "Skill",
+      "domain": "quality",
+      "capability": "quality-validation",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "filesystem"
+      ],
+      "overlaps_with": [
+        "content-quality-ops"
+      ],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "qa-reviewer",
+        "dev-debugger",
+        "technical-architect",
+        "fact-checker"
+      ],
+      "default_personas": [
+        "qa-reviewer"
+      ]
+    },
+    "recover": {
+      "id": "recover",
+      "type": "Skill",
+      "domain": "continuity",
+      "capability": "session-recovery-and-handoff",
+      "runtime": "shared",
+      "owner": "team-common",
+      "depends_on": [
+        "filesystem",
+        "session-snapshots"
+      ],
+      "overlaps_with": [
+        "workflow"
+      ],
+      "routes_to": [
+        "skill-management"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "technical-architect",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "technical-architect"
+      ]
+    },
+    "research": {
+      "id": "research",
+      "type": "Skill",
+      "domain": "research",
+      "capability": "deep-research",
+      "runtime": "shared",
+      "owner": "team-business",
+      "depends_on": [
+        "web-search",
+        "filesystem",
+        "source-citation"
+      ],
+      "overlaps_with": [
+        "briefing",
+        "team-business"
+      ],
+      "routes_to": [
+        "prd-create",
+        "content-creator",
+        "team-business"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "fact-checker",
+        "market-researcher",
+        "academic-researcher",
+        "competitive-intelligence-analyst",
+        "product-strategist",
+        "content-strategist"
+      ],
+      "default_personas": [
+        "fact-checker",
+        "market-researcher"
+      ]
+    },
+    "showme": {
+      "id": "showme",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "showme",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "simulate": {
+      "id": "simulate",
+      "type": "Skill",
+      "domain": "planning",
+      "capability": "plan-simulation",
+      "runtime": "shared",
+      "owner": "team-pm",
+      "depends_on": [],
+      "overlaps_with": [
+        "quality-gate"
+      ],
+      "routes_to": [
+        "quality-gate"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "product-strategist",
+        "technical-architect",
+        "qa-reviewer",
+        "market-researcher",
+        "fact-checker"
+      ],
+      "default_personas": [
+        "qa-reviewer"
+      ]
+    },
+    "skill-creator": {
+      "id": "skill-creator",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "skill-creator",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "skill-installer": {
+      "id": "skill-installer",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "skill-installer",
+      "runtime": "codex",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "system",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "skill-management": {
+      "id": "skill-management",
+      "type": "Skill",
+      "domain": "skill-operations",
+      "capability": "skill-centralization-ontology-and-import-management",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "filesystem",
+        "registry",
+        "ontology"
+      ],
+      "overlaps_with": [
+        "skill-creator"
+      ],
+      "routes_to": [
+        "mcp-builder",
+        "team-common"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "technical-architect",
+        "qa-reviewer",
+        "product-strategist"
+      ],
+      "default_personas": [
+        "technical-architect"
+      ]
+    },
+    "team-accounting": {
+      "id": "team-accounting",
+      "type": "Skill",
+      "domain": "team-orchestration",
+      "capability": "team-accounting",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "team-business": {
+      "id": "team-business",
+      "type": "Skill",
+      "domain": "team-orchestration",
+      "capability": "team-business",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "market-researcher",
+        "competitive-intelligence-analyst",
+        "product-strategist"
+      ],
+      "default_personas": [
+        "competitive-intelligence-analyst"
+      ]
+    },
+    "team-common": {
+      "id": "team-common",
+      "type": "Skill",
+      "domain": "team-orchestration",
+      "capability": "shared-team-protocols-and-multi-agent-patterns",
+      "runtime": "shared",
+      "owner": "team-common",
+      "depends_on": [
+        "filesystem",
+        "ontology"
+      ],
+      "overlaps_with": [
+        "workflow"
+      ],
+      "routes_to": [
+        "team-dev",
+        "team-pm",
+        "team-marketing",
+        "team-business"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check",
+        "trigger-eval"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "technical-architect",
+        "product-strategist",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "technical-architect"
+      ]
+    },
+    "team-dev": {
+      "id": "team-dev",
+      "type": "Skill",
+      "domain": "team-orchestration",
+      "capability": "team-dev",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "technical-architect",
+        "dev-debugger",
+        "qa-reviewer",
+        "frontend-designer"
+      ],
+      "default_personas": [
+        "technical-architect"
+      ]
+    },
+    "team-investment": {
+      "id": "team-investment",
+      "type": "Skill",
+      "domain": "team-orchestration",
+      "capability": "team-investment",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "team-marketing": {
+      "id": "team-marketing",
+      "type": "Skill",
+      "domain": "team-orchestration",
+      "capability": "team-marketing",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "content-strategist",
+        "market-researcher",
+        "competitive-intelligence-analyst"
+      ],
+      "default_personas": [
+        "content-strategist"
+      ]
+    },
+    "team-pm": {
+      "id": "team-pm",
+      "type": "Skill",
+      "domain": "team-orchestration",
+      "capability": "team-pm",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "product-strategist",
+        "market-researcher",
+        "qa-reviewer"
+      ],
+      "default_personas": [
+        "product-strategist"
+      ]
+    },
+    "team-secretary": {
+      "id": "team-secretary",
+      "type": "Skill",
+      "domain": "team-orchestration",
+      "capability": "team-secretary",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "test-driven-development": {
+      "id": "test-driven-development",
+      "type": "Skill",
+      "domain": "development",
+      "capability": "test-first-development",
+      "runtime": "shared",
+      "owner": "team-dev",
+      "depends_on": [
+        "tests"
+      ],
+      "overlaps_with": [
+        "autofix"
+      ],
+      "routes_to": [
+        "quality-gate"
+      ],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [
+        "dev-debugger",
+        "qa-reviewer",
+        "technical-architect"
+      ],
+      "default_personas": [
+        "qa-reviewer"
+      ]
+    },
+    "video-editor": {
+      "id": "video-editor",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "video-editor",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "wiki": {
+      "id": "wiki",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "wiki",
+      "runtime": "claude",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "workflow": {
+      "id": "workflow",
+      "type": "Skill",
+      "domain": "general",
+      "capability": "workflow",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    },
+    "xlsx": {
+      "id": "xlsx",
+      "type": "Skill",
+      "domain": "documents",
+      "capability": "xlsx",
+      "runtime": "shared",
+      "owner": null,
+      "depends_on": [],
+      "overlaps_with": [],
+      "routes_to": [],
+      "supersedes": [],
+      "validated_by": [
+        "skill-health-check"
+      ],
+      "sourced_from": "local",
+      "usable_personas": [],
+      "default_personas": []
+    }
+  }
+}

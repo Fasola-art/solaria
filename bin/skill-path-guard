@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Guard direct SKILL.md writes outside the shared source of truth.
+set -u
+
+LOG="$HOME/.agents/runtime/skill-path-guard.log"
+mkdir -p "$(dirname "$LOG")"
+TS() { date -u +%FT%TZ; }
+log() { printf '[%s] %s\n' "$(TS)" "$*" >> "$LOG" 2>/dev/null || true; }
+
+if ! command -v jq >/dev/null 2>&1; then
+  log "jq missing, pass-through"
+  exit 0
+fi
+
+INPUT=$(cat 2>/dev/null || true)
+TOOL=$(printf '%s' "$INPUT" | jq -r '.tool_name // ""' 2>/dev/null || echo "")
+FILE=$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // ""' 2>/dev/null || echo "")
+
+case "$TOOL" in
+  Write|Edit) ;;
+  *) exit 0 ;;
+esac
+
+case "$FILE" in
+  */SKILL.md) ;;
+  *) exit 0 ;;
+esac
+
+decision_reason=""
+
+case "$FILE" in
+  "$HOME/.agents/skills/"*)
+    exit 0
+    ;;
+  "$HOME/.claude/skills/"*)
+    rel="${FILE#"$HOME/.claude/skills/"}"
+    top="${rel%%/*}"
+    case "$top" in
+      _*|"") exit 0 ;;
+    esac
+    skill_dir="$HOME/.claude/skills/$top"
+    if [ -L "$skill_dir" ]; then
+      exit 0
+    fi
+    decision_reason="Shared skills must be created or edited in ~/.agents/skills, then exposed to Claude with a symlink. Direct Claude skill edits require explicit approval: $FILE"
+    ;;
+  "$HOME/.codex/skills/"*)
+    rel="${FILE#"$HOME/.codex/skills/"}"
+    top="${rel%%/*}"
+    case "$top" in
+      .system|codex-primary-runtime|gpt-image-2|jarvis-claude-workflows|"") exit 0 ;;
+    esac
+    skill_dir="$HOME/.codex/skills/$top"
+    if [ -L "$skill_dir" ]; then
+      exit 0
+    fi
+    decision_reason="Shared skills must be created or edited in ~/.agents/skills. Direct Codex skill edits require explicit approval unless this is a system/runtime skill: $FILE"
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+
+log "ASK $FILE"
+jq -n --arg reason "$decision_reason" '{
+  hookSpecificOutput: {
+    hookEventName: "PreToolUse",
+    permissionDecision: "ask",
+    permissionDecisionReason: $reason
+  }
+}'
+exit 0
