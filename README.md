@@ -1,6 +1,8 @@
-# Agent Skills System
+# Solaria
 
 Shared Claude/Codex skill management system centered on `~/.agents/skills`.
+
+Solaria is a shared skill operations layer for Claude, Codex, personas, ontology, trigger evaluation, and runtime governance. The name frames skills as small suns in an agent operating system: each capability has its own orbit, and Solaria keeps the system mapped, routed, and healthy.
 
 This repository captures the current implementation for:
 
@@ -81,4 +83,3 @@ Codex hook enforcement is currently best effort. Live observation on 2026-05-27 
 1. Rules that instruct skills to be created under `~/.agents/skills`.
 2. Hook config where supported.
 3. Mandatory post-run `skill-health-check --write` to detect direct local Codex skills.
-
