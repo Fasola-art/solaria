@@ -110,6 +110,7 @@ if [ "$DO_BACKUP" -eq 1 ] && { [ -e "$AGENTS_HOME" ] || [ -L "$AGENTS_HOME" ]; }
 fi
 
 run mkdir -p "$AGENTS_HOME"
+run mkdir -p "${AGENTS_HOME}/research/creation-briefs"
 
 for item in "${copy_items[@]}"; do
   src="${ROOT_DIR}/${item}"

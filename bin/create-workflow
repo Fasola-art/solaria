@@ -7,8 +7,7 @@ from pathlib import Path
 
 HOME = Path.home()
 AGENTS = HOME / ".agents"
-PERSONAS_DIR = AGENTS / "personas"
-PERSONAS_JSON = AGENTS / "ontology" / "personas.json"
+WORKFLOWS_JSON = AGENTS / "ontology" / "workflows.json"
 ACTIVATIONS_LOG = AGENTS / "runtime" / "session-activations.jsonl"
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 RESEARCH_REQUIRED = "Research brief is required. Use the research skill first, then pass --research-brief <path-or-json>. For tests or migrations, pass --skip-research-brief <reason>."
@@ -51,29 +50,48 @@ def require_research_brief(args):
     missing = [key for key in ["intent", "candidate_type", "target_id", "decision"] if not data.get(key)]
     if missing:
         raise SystemExit(f"Research brief missing required fields: {', '.join(missing)}")
-    if data.get("candidate_type") not in {"skill", "persona", "workflow"}:
-        raise SystemExit("Research brief candidate_type must be skill, persona, or workflow.")
-    if data.get("candidate_type") != "persona":
-        raise SystemExit("create-persona requires a research brief with candidate_type: persona.")
+    if data.get("candidate_type") != "workflow":
+        raise SystemExit("create-workflow requires a research brief with candidate_type: workflow.")
     return {"skipped": False, "path": brief["path"], "data": data}
 
 
-def activation_packet(persona_id, persona_file, role, skills, status, research):
+def parse_steps(values):
+    steps = []
+    for value in values:
+        if ":" not in value:
+            raise SystemExit(f"Step must be persona:skill: {value}")
+        persona, skill = [part.strip() for part in value.split(":", 1)]
+        if not persona or not skill:
+            raise SystemExit(f"Step must be persona:skill: {value}")
+        steps.append({"persona": persona, "skill": skill})
+    if not steps:
+        raise SystemExit("At least one --step persona:skill is required.")
+    return steps
+
+
+def load_workflows():
+    if not WORKFLOWS_JSON.exists():
+        return {"schema_version": 1, "generated_at": now(), "workflows": {}}
+    try:
+        return json.loads(WORKFLOWS_JSON.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"Invalid workflows JSON: {WORKFLOWS_JSON}: {exc}") from exc
+
+
+def activation_packet(workflow_id, steps, research):
     return {
         "ts": now(),
         "event": "session_activation",
-        "activated_type": "persona",
-        "id": persona_id,
-        "path": str(persona_file),
-        "role": role,
-        "default_skills": skills,
-        "can_use_skills": skills,
-        "status": status,
-        "source": "create-persona",
-        "reason": status,
+        "activated_type": "workflow",
+        "id": workflow_id,
+        "path": str(WORKFLOWS_JSON),
+        "steps": steps,
+        "status": "created",
+        "source": "create-workflow",
+        "reason": "created",
         "research": research,
         "prompt_hash": None,
-        "current_session_instruction": "Load this persona text directly for the current session and pair it with the relevant skill.",
+        "current_session_instruction": "Load each step's skill and persona directly in order for the current session. Do not wait for native runtime workflow or skill auto-trigger refresh.",
     }
 
 
@@ -90,63 +108,49 @@ def print_activation(packet, mode):
     if mode == "json":
         print(json.dumps(packet, indent=2, ensure_ascii=False))
         return
-    print(f"created: {packet['path']}")
+    print(f"created: {packet['path']}#{packet['id']}")
     print("current-session activation:")
-    print(f"- persona: {packet['id']}")
+    print(f"- workflow: {packet['id']}")
     print(f"- instruction: {packet['current_session_instruction']}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Create a shared persona and ontology entry.")
-    parser.add_argument("id", help="Lowercase hyphen-case persona id.")
-    parser.add_argument("--role", required=True, help="Persona role.")
-    parser.add_argument("--skills", default="", help="Comma-separated default/can-use skills.")
+    parser = argparse.ArgumentParser(description="Create a shared workflow ontology entry.")
+    parser.add_argument("id", help="Lowercase hyphen-case workflow id.")
+    parser.add_argument("--step", action="append", default=[], help="Workflow step as persona:skill. Repeat in execution order.")
+    parser.add_argument("--description", default="", help="Optional workflow description.")
     parser.add_argument("--research-brief", default=None, help="Path to creation research brief JSON, or inline JSON. Required unless --skip-research-brief is used.")
     parser.add_argument("--skip-research-brief", default=None, help="Explicit reason for bypassing research-first creation. Intended for tests and migrations.")
     parser.add_argument("--activation", choices=["text", "json", "none"], default="text", help="Print current-session activation packet.")
     parser.add_argument("--no-activation-log", action="store_true", help="Do not append to session-activations.jsonl.")
     args = parser.parse_args()
 
-    persona_id = args.id.strip()
-    if not NAME_RE.match(persona_id):
-        raise SystemExit("Persona id must be lowercase hyphen-case, max 63 characters.")
+    workflow_id = args.id.strip()
+    if not NAME_RE.match(workflow_id):
+        raise SystemExit("Workflow id must be lowercase hyphen-case, max 63 characters.")
     research = require_research_brief(args)
+    steps = parse_steps(args.step)
 
-    PERSONAS_DIR.mkdir(parents=True, exist_ok=True)
-    PERSONAS_JSON.parent.mkdir(parents=True, exist_ok=True)
-    persona_file = PERSONAS_DIR / f"{persona_id}.md"
-    if persona_file.exists():
-        raise SystemExit(f"Persona already exists: {persona_file}")
-
-    skills = [s.strip() for s in args.skills.split(",") if s.strip()]
-    persona_file.write_text(
-        f"# {persona_id}\n\nRole: {args.role}\n\n## Responsibilities\n\n- Apply the role's judgment criteria to relevant work.\n- Use only skills that fit the task and available context.\n\n## Default Skills\n\n"
-        + "".join(f"- {skill}\n" for skill in skills),
-        encoding="utf-8",
-    )
-
-    if PERSONAS_JSON.exists():
-        data = json.loads(PERSONAS_JSON.read_text(encoding="utf-8"))
-    else:
-        data = {"schema_version": 1, "generated_at": now(), "personas": {}}
-    data.setdefault("personas", {})[persona_id] = {
-        "id": persona_id,
-        "type": "Persona",
-        "role": args.role,
-        "default_skills": skills,
-        "can_use_skills": skills,
-        "strengths": [],
-        "avoid": [],
-        "output_style": None,
+    WORKFLOWS_JSON.parent.mkdir(parents=True, exist_ok=True)
+    data = load_workflows()
+    workflows = data.setdefault("workflows", {})
+    if workflow_id in workflows:
+        raise SystemExit(f"Workflow already exists: {workflow_id}")
+    workflows[workflow_id] = {
+        "id": workflow_id,
+        "type": "Workflow",
+        "description": args.description,
+        "steps": steps,
     }
     if research.get("skipped"):
-        data["personas"][persona_id]["creation_research_skipped"] = research["reason"]
+        workflows[workflow_id]["creation_research_skipped"] = research["reason"]
     else:
-        data["personas"][persona_id]["creation_research_brief"] = research.get("path")
-        data["personas"][persona_id]["creation_decision"] = research.get("data", {}).get("decision")
+        workflows[workflow_id]["creation_research_brief"] = research.get("path")
+        workflows[workflow_id]["creation_decision"] = research.get("data", {}).get("decision")
     data["generated_at"] = now()
-    PERSONAS_JSON.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    packet = activation_packet(persona_id, persona_file, args.role, skills, "created", research)
+    WORKFLOWS_JSON.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    packet = activation_packet(workflow_id, steps, research)
     if not args.no_activation_log:
         log_packet(packet)
     print_activation(packet, args.activation)

@@ -256,6 +256,9 @@ def build_skills_ontology(registry):
         "default_personas",
         "capability",
         "domain",
+        "creation_research_brief",
+        "creation_research_skipped",
+        "creation_decision",
     }
     entities = {}
     for name, data in registry["skills"].items():

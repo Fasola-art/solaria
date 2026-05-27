@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import argparse
+import json
 import os
 import re
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 
 HOME = Path.home()
@@ -11,7 +13,14 @@ AGENT_SKILLS = AGENTS / "skills"
 CLAUDE_SKILLS = HOME / ".claude" / "skills"
 CODEX_SKILLS = HOME / ".codex" / "skills"
 HEALTH = AGENTS / "bin" / "skill-health-check"
+ACTIVATIONS_LOG = AGENTS / "runtime" / "session-activations.jsonl"
+SKILLS_ONTOLOGY = AGENTS / "ontology" / "skills.json"
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
+RESEARCH_REQUIRED = "Research brief is required. Use the research skill first, then pass --research-brief <path-or-json>. For tests or migrations, pass --skip-research-brief <reason>."
+
+
+def now():
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def symlink_force(target, link):
@@ -24,6 +33,101 @@ def symlink_force(target, link):
     link.symlink_to(rel_target)
 
 
+def load_research_brief(value):
+    if not value:
+        return None
+    path = Path(value).expanduser()
+    if path.exists():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"Invalid research brief JSON: {path}: {exc}") from exc
+        return {"path": str(path), "data": data}
+    try:
+        data = json.loads(value)
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"Research brief must be a readable JSON file or inline JSON: {exc}") from exc
+    return {"path": None, "data": data}
+
+
+def require_research_brief(args):
+    if args.research_brief and args.skip_research_brief:
+        raise SystemExit("Use either --research-brief or --skip-research-brief, not both.")
+    if not args.research_brief and not args.skip_research_brief:
+        raise SystemExit(RESEARCH_REQUIRED)
+    if args.skip_research_brief is not None and not args.skip_research_brief.strip():
+        raise SystemExit("--skip-research-brief requires a non-empty reason.")
+    if args.skip_research_brief:
+        return {"skipped": True, "reason": args.skip_research_brief.strip()}
+    brief = load_research_brief(args.research_brief)
+    data = brief["data"]
+    if not isinstance(data, dict):
+        raise SystemExit("Research brief JSON must be an object.")
+    missing = [key for key in ["intent", "candidate_type", "target_id", "decision"] if not data.get(key)]
+    if missing:
+        raise SystemExit(f"Research brief missing required fields: {', '.join(missing)}")
+    if data.get("candidate_type") not in {"skill", "persona", "workflow"}:
+        raise SystemExit("Research brief candidate_type must be skill, persona, or workflow.")
+    if data.get("candidate_type") != "skill":
+        raise SystemExit("create-skill requires a research brief with candidate_type: skill.")
+    return {"skipped": False, "path": brief["path"], "data": data}
+
+
+def update_skill_research_metadata(name, research):
+    try:
+        data = json.loads(SKILLS_ONTOLOGY.read_text(encoding="utf-8")) if SKILLS_ONTOLOGY.exists() else {"schema_version": 1, "skills": {}}
+    except json.JSONDecodeError:
+        data = {"schema_version": 1, "skills": {}}
+    skill = data.setdefault("skills", {}).setdefault(name, {"id": name, "type": "Skill"})
+    if research.get("skipped"):
+        skill["creation_research_skipped"] = research["reason"]
+    else:
+        skill["creation_research_brief"] = research.get("path")
+        brief_data = research.get("data", {})
+        skill["creation_decision"] = brief_data.get("decision")
+    data["generated_at"] = now()
+    SKILLS_ONTOLOGY.parent.mkdir(parents=True, exist_ok=True)
+    SKILLS_ONTOLOGY.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def activation_packet(name, skill_md, desc, status, research, personas=None):
+    return {
+        "ts": now(),
+        "event": "session_activation",
+        "activated_type": "skill",
+        "id": name,
+        "path": str(skill_md),
+        "description": desc,
+        "default_personas": personas or [],
+        "usable_personas": personas or [],
+        "status": status,
+        "source": "create-skill",
+        "reason": status,
+        "research": research,
+        "prompt_hash": None,
+        "current_session_instruction": "Read this SKILL.md directly and apply it for the current request. Do not wait for native runtime skill auto-trigger refresh.",
+    }
+
+
+def log_packet(packet):
+    ACTIVATIONS_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with ACTIVATIONS_LOG.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(packet, ensure_ascii=False) + "\n")
+
+
+def print_activation(packet, mode):
+    if mode == "none":
+        print(packet["path"])
+        return
+    if mode == "json":
+        print(json.dumps(packet, indent=2, ensure_ascii=False))
+        return
+    print(f"created: {packet['path']}")
+    print("current-session activation:")
+    print(f"- skill: {packet['id']}")
+    print(f"- instruction: {packet['current_session_instruction']}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Create a shared agent skill in ~/.agents/skills.")
     parser.add_argument("name", help="Lowercase hyphen-case skill name.")
@@ -31,11 +135,16 @@ def main():
     parser.add_argument("--codex", action="store_true", help="Also expose the skill through ~/.codex/skills.")
     parser.add_argument("--no-claude", action="store_true", help="Do not create the Claude symlink.")
     parser.add_argument("--resources", default="", help="Comma-separated resource directories: references,scripts,assets.")
+    parser.add_argument("--research-brief", default=None, help="Path to creation research brief JSON, or inline JSON. Required unless --skip-research-brief is used.")
+    parser.add_argument("--skip-research-brief", default=None, help="Explicit reason for bypassing research-first creation. Intended for tests and migrations.")
+    parser.add_argument("--activation", choices=["text", "json", "none"], default="text", help="Print current-session activation packet.")
+    parser.add_argument("--no-activation-log", action="store_true", help="Do not append to session-activations.jsonl.")
     args = parser.parse_args()
 
     name = args.name.strip()
     if not NAME_RE.match(name):
         raise SystemExit("Skill name must be lowercase hyphen-case, max 63 characters.")
+    research = require_research_brief(args)
 
     skill_dir = AGENT_SKILLS / name
     if skill_dir.exists():
@@ -59,9 +168,16 @@ def main():
         symlink_force(skill_dir, CODEX_SKILLS / name)
 
     if HEALTH.exists():
-        subprocess.run([str(HEALTH), "--write"], check=False)
+        if args.activation == "json":
+            subprocess.run([str(HEALTH), "--write"], check=False, stdout=subprocess.DEVNULL)
+        else:
+            subprocess.run([str(HEALTH), "--write"], check=False)
+    update_skill_research_metadata(name, research)
 
-    print(skill_dir)
+    packet = activation_packet(name, skill_dir / "SKILL.md", desc, "created", research)
+    if not args.no_activation_log:
+        log_packet(packet)
+    print_activation(packet, args.activation)
 
 
 if __name__ == "__main__":

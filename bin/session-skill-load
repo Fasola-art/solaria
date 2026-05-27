@@ -1,0 +1,348 @@
+#!/usr/bin/env python3
+import argparse
+import hashlib
+import json
+import re
+from datetime import datetime, timezone
+from pathlib import Path
+
+HOME = Path.home()
+AGENTS = HOME / ".agents"
+SKILLS_DIR = AGENTS / "skills"
+PERSONAS_DIR = AGENTS / "personas"
+REGISTRY = AGENTS / "skills-registry.json"
+SKILLS_JSON = AGENTS / "ontology" / "skills.json"
+PERSONAS_JSON = AGENTS / "ontology" / "personas.json"
+WORKFLOWS_JSON = AGENTS / "ontology" / "workflows.json"
+ROUTES_JSON = AGENTS / "ontology" / "routes.json"
+ACTIVATIONS_LOG = AGENTS / "runtime" / "session-activations.jsonl"
+
+
+def now():
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def load_json(path, default):
+    if not path.exists():
+        return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return default
+
+
+def read_text(path):
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return path.read_text(errors="replace")
+
+
+def parse_frontmatter(path):
+    text = read_text(path)
+    data = {}
+    if not text.startswith("---"):
+        return data, text
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return data, text
+    current_key = None
+    for raw in parts[1].splitlines():
+        if raw.startswith((" ", "\t")) and current_key:
+            data[current_key] = f"{data.get(current_key, '')} {raw.strip()}".strip()
+            continue
+        current_key = None
+        if ":" not in raw:
+            continue
+        key, value = raw.split(":", 1)
+        current_key = key.strip()
+        data[current_key] = value.strip().strip('"').strip("'")
+    return data, text
+
+
+def prompt_hash(prompt):
+    if not prompt:
+        return None
+    return hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16]
+
+
+def tokenize(value):
+    return set(re.findall(r"[a-z0-9가-힣]+", value.lower()))
+
+
+def skill_records():
+    registry = load_json(REGISTRY, {"skills": {}}).get("skills", {})
+    ontology = load_json(SKILLS_JSON, {"skills": {}}).get("skills", {})
+    records = {}
+    for skill_dir in sorted(SKILLS_DIR.glob("*")) if SKILLS_DIR.exists() else []:
+        skill_md = skill_dir / "SKILL.md"
+        if not skill_md.exists():
+            continue
+        fm, text = parse_frontmatter(skill_md)
+        skill_id = fm.get("name") or skill_dir.name
+        entry = ontology.get(skill_id, {})
+        records[skill_id] = {
+            "type": "skill",
+            "id": skill_id,
+            "path": str(skill_md),
+            "description": fm.get("description", ""),
+            "default_personas": entry.get("default_personas", []),
+            "usable_personas": entry.get("usable_personas", []),
+            "runtime": entry.get("runtime") or registry.get(skill_id, {}).get("status"),
+            "search_text": " ".join(
+                [
+                    skill_id,
+                    fm.get("description", ""),
+                    entry.get("domain", ""),
+                    entry.get("capability", ""),
+                    " ".join(entry.get("default_personas", [])),
+                    " ".join(entry.get("usable_personas", [])),
+                    text[:1200],
+                ]
+            ),
+        }
+    return records
+
+
+def persona_records():
+    ontology = load_json(PERSONAS_JSON, {"personas": {}}).get("personas", {})
+    records = {}
+    for persona_id, entry in ontology.items():
+        persona_file = PERSONAS_DIR / f"{persona_id}.md"
+        text = read_text(persona_file) if persona_file.exists() else ""
+        records[persona_id] = {
+            "type": "persona",
+            "id": persona_id,
+            "path": str(persona_file) if persona_file.exists() else None,
+            "role": entry.get("role", ""),
+            "default_skills": entry.get("default_skills", []),
+            "can_use_skills": entry.get("can_use_skills", []),
+            "search_text": " ".join(
+                [
+                    persona_id,
+                    entry.get("role", ""),
+                    " ".join(entry.get("default_skills", [])),
+                    " ".join(entry.get("can_use_skills", [])),
+                    " ".join(entry.get("strengths", [])),
+                    " ".join(entry.get("avoid", [])),
+                    text[:1200],
+                ]
+            ),
+        }
+    return records
+
+
+def workflow_records(skills=None, personas=None):
+    skills = skills or skill_records()
+    personas = personas or persona_records()
+    workflows = load_json(WORKFLOWS_JSON, {"workflows": {}}).get("workflows", {})
+    routes = load_json(ROUTES_JSON, {"routes": {}}).get("routes", {})
+    route_text = {}
+    for route_id, route in routes.items():
+        workflow_id = route.get("workflow")
+        if not workflow_id:
+            continue
+        route_text.setdefault(workflow_id, []).append(
+            " ".join(
+                [
+                    route_id,
+                    route.get("intent", ""),
+                    route.get("description", ""),
+                    " ".join(route.get("triggers", [])),
+                    " ".join(route.get("keywords", [])),
+                ]
+            )
+        )
+    records = {}
+    for workflow_id, entry in workflows.items():
+        steps = []
+        search_parts = [workflow_id, entry.get("description", ""), " ".join(route_text.get(workflow_id, []))]
+        for step in entry.get("steps", []) or []:
+            skill_id = step.get("skill")
+            persona_id = step.get("persona")
+            skill = skills.get(skill_id, {}) if skill_id else {}
+            persona = personas.get(persona_id, {}) if persona_id else {}
+            steps.append(
+                {
+                    "skill": skill_id,
+                    "skill_path": skill.get("path"),
+                    "persona": persona_id,
+                    "persona_path": persona.get("path"),
+                }
+            )
+            search_parts.extend(
+                [
+                    skill_id or "",
+                    skill.get("description", ""),
+                    persona_id or "",
+                    persona.get("role", ""),
+                ]
+            )
+        records[workflow_id] = {
+            "type": "workflow",
+            "id": workflow_id,
+            "path": str(WORKFLOWS_JSON),
+            "steps": steps,
+            "search_text": " ".join(search_parts),
+        }
+    return records
+
+
+def score_records(prompt, records):
+    prompt_tokens = tokenize(prompt)
+    prompt_lower = prompt.lower()
+    scored = []
+    for record in records.values():
+        text_tokens = tokenize(record["search_text"])
+        overlap = prompt_tokens & text_tokens
+        score = len(overlap)
+        if record["id"].lower() in prompt.lower():
+            score += 8
+        if record["id"] == "skill-management" and any(
+            word in prompt_lower
+            for word in ["skill", "skills", "스킬", "persona", "personas", "페르소나", "session", "세션", "activation", "로드"]
+        ):
+            score += 6
+        if record["type"] == "persona" and any(word in prompt_lower for word in ["persona", "personas", "페르소나", "역할"]):
+            score += 3
+        if record["type"] == "workflow":
+            if any(word in prompt_lower for word in ["workflow", "workflows", "워크플로우", "파이프라인", "순서", "단계", "체이닝"]):
+                score += 5
+            if record["id"] == "idea-to-prd" and any(word in prompt_lower for word in ["prd", "기획서", "제품 기획", "아이디어", "검증"]):
+                score += 10
+            if record["id"] == "competitive-analysis" and any(word in prompt_lower for word in ["경쟁", "경쟁사", "competitor", "competitive"]):
+                score += 10
+            if record["id"] == "content-research-publish" and any(word in prompt_lower for word in ["콘텐츠", "블로그", "content", "publish"]):
+                score += 10
+        if score <= 0:
+            continue
+        scored.append((score, sorted(overlap), record))
+    scored.sort(key=lambda item: (-item[0], item[2]["id"]))
+    return scored
+
+
+def activation_packet(record, reason, prompt=None, source="session-skill-load"):
+    base = {
+        "ts": now(),
+        "event": "session_activation",
+        "activated_type": record["type"],
+        "id": record["id"],
+        "path": record.get("path"),
+        "reason": reason,
+        "source": source,
+        "prompt_hash": prompt_hash(prompt),
+    }
+    if record["type"] == "skill":
+        base.update(
+            {
+                "description": record.get("description", ""),
+                "default_personas": record.get("default_personas", []),
+                "usable_personas": record.get("usable_personas", []),
+                "runtime": record.get("runtime"),
+                "current_session_instruction": "Read this SKILL.md directly and apply it for the current request. Do not wait for native runtime skill auto-trigger refresh.",
+            }
+        )
+    elif record["type"] == "persona":
+        base.update(
+            {
+                "role": record.get("role", ""),
+                "default_skills": record.get("default_skills", []),
+                "can_use_skills": record.get("can_use_skills", []),
+                "current_session_instruction": "Load this persona text directly for the current session and pair it with the relevant skill.",
+            }
+        )
+    else:
+        base.update(
+            {
+                "steps": record.get("steps", []),
+                "current_session_instruction": "Load each step's skill and persona directly in order for the current session. Do not wait for native runtime workflow or skill auto-trigger refresh.",
+            }
+        )
+    return base
+
+
+def log_packet(packet):
+    ACTIVATIONS_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with ACTIVATIONS_LOG.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(packet, ensure_ascii=False) + "\n")
+
+
+def print_text(packets):
+    for packet in packets:
+        print(f"{packet['activated_type']}: {packet['id']}")
+        print(f"path: {packet.get('path')}")
+        if packet["activated_type"] == "skill":
+            print(f"description: {packet.get('description')}")
+            if packet.get("default_personas"):
+                print(f"default_personas: {', '.join(packet['default_personas'])}")
+        else:
+            if packet["activated_type"] == "workflow":
+                for idx, step in enumerate(packet.get("steps", []), start=1):
+                    skill = step.get("skill") or "-"
+                    persona = step.get("persona") or "-"
+                    print(f"step {idx}: {skill} + {persona}")
+                print(f"instruction: {packet['current_session_instruction']}")
+                print()
+                continue
+            print(f"role: {packet.get('role')}")
+            if packet.get("default_skills"):
+                print(f"default_skills: {', '.join(packet['default_skills'])}")
+        print(f"instruction: {packet['current_session_instruction']}")
+        print()
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Load skill/persona/workflow activation context for the current agent session.")
+    parser.add_argument("target", nargs="?", help="Skill, persona, or workflow id to activate.")
+    parser.add_argument("--prompt", default=None, help="Find matching skills/personas/workflows for this prompt.")
+    parser.add_argument("--type", choices=["auto", "skill", "persona", "workflow"], default="auto", help="Limit activation type.")
+    parser.add_argument("--limit", type=int, default=3, help="Maximum prompt matches to return.")
+    parser.add_argument("--json", action="store_true", help="Print activation packet JSON.")
+    parser.add_argument("--no-log", action="store_true", help="Do not append to session-activations.jsonl.")
+    args = parser.parse_args()
+
+    skills = skill_records()
+    personas = persona_records()
+    workflows = workflow_records(skills, personas)
+    records = {}
+    if args.type in {"auto", "skill"}:
+        records.update(skills)
+    if args.type in {"auto", "persona"}:
+        for key, value in personas.items():
+            records[key if key not in records else f"persona:{key}"] = value
+    if args.type in {"auto", "workflow"}:
+        for key, value in workflows.items():
+            records[key if key not in records else f"workflow:{key}"] = value
+
+    packets = []
+    if args.target:
+        target = args.target.strip()
+        record = skills.get(target) if args.type in {"auto", "skill"} else None
+        if record is None and args.type in {"auto", "persona"}:
+            record = personas.get(target)
+        if record is None and args.type in {"auto", "workflow"}:
+            record = workflows.get(target)
+        if record is None:
+            raise SystemExit(f"No matching skill, persona, or workflow found: {target}")
+        packets.append(activation_packet(record, "explicit-target", args.prompt))
+    elif args.prompt:
+        scored = score_records(args.prompt, records)
+        if not scored:
+            raise SystemExit("No matching skill, persona, or workflow found for prompt.")
+        for score, overlap, record in scored[: max(1, args.limit)]:
+            packets.append(activation_packet(record, f"prompt-match score={score} overlap={','.join(overlap[:8])}", args.prompt))
+    else:
+        raise SystemExit("Provide a target id or --prompt.")
+
+    if not args.no_log:
+        for packet in packets:
+            log_packet(packet)
+
+    if args.json:
+        print(json.dumps(packets[0] if len(packets) == 1 else packets, indent=2, ensure_ascii=False))
+    else:
+        print_text(packets)
+
+
+if __name__ == "__main__":
+    main()

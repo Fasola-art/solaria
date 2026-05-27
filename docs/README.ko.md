@@ -41,6 +41,7 @@ cd solaria
 ```sh
 ~/.agents/bin/create-skill my-skill \
   --description "Use when ..." \
+  --research-brief ~/.agents/research/creation-briefs/20260527-110000-my-skill.json \
   --codex \
   --resources references,scripts
 ```
@@ -50,8 +51,30 @@ cd solaria
 ```sh
 ~/.agents/bin/create-persona product-reviewer \
   --role "Product reviewer" \
-  --skills prd-create,simulate,quality-gate
+  --skills prd-create,simulate,quality-gate \
+  --research-brief ~/.agents/research/creation-briefs/20260527-110000-product-reviewer.json
 ```
+
+새 스킬, 페르소나, 워크플로우를 만들기 전에는 기존 `research` 스킬로 로컬 Solaria 상태를 먼저 조사하고 creation brief를 남깁니다. 테스트나 마이그레이션 예외만 `--skip-research-brief "<reason>"`을 사용합니다.
+
+새 워크플로우 만들기:
+
+```sh
+~/.agents/bin/create-workflow idea-to-prd-lite \
+  --step market-researcher:research \
+  --step product-strategist:prd-create \
+  --research-brief ~/.agents/research/creation-briefs/20260527-110000-idea-to-prd-lite.json
+```
+
+현재 세션에서 바로 로드하기:
+
+```sh
+~/.agents/bin/session-skill-load my-skill
+~/.agents/bin/session-skill-load idea-to-prd --type workflow
+~/.agents/bin/session-skill-load --prompt "사용자 요청"
+```
+
+Claude/Codex의 네이티브 스킬 자동 트리거는 실행 중인 대화에서 즉시 갱신되지 않을 수 있습니다. 새로 만든 스킬, 페르소나, 워크플로우는 activation packet의 경로나 step graph를 직접 읽어서 현재 세션에 적용하고, 다음 세션에서는 symlink와 registry 기반 자동 인식을 기대합니다.
 
 상태 검증:
 

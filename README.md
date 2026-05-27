@@ -16,6 +16,8 @@ Solaria solves that by making `~/.agents/skills` the shared source of truth, the
 
 - **Central skill management** for Claude, Codex, and shared local agents
 - **Persona + ontology mapping** so skills are connected to roles, routes, and workflows
+- **Research-first creation** so new skills, personas, and workflows are checked against existing local context before they are added
+- **Current-session activation** so newly created or changed skills can be loaded immediately without waiting for Claude/Codex to refresh native trigger metadata
 - **Trigger evaluation** to test when skills should and should not activate
 - **Health checks** to detect broken symlinks, duplicate skills, invalid metadata, and direct Codex local skills
 - **External source tracking** for imported skill systems like GSAP, Matt Pocock skills, and context-engineering references
@@ -58,6 +60,7 @@ bin/                 automation commands
 skills/              shared SKILL.md-based skills
 personas/            persona definitions
 ontology/            skills/personas/workflows/routes graph data
+research/            creation briefs generated before new skill/persona/workflow creation
 evals/trigger/       static and model trigger eval cases
 external-skills/     import plan and external update reports
 reports/             scenario reviews and live observations
@@ -67,11 +70,31 @@ skills-registry.json generated operational registry
 
 ## Core Workflows
 
+### Research-First Creation
+
+Solaria treats skill creation as an operational change, not a scratchpad action. Before adding a new skill, persona, or workflow, use the existing `research` skill to inspect local Solaria state:
+
+```text
+~/.agents/skills
+~/.agents/personas
+~/.agents/ontology/*.json
+~/.agents/skills-registry.json
+```
+
+Save the result as a creation brief:
+
+```text
+~/.agents/research/creation-briefs/YYYYMMDD-HHMMSS-<target-id>.json
+```
+
+The creation commands require that brief by default. For tests and migrations only, pass `--skip-research-brief "<reason>"`; the reason is recorded in activation output and ontology metadata.
+
 Create a shared skill:
 
 ```sh
 ~/.agents/bin/create-skill my-skill \
   --description "Use when ..." \
+  --research-brief ~/.agents/research/creation-briefs/20260527-110000-my-skill.json \
   --codex \
   --resources references,scripts
 ```
@@ -81,7 +104,44 @@ Create a persona:
 ```sh
 ~/.agents/bin/create-persona product-reviewer \
   --role "Product reviewer" \
-  --skills prd-create,simulate,quality-gate
+  --skills prd-create,simulate,quality-gate \
+  --research-brief ~/.agents/research/creation-briefs/20260527-110000-product-reviewer.json
+```
+
+Create a workflow:
+
+```sh
+~/.agents/bin/create-workflow idea-to-prd-lite \
+  --step market-researcher:research \
+  --step product-strategist:prd-create \
+  --research-brief ~/.agents/research/creation-briefs/20260527-110000-idea-to-prd-lite.json
+```
+
+Load a skill, persona, or workflow into the current conversation:
+
+```sh
+~/.agents/bin/session-skill-load my-skill
+~/.agents/bin/session-skill-load idea-to-prd --type workflow
+~/.agents/bin/session-skill-load --prompt "Draft a PRD and stress-test the launch risks"
+```
+
+Newly created skills are exposed to future Claude/Codex sessions through the registry and symlinks. For the current session, use the activation packet printed by `create-skill`, `create-persona`, or `session-skill-load`; the agent should read the returned file path directly instead of waiting for native auto-trigger metadata to refresh.
+
+Workflow activation returns the step graph plus each step's skill/persona paths, so a running session can execute the workflow immediately:
+
+```json
+{
+  "activated_type": "workflow",
+  "id": "idea-to-prd",
+  "steps": [
+    {
+      "skill": "research",
+      "skill_path": "~/.agents/skills/research/SKILL.md",
+      "persona": "market-researcher",
+      "persona_path": "~/.agents/personas/market-researcher.md"
+    }
+  ]
+}
 ```
 
 Validate the system:

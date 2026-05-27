@@ -24,7 +24,9 @@ Keep Claude-only skills in `~/.claude/skills` only when they depend on Claude ho
 
 Prefer the central scripts:
 
-- Create a shared skill with `~/.agents/bin/create-skill <skill-name>`.
+- Create a shared skill with `~/.agents/bin/create-skill <skill-name> --research-brief <brief.json>`.
+- Create a shared workflow with `~/.agents/bin/create-workflow <workflow-id> --step <persona>:<skill> --research-brief <brief.json>`.
+- Load a newly created or changed skill/persona/workflow into the current agent session with `~/.agents/bin/session-skill-load <id>` or `~/.agents/bin/session-skill-load --prompt "<request>"`.
 - Validate skill structure with `~/.agents/bin/skill-health-check`.
 - Validate trigger eval references with `~/.agents/bin/trigger-eval`.
 - Log manual usage events with `~/.agents/bin/skill-usage-log`.
@@ -50,10 +52,40 @@ Treat a skill as a capability entity. Treat a persona as the role, judgment crit
 ## Safe Change Workflow
 
 1. Run `~/.agents/bin/skill-health-check --json` to capture current state.
-2. If moving or replacing existing skills, create a backup under `~/.agents/migration-backups/<timestamp>/`.
-3. Compare duplicates before merging. Never overwrite a skill with the same `name` without reading both `SKILL.md` files and checking resources.
-4. Keep `SKILL.md` concise. Move detailed, conditional, or long material into `references/`.
-5. Re-run `~/.agents/bin/skill-health-check` after changes.
+2. Use the existing `research` skill before creating a new skill, persona, or workflow. Research local Solaria state first: `~/.agents/skills`, `~/.agents/personas`, `~/.agents/ontology/*.json`, and `~/.agents/skills-registry.json`.
+3. Store the creation brief under `~/.agents/research/creation-briefs/YYYYMMDD-HHMMSS-<target-id>.json`.
+4. If a duplicate or near-duplicate exists, improve the existing item instead of creating a new one.
+5. If moving or replacing existing skills, create a backup under `~/.agents/migration-backups/<timestamp>/`.
+6. Compare duplicates before merging. Never overwrite a skill with the same `name` without reading both `SKILL.md` files and checking resources.
+7. Keep `SKILL.md` concise. Move detailed, conditional, or long material into `references/`.
+8. Re-run `~/.agents/bin/skill-health-check` after changes.
+
+## Research-First Creation
+
+New skill, persona, or workflow creation must start with the existing `research` skill. Do not invent a separate research engine for creation.
+
+The research output must produce a creation brief with these fields: `intent`, `candidate_type`, `target_id`, `existing_matches`, `decision`, `recommended_description`, `recommended_triggers`, `recommended_personas`, `recommended_workflows`, and `reasoning`.
+
+Use the brief when creating:
+
+- `~/.agents/bin/create-skill <id> --description "<description>" --research-brief <brief.json>`
+- `~/.agents/bin/create-persona <id> --role "<role>" --research-brief <brief.json>`
+- `~/.agents/bin/create-workflow <id> --step <persona>:<skill> --research-brief <brief.json>`
+
+The creation CLIs reject missing briefs by default. Use `--skip-research-brief "<reason>"` only for test fixtures and migrations; the reason is recorded in the activation packet and ontology.
+
+## Current Session Activation
+
+Claude and Codex may not refresh native skill trigger metadata inside an already-running conversation. Treat native auto-trigger reliability as a next-session feature.
+
+When a skill, persona, or workflow is created or changed during the current session:
+
+1. Use the activation packet printed by `create-skill`, `create-persona`, or the gap resolver.
+2. If no packet is available, run `~/.agents/bin/session-skill-load <skill-persona-or-workflow-id>` or `~/.agents/bin/session-skill-load --prompt "<current user request>"`.
+3. Read the returned `SKILL.md`, persona file, or workflow step graph directly.
+4. Apply the loaded instruction for the current request without waiting for Claude/Codex native skill auto-trigger refresh.
+
+Activation events are appended to `~/.agents/runtime/session-activations.jsonl`. These events are separate from normal usage logs; use `skill-usage-log` when the completed work should also count as skill/persona usage.
 
 ## Enforcement and Logs
 
@@ -64,6 +96,8 @@ Codex has the same hook configured, but live `codex exec` observation on 2026-05
 Claude uses `~/.agents/bin/skill-change-log` as a PostToolUse hook to append skill file changes to `~/.agents/runtime/skill-changes.jsonl`.
 
 Use `~/.agents/bin/skill-usage-log --skill <id> --persona <id> --workflow <id> --route <id>` when a workflow should be explicitly recorded outside automatic runtime logs.
+
+Use `~/.agents/bin/session-skill-load --prompt "<request>"` when the active conversation needs skill/persona/workflow context that may have been created after session start.
 
 Run `~/.agents/bin/sync-skill-usage` after meaningful sessions to update `usage_count` and `last_used` fields in `skills.json`, `personas.json`, `workflows.json`, and `routes.json`.
 
