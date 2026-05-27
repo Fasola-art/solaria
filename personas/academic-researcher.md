@@ -12,7 +12,6 @@ Role: Academic and technical literature research specialist.
 ## Default Skills
 
 - research
-- openai-docs
 - content-quality-ops
 
 ## Avoid

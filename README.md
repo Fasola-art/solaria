@@ -1,20 +1,57 @@
 # Solaria
 
-Shared Claude/Codex skill management system centered on `~/.agents/skills`.
+**A skill operations layer for Claude, Codex, and local AI workflows.**
 
-Solaria is a shared skill operations layer for Claude, Codex, personas, ontology, trigger evaluation, and runtime governance. The name frames skills as small suns in an agent operating system: each capability has its own orbit, and Solaria keeps the system mapped, routed, and healthy.
+[한국어 문서](docs/README.ko.md) · [Operations](docs/operations.md) · [Config snippets](docs/config-snippets.md)
 
-This repository captures the current implementation for:
+Solaria gives AI power users one place to create, route, validate, and govern reusable agent skills. If your Claude and Codex setups have started to grow into separate folders, duplicate instructions, one-off personas, and fragile local rules, Solaria turns that sprawl into an operating layer.
 
-- Central skill source of truth under `skills/`
-- Claude/Codex exposure rules
-- Skill registry and ontology metadata
-- Persona, route, and workflow relationships
-- Trigger evaluation cases and model eval tooling
-- External skill source tracking
-- Health checks and post-run enforcement
+Think of each skill as a small sun. Personas, workflows, routes, and evaluations orbit around it. Solaria keeps that system mapped, connected, and healthy.
 
-## Layout
+## Why Solaria
+
+AI skills are easy to create and hard to maintain. The first few are helpful. The next few become hard to trigger reliably. Eventually every runtime has its own copy, every workflow has a slightly different rule, and no one remembers which persona, route, or validation case belongs to what.
+
+Solaria solves that by making `~/.agents/skills` the shared source of truth, then layering practical operations around it:
+
+- **Central skill management** for Claude, Codex, and shared local agents
+- **Persona + ontology mapping** so skills are connected to roles, routes, and workflows
+- **Trigger evaluation** to test when skills should and should not activate
+- **Health checks** to detect broken symlinks, duplicate skills, invalid metadata, and direct Codex local skills
+- **External source tracking** for imported skill systems like GSAP, Matt Pocock skills, and context-engineering references
+- **Runtime governance** with hooks where supported and post-run detection where hooks are not enough
+
+## Quick Start
+
+Clone the repository:
+
+```sh
+git clone https://github.com/mane23-ai/solaria.git
+cd solaria
+```
+
+Preview the install:
+
+```sh
+./install.sh --dry-run
+```
+
+Install into `~/.agents`:
+
+```sh
+./install.sh
+```
+
+Validate:
+
+```sh
+~/.agents/bin/skill-health-check --write
+~/.agents/bin/trigger-eval
+```
+
+The installer backs up an existing `~/.agents` directory before copying Solaria files. It also links `skill-management` into Claude and Codex unless you opt out.
+
+## What You Get
 
 ```text
 bin/                 automation commands
@@ -28,58 +65,82 @@ docs/                installation and config notes
 skills-registry.json generated operational registry
 ```
 
-## Install Locally
+## Core Workflows
 
-Use this repo as the source for `~/.agents`:
+Create a shared skill:
 
 ```sh
-mkdir -p ~/.agents
-rsync -a --delete \
-  --exclude '.git/' \
-  --exclude 'docs/' \
-  ./bin ./skills ./personas ./ontology ./evals ./external-skills ./reports ./skills-registry.json \
-  ~/.agents/
+~/.agents/bin/create-skill my-skill \
+  --description "Use when ..." \
+  --codex \
+  --resources references,scripts
 ```
 
-Then expose shared skills through runtime symlinks as needed:
+Create a persona:
 
 ```sh
-ln -sfn ../../.agents/skills/skill-management ~/.claude/skills/skill-management
-ln -sfn ../../.agents/skills/skill-management ~/.codex/skills/skill-management
+~/.agents/bin/create-persona product-reviewer \
+  --role "Product reviewer" \
+  --skills prd-create,simulate,quality-gate
 ```
 
-## Core Commands
+Validate the system:
 
 ```sh
-~/.agents/bin/create-skill <name> --codex --resources references,scripts
-~/.agents/bin/create-persona <id> --role "Role name" --skills research,quality-gate
 ~/.agents/bin/skill-health-check --write
 ~/.agents/bin/trigger-eval
-~/.agents/bin/model-trigger-eval --limit 3
-~/.agents/bin/model-trigger-eval --case research-current-market --run
 ~/.agents/bin/validate-skill-scripts
 ~/.agents/bin/check-reference-toc --min-lines 100
-~/.agents/bin/check-external-skill-updates --report
-~/.agents/bin/skill-usage-log --skill research --persona fact-checker
+```
+
+Run model-based trigger evaluation:
+
+```sh
+~/.agents/bin/model-trigger-eval --limit 3
+~/.agents/bin/model-trigger-eval --case research-current-market --run
+```
+
+Record usage:
+
+```sh
+~/.agents/bin/skill-usage-log \
+  --skill research \
+  --persona fact-checker \
+  --route analyze-competitors
+
 ~/.agents/bin/sync-skill-usage
 ```
 
-## Current Status
+## Claude And Codex
 
-Latest local validation before packaging:
+Solaria exposes shared skills through symlinks:
+
+```sh
+~/.claude/skills/skill-management -> ~/.agents/skills/skill-management
+~/.codex/skills/skill-management  -> ~/.agents/skills/skill-management
+```
+
+Claude hook enforcement can be wired to block direct runtime skill edits.
+
+Codex hook enforcement is currently best effort. A live observation on 2026-05-27 showed that `codex exec` with `apply_patch` can create a direct local skill under `~/.codex/skills` without invoking the configured guard. For Codex, Solaria relies on:
+
+1. Rules that instruct skills to be created under `~/.agents/skills`.
+2. Hook config where supported.
+3. Mandatory post-run `skill-health-check --write` to detect direct local Codex skills.
+
+See [Config snippets](docs/config-snippets.md) for local setup details.
+
+## Current Snapshot
+
+Fresh install validation in an isolated `$HOME`:
+
+- `skill-health-check --write`: `skills: 63`, `errors: 0`, `warnings: 0`
+- `trigger-eval`: `cases: 16`, `errors: 0`
+
+Latest development-machine validation before packaging, including local Claude/Codex runtime skills:
 
 - `skill-health-check --write`: `skills: 104`, `errors: 0`, `warnings: 0`
 - `trigger-eval`: `cases: 16`, `errors: 0`
 - Codex strict config doctor: `13 ok | 1 idle | 0 warn | 0 fail`
 
-See `reports/` for scenario review and live Codex hook observation.
-
-## Enforcement Notes
-
-Claude hook enforcement is configured through Claude rules/hooks.
-
-Codex hook enforcement is currently best effort. Live observation on 2026-05-27 showed that `codex exec` with `apply_patch` can create a direct local skill under `~/.codex/skills` without invoking the configured guard. For Codex, rely on:
-
-1. Rules that instruct skills to be created under `~/.agents/skills`.
-2. Hook config where supported.
-3. Mandatory post-run `skill-health-check --write` to detect direct local Codex skills.
+See [scenario review](reports/2026-05-27-skill-system-scenario-review.md) and [Codex live hook observation](reports/2026-05-27-codex-live-hook-observation.md).

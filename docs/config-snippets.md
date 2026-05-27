@@ -2,6 +2,15 @@
 
 These are minimal snippets for wiring the shared skill system into local Claude/Codex configuration. They are intentionally not full user config files.
 
+The recommended path is to run the installer first:
+
+```sh
+./install.sh --dry-run
+./install.sh
+```
+
+Use the snippets below only when wiring runtimes manually.
+
 ## Claude
 
 Add an import to `~/.claude/CLAUDE.md`:
@@ -48,4 +57,3 @@ codex --strict-config doctor --summary --ascii
 ```
 
 Current Codex limitation: live `codex exec` observation showed that `apply_patch` may bypass hook enforcement. Run `~/.agents/bin/skill-health-check --write` after Codex skill work.
-

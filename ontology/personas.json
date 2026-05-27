@@ -112,12 +112,10 @@
       "role": "Academic and technical literature research specialist",
       "default_skills": [
         "research",
-        "openai-docs",
         "content-quality-ops"
       ],
       "can_use_skills": [
         "research",
-        "openai-docs",
         "content-quality-ops",
         "quality-gate"
       ],

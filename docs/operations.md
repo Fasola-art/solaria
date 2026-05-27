@@ -1,18 +1,52 @@
 # Operations
 
-## Add A Shared Skill
+This guide shows the daily workflows Solaria is meant to support after installation.
+
+## Install Or Update Solaria
+
+Preview changes:
 
 ```sh
-~/.agents/bin/create-skill my-skill --description "Use when ..." --codex --resources references,scripts
+./install.sh --dry-run
 ```
 
-Then edit:
+Install with backup:
+
+```sh
+./install.sh
+```
+
+Install without creating Claude/Codex symlinks:
+
+```sh
+./install.sh --no-claude --no-codex
+```
+
+After install:
+
+```sh
+~/.agents/bin/skill-health-check --write
+~/.agents/bin/trigger-eval
+```
+
+## Create A Shared Skill
+
+Create the central skill and expose it to Codex:
+
+```sh
+~/.agents/bin/create-skill my-skill \
+  --description "Use when the user needs ..." \
+  --codex \
+  --resources references,scripts
+```
+
+Edit only the central source:
 
 ```text
 ~/.agents/skills/my-skill/SKILL.md
 ```
 
-Run:
+Then validate:
 
 ```sh
 ~/.agents/bin/skill-health-check --write
@@ -22,7 +56,37 @@ Run:
 ## Add A Persona
 
 ```sh
-~/.agents/bin/create-persona product-reviewer --role "Product reviewer" --skills prd-create,simulate,quality-gate
+~/.agents/bin/create-persona product-reviewer \
+  --role "Product reviewer" \
+  --skills prd-create,simulate,quality-gate
+```
+
+Personas are execution perspectives, not tone presets. Connect them to skills through ontology and trigger eval cases when they should be selected repeatedly.
+
+## Add Trigger Eval Coverage
+
+Edit:
+
+```text
+~/.agents/evals/trigger/core-cases.json
+```
+
+Validate references:
+
+```sh
+~/.agents/bin/trigger-eval
+```
+
+Preview model eval prompts:
+
+```sh
+~/.agents/bin/model-trigger-eval --limit 3
+```
+
+Run one model eval case:
+
+```sh
+~/.agents/bin/model-trigger-eval --case research-current-market --run
 ```
 
 ## Record Usage
@@ -37,31 +101,23 @@ Run:
 ~/.agents/bin/sync-skill-usage
 ```
 
+This updates usage metadata in ontology files such as `last_used` and `usage_count`.
+
 ## Check External Sources
 
 ```sh
 ~/.agents/bin/check-external-skill-updates --report
 ```
 
-Review reports before importing changes. Do not blindly pull external skill repos into the runtime path.
+Review generated reports before importing changes. Do not directly pull external repositories into Claude or Codex runtime skill paths.
 
-## Trigger Eval
+## Codex Safety Loop
 
-Static validation:
-
-```sh
-~/.agents/bin/trigger-eval
-```
-
-Model-based dry-run:
+Codex hook enforcement is currently best effort. After any Codex session that creates or edits skills, run:
 
 ```sh
-~/.agents/bin/model-trigger-eval --limit 3
+~/.agents/bin/skill-health-check --write
 ```
 
-Model-based execution:
-
-```sh
-~/.agents/bin/model-trigger-eval --case research-current-market --run
-```
+If it reports `codex-direct-local-skill`, move that skill into `~/.agents/skills` and expose it with a symlink.
 

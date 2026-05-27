@@ -66,7 +66,7 @@
       "id": "sheet-append",
       "query": "이 고객 응답 내용을 구글 시트에 한 행으로 추가해줘",
       "should_trigger": ["gws-sheets-append"],
-      "should_not_trigger": ["gws-sheets-read", "research"],
+      "should_not_trigger": ["gws-calendar-insert", "research"],
       "personas": []
     },
     {
